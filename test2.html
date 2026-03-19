@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>저장 테스트</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #0d0f14; color: #e8ecf5; padding: 24px; margin: 0; }
+  h2 { color: #4f9cf9; }
+  .btn { padding: 12px 24px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin: 6px 0; display: block; width: 100%; max-width: 400px; }
+  .btn-green { background: #34d399; color: #000; }
+  .btn-blue  { background: #4f9cf9; color: #fff; }
+  .log { background: #161923; border: 1px solid #2a3147; border-radius: 8px; padding: 16px; margin-top: 16px; font-size: 13px; font-family: monospace; line-height: 1.9; min-height: 80px; white-space: pre-wrap; word-break: break-all; }
+  .ok  { color: #34d399; } .err { color: #f87171; } .inf { color: #fbbf24; }
+</style>
+</head>
+<body>
+<h2>🔌 저장 기능 테스트</h2>
+<p style="color:#8b95b0;font-size:13px;">이 페이지를 <b>GitHub Pages URL</b>로 열어서 테스트하세요</p>
+
+<button class="btn btn-green" onclick="testGet()">① GET 연결 확인</button>
+<button class="btn btn-blue"  onclick="testPost()">② POST 저장 테스트 (2행 상담내용 수정)</button>
+
+<div class="log" id="log">버튼을 눌러주세요...</div>
+
+<script>
+var URL = "https://script.google.com/macros/s/AKfycbxTiJ8j13uUoUlMHtx27mbdxK-BokV-inImTKYloGGKg2h6bcX2HkaTOGyZYbN2I1yw5A/exec";
+
+function log(msg, cls) {
+  var el = document.getElementById('log');
+  var d = document.createElement('div');
+  d.className = cls||''; d.textContent = new Date().toLocaleTimeString('ko-KR') + '  ' + msg;
+  el.appendChild(d); el.scrollTop = el.scrollHeight;
+}
+function clearLog(){ document.getElementById('log').innerHTML=''; }
+
+async function testGet(){
+  clearLog(); log('GET 요청 중...','inf');
+  try {
+    var r = await fetch(URL);
+    log('상태: ' + r.status, r.ok?'ok':'err');
+    var t = await r.text(); log('응답: ' + t, 'ok');
+  } catch(e) { log('❌ ' + e.message, 'err'); }
+}
+
+async function testPost(){
+  clearLog(); log('POST 요청 중...','inf');
+  var body = JSON.stringify({
+    action:'update', rowIndex:2,
+    values:{'상담 내용':'[테스트 ' + new Date().toLocaleTimeString('ko-KR') + ']'}
+  });
+  log('전송: ' + body, 'inf');
+  try {
+    var r = await fetch(URL, { method:'POST', body:body });
+    log('상태: ' + r.status, r.ok?'ok':'err');
+    var t = await r.text(); log('응답: ' + t, '');
+    var j = JSON.parse(t);
+    log(j.success ? '✅ 성공: '+j.message : '❌ 실패: '+j.message, j.success?'ok':'err');
+  } catch(e) { log('❌ ' + e.message, 'err'); }
+}
+</script>
+</body>
+</html>
