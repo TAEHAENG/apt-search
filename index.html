@@ -4,37 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>APT 매물 조회</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
+<style>@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
 :root{--bg:#0d0f14;--surface:#161923;--surface2:#1e2433;--border:#2a3147;--accent:#4f9cf9;--text:#e8ecf5;--text2:#8b95b0;--text3:#5a637a;--green:#34d399;--yellow:#fbbf24;--red:#f87171;--purple:#a78bfa;--orange:#f97316;}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-/* 비밀번호 */
+/* 비번 */
 .pw-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;}
 .pw-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px 32px;width:320px;max-width:90vw;text-align:center;}
-.pw-logo{font-size:32px;margin-bottom:12px;}
-.pw-title{font-size:18px;font-weight:700;margin-bottom:6px;}
-.pw-sub{font-size:13px;color:var(--text3);margin-bottom:24px;}
+.pw-logo{font-size:32px;margin-bottom:12px;}.pw-title{font-size:18px;font-weight:700;margin-bottom:6px;}.pw-sub{font-size:13px;color:var(--text3);margin-bottom:24px;}
 .pw-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-size:18px;outline:none;text-align:center;letter-spacing:6px;font-family:'DM Mono',monospace;box-sizing:border-box;}
 .pw-input:focus{border-color:var(--accent);}
-.pw-btn{width:100%;margin-top:12px;padding:12px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;}
+.pw-btn{width:100%;margin-top:12px;padding:12px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
 .pw-err{color:var(--red);font-size:13px;margin-top:10px;min-height:20px;}
 /* 헤더 */
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
-header h1{font-size:16px;font-weight:700;color:var(--accent);}
-.header-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
-.sync-btn{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text2);padding:5px 10px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'Noto Sans KR',sans-serif;}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:100;}
+header h1{font-size:15px;font-weight:700;color:var(--accent);white-space:nowrap;}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;}
+.hdr-btn{border-radius:6px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:3px;}
+.hdr-btn-msg{background:rgba(251,191,36,0.12);border:1.5px solid rgba(251,191,36,0.35);color:var(--yellow);}
+.hdr-btn-sheet{background:rgba(52,211,153,0.12);border:1.5px solid rgba(52,211,153,0.35);color:var(--green);}
+.hdr-btn-add{background:rgba(79,156,249,0.12);border:1.5px solid rgba(79,156,249,0.35);color:var(--accent);}
+.sync-btn{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text2);padding:5px 9px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:3px;}
 .sync-btn.loading{color:var(--accent);border-color:var(--accent);}
-@keyframes spin{to{transform:rotate(360deg);}}
-.spin{display:inline-block;animation:spin 0.8s linear infinite;}
-.total-badge{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--text2);font-family:'DM Mono',monospace;white-space:nowrap;}
+@keyframes spin{to{transform:rotate(360deg);}} .spin{display:inline-block;animation:spin 0.8s linear infinite;}
+.total-badge{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px 9px;font-size:11px;color:var(--text2);font-family:'DM Mono',monospace;white-space:nowrap;}
 .total-badge span{color:var(--accent);font-weight:500;}
 /* 필터 */
-.filter-panel{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
-.filter-row{display:flex;flex-direction:column;gap:6px;}
+.filter-panel{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+.filter-row{display:flex;flex-direction:column;gap:5px;}
 .filter-row-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;}
-.btn-group{display:flex;flex-wrap:wrap;gap:6px;}
-.sel-btn{flex-shrink:0;padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text2);font-size:13px;font-family:'Noto Sans KR',sans-serif;font-weight:500;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.btn-group{display:flex;flex-wrap:wrap;gap:5px;}
+.sel-btn{flex-shrink:0;padding:6px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text2);font-size:13px;font-family:'Noto Sans KR',sans-serif;font-weight:500;cursor:pointer;transition:all 0.12s;white-space:nowrap;}
 .sel-btn:active{transform:scale(0.96);}
 .sel-btn.type-mae{border-color:rgba(79,156,249,0.4);}.sel-btn.type-mae.active{background:rgba(79,156,249,0.2);border-color:#4f9cf9;color:#4f9cf9;}
 .sel-btn.type-jun{border-color:rgba(52,211,153,0.4);}.sel-btn.type-jun.active{background:rgba(52,211,153,0.2);border-color:#34d399;color:#34d399;}
@@ -45,50 +45,46 @@ header h1{font-size:16px;font-weight:700;color:var(--accent);}
 .sel-btn.proc-propose.active{background:rgba(249,115,22,0.15);border-color:#f97316;color:#f97316;}
 .sel-btn.proc-latent.active{background:rgba(167,139,250,0.15);border-color:#a78bfa;color:#a78bfa;}
 .filter-divider{height:1px;background:var(--border);}
+.bld-divider{width:100%;height:1px;background:var(--border);margin:2px 0;}
 .search-row{display:flex;gap:8px;align-items:center;}
-.search-input-wrap{flex:1;position:relative;}
+.search-wrap{flex:1;position:relative;}
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none;}
 .search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 10px 9px 32px;color:var(--text);font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;}
 .search-input:focus{border-color:var(--accent);}
 .search-input::placeholder{color:var(--text3);}
-.reset-btn{flex-shrink:0;padding:9px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);font-size:13px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap;}
+.reset-btn{flex-shrink:0;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);font-size:13px;cursor:pointer;white-space:nowrap;}
 /* 결과바 */
-.result-bar{padding:8px 16px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text3);border-bottom:1px solid var(--border);background:var(--bg);}
+.result-bar{padding:7px 14px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text3);border-bottom:1px solid var(--border);}
 .result-bar b{color:var(--accent);}
 /* 카드 */
-.card-list{padding:8px 12px;display:flex;flex-direction:column;gap:8px;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 14px 26px;cursor:pointer;position:relative;}
+.card-list{padding:8px 10px;display:flex;flex-direction:column;gap:7px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 13px 24px;cursor:pointer;position:relative;}
 .card:active{background:var(--surface2);}
-.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:7px;}
 .card-address{font-size:15px;font-weight:700;}.card-building{font-size:12px;color:var(--text3);margin-top:2px;}
 .card-badges{display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;}
-.card-mid{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
-.card-price{font-size:16px;font-weight:700;color:var(--accent);font-family:'DM Mono',monospace;}
+.card-mid{display:flex;align-items:center;gap:10px;margin-bottom:7px;flex-wrap:wrap;}
+.card-price{font-size:15px;font-weight:700;color:var(--accent);font-family:'DM Mono',monospace;}
 .card-meta{font-size:12px;color:var(--text3);}
-.card-phones{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
-.phone-link{color:var(--green);text-decoration:none;font-family:'DM Mono',monospace;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:3px;padding:4px 10px;background:rgba(52,211,153,0.1);border-radius:6px;border:1px solid rgba(52,211,153,0.25);}
+.card-phones{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;}
+.phone-link{color:var(--green);text-decoration:none;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;display:inline-flex;align-items:center;gap:2px;padding:3px 8px;background:rgba(52,211,153,0.1);border-radius:6px;border:1px solid rgba(52,211,153,0.25);}
 .card-memo{font-size:12px;color:var(--text3);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.card-date{position:absolute;bottom:8px;right:14px;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;}
+.card-date{position:absolute;bottom:7px;right:12px;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;}
 /* 테이블 */
 .table-wrap{display:none;overflow:auto;}
-@media(min-width:900px){.card-list{display:none;}.table-wrap{display:block;height:calc(100vh - 380px);}}
+@media(min-width:900px){.card-list{display:none;}.table-wrap{display:block;height:calc(100vh - 340px);}}
 table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed;}
 thead{position:sticky;top:0;z-index:10;}
-thead th{background:var(--surface2);border-bottom:2px solid var(--border);border-right:1px solid var(--border);padding:10px 12px;text-align:left;font-weight:600;font-size:11px;color:var(--text2);white-space:nowrap;cursor:pointer;user-select:none;}
+thead th{background:var(--surface2);border-bottom:2px solid var(--border);border-right:1px solid var(--border);padding:9px 11px;text-align:left;font-weight:600;font-size:11px;color:var(--text2);white-space:nowrap;cursor:pointer;user-select:none;}
 thead th.sorted{color:var(--accent);}
 tbody tr{border-bottom:1px solid var(--border);cursor:pointer;}
 tbody tr:hover{background:var(--surface2);}
-tbody td{padding:9px 12px;border-right:1px solid rgba(42,49,71,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}
-.col-date{width:88px}.col-type{width:62px}.col-building{width:90px}.col-dong{width:55px}.col-ho{width:50px}.col-typev{width:62px}.col-owner{width:150px}.col-price{width:85px}.col-process{width:115px}.col-room{width:40px}.col-contract{width:82px}.col-area{width:65px}.col-memo{width:200px}
+tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}
+.col-date{width:86px}.col-type{width:60px}.col-building{width:88px}.col-dong{width:52px}.col-ho{width:48px}.col-typev{width:60px}.col-owner{width:148px}.col-price{width:84px}.col-process{width:112px}.col-room{width:38px}.col-contract{width:80px}.col-area{width:64px}.col-memo{width:200px}
 /* 뱃지 */
-.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap;}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap;}
 .badge-mae{background:rgba(79,156,249,0.15);color:#4f9cf9;}.badge-jun{background:rgba(52,211,153,0.15);color:#34d399;}.badge-wol{background:rgba(251,191,36,0.15);color:#fbbf24;}.badge-mix{background:rgba(167,139,250,0.15);color:#a78bfa;}
 .proc-done{background:rgba(52,211,153,0.15);color:#34d399;}.proc-cont{background:rgba(79,156,249,0.15);color:#4f9cf9;}.proc-hold{background:rgba(91,105,128,0.25);color:#8b95b0;}.proc-ord{background:rgba(251,191,36,0.15);color:#fbbf24;}.proc-wait{background:rgba(167,139,250,0.15);color:#a78bfa;}.proc-pay{background:rgba(52,211,153,0.2);color:#34d399;}.proc-other{background:rgba(248,113,113,0.15);color:#f87171;}.proc-prop{background:rgba(249,115,22,0.15);color:#f97316;}
-/* 페이지네이션 */
-.pagination{display:flex;align-items:center;justify-content:center;gap:4px;padding:12px 16px;border-top:1px solid var(--border);background:var(--surface);flex-wrap:wrap;}
-.page-btn{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text2);padding:7px 12px;font-size:13px;cursor:pointer;font-family:'DM Mono',monospace;min-width:36px;text-align:center;}
-.page-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}.page-btn:disabled{opacity:0.3;cursor:not-allowed;}
-.page-info{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;padding:0 4px;}
 /* 상세 패널 */
 .detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:flex-end;justify-content:center;}
 .detail-overlay.open{display:flex;}
@@ -96,47 +92,48 @@ tbody td{padding:9px 12px;border-right:1px solid rgba(42,49,71,0.5);white-space:
 @keyframes slideUp{from{transform:translateY(80px);opacity:0;}to{transform:translateY(0);opacity:1;}}
 .detail-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;width:100%;max-height:90vh;overflow-y:auto;animation:slideUp 0.22s ease;}
 .detail-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0;}
-.detail-header{padding:14px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:sticky;top:0;background:var(--surface);z-index:1;}
-.detail-title{font-size:17px;font-weight:700;}.detail-subtitle{font-size:12px;color:var(--text2);margin-top:3px;}
+.detail-header{padding:13px 18px 11px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;position:sticky;top:0;background:var(--surface);z-index:1;}
+.detail-title{font-size:16px;font-weight:700;}.detail-subtitle{font-size:12px;color:var(--text2);margin-top:3px;}
 .detail-close{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text2);padding:5px 10px;cursor:pointer;font-size:15px;flex-shrink:0;}
-.detail-body{padding:16px 20px;}
-.detail-phones{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;padding:12px;background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.18);border-radius:8px;}
-.detail-section{margin-bottom:18px;}.detail-section-title{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
-.detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.detail-body{padding:14px 18px;}
+.detail-phones{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;padding:11px;background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.18);border-radius:8px;}
+.vcf-btn{background:rgba(79,156,249,0.12);border:1px solid rgba(79,156,249,0.3);border-radius:6px;color:#4f9cf9;font-size:11px;padding:3px 8px;cursor:pointer;margin-left:2px;}
+.detail-section{margin-bottom:16px;}.detail-section-title{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;}
 @media(min-width:480px){.detail-grid{grid-template-columns:repeat(3,1fr);}}
-.detail-item{display:flex;flex-direction:column;gap:3px;}.di-label{font-size:10px;color:var(--text3);font-weight:500;}.di-value{font-size:13px;color:var(--text);word-break:break-all;}.di-value.hl{color:var(--accent);font-weight:700;font-size:16px;}
-.memo-box{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:13px;color:var(--text2);line-height:1.7;white-space:pre-wrap;word-break:break-all;}
+.detail-item{display:flex;flex-direction:column;gap:3px;}.di-label{font-size:10px;color:var(--text3);font-weight:500;}.di-value{font-size:13px;color:var(--text);word-break:break-all;}.di-value.hl{color:var(--accent);font-weight:700;font-size:15px;}
+.memo-box{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:11px;font-size:13px;color:var(--text2);line-height:1.7;white-space:pre-wrap;word-break:break-all;}
 /* 수정폼 */
-.edit-form{display:none;padding:16px 20px;border-top:1px solid var(--border);}
-.edit-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;}
-.edit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;}
-.ef-group{display:flex;flex-direction:column;gap:4px;}
+.edit-form{display:none;padding:14px 18px;border-top:1px solid var(--border);}
+.edit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:10px;}
+.ef-group{display:flex;flex-direction:column;gap:3px;}
 .ef-label{font-size:10px;color:var(--text3);}
-.ef-input,.ef-select{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:9px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;width:100%;-webkit-appearance:none;}
+.ef-input,.ef-select{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;width:100%;-webkit-appearance:none;}
 .ef-input:focus,.ef-select:focus{border-color:var(--accent);}
-.ef-textarea{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:9px 8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;width:100%;resize:vertical;line-height:1.6;}
-.ef-textarea:focus{border-color:var(--accent);}
+.ef-textarea{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;width:100%;resize:vertical;line-height:1.6;}
 .ef-actions{display:flex;gap:8px;margin-top:4px;}
-.ef-save{flex:1;padding:12px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;}
-.ef-cancel{padding:12px 18px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:14px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;}
+.ef-save{flex:1;padding:11px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;}
+.ef-cancel{padding:11px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:14px;cursor:pointer;}
 /* 토스트 */
-#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e2433;border:1px solid #34d399;color:#e8ecf5;padding:10px 18px;border-radius:10px;font-size:13px;z-index:9999;text-align:center;line-height:1.5;white-space:pre-line;box-shadow:0 4px 20px rgba(0,0,0,0.5);pointer-events:none;transition:opacity 0.3s;opacity:0;min-width:200px;max-width:80vw;}
+#toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#1e2433;border:1px solid #34d399;color:#e8ecf5;padding:9px 16px;border-radius:10px;font-size:13px;z-index:9999;text-align:center;line-height:1.5;white-space:pre-line;box-shadow:0 4px 20px rgba(0,0,0,0.5);pointer-events:none;transition:opacity 0.3s;opacity:0;min-width:180px;max-width:80vw;}
 #toast.show{opacity:1;}
-/* 새 매물 모달 */
-.add-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:flex-end;justify-content:center;}
-.add-modal.open{display:flex;}
-.add-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;width:100%;max-height:90vh;overflow-y:auto;animation:slideUp 0.22s ease;}
-@media(min-width:600px){.add-modal{align-items:center;}.add-panel{border-radius:12px;max-width:680px;width:95vw;max-height:85vh;}}
+/* 모달 공통 */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+@media(min-width:600px){.modal-overlay{align-items:center;}.modal-panel{border-radius:12px!important;max-width:680px;width:95vw;max-height:85vh!important;}}
+.modal-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;width:100%;max-height:90vh;overflow-y:auto;animation:slideUp 0.22s ease;}
+.modal-header{padding:13px 18px 11px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-body{padding:14px 18px;}
 /* 로딩 */
 .loading-overlay{display:none;position:fixed;inset:0;background:rgba(13,15,20,0.92);z-index:300;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
-.loading-overlay.show{display:flex;}.loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}.loading-text{font-size:13px;color:var(--text2);}
-.empty-state{text-align:center;padding:60px 24px;color:var(--text3);}.empty-icon{font-size:36px;margin-bottom:10px;}
+.loading-overlay.show{display:flex;}.loading-spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}.loading-text{font-size:13px;color:var(--text2);}
+.empty-state{text-align:center;padding:50px 24px;color:var(--text3);}.empty-icon{font-size:34px;margin-bottom:10px;}
 </style>
 </head>
 <body>
 
-<!-- 데이터 -->
-<textarea id="D" style="display:none"></textarea>
+<div id="toast"></div>
 
 <!-- 비밀번호 -->
 <div class="pw-overlay" id="pwOverlay">
@@ -144,8 +141,7 @@ tbody td{padding:9px 12px;border-right:1px solid rgba(42,49,71,0.5);white-space:
     <div class="pw-logo">🏢</div>
     <div class="pw-title">APT 매물 조회</div>
     <div class="pw-sub">비밀번호를 입력하세요</div>
-    <input class="pw-input" id="pwInput" type="password" placeholder="••••••" maxlength="20"
-      onkeydown="if(event.key==='Enter')checkPw()">
+    <input class="pw-input" id="pwInput" type="password" placeholder="••••••" maxlength="20" onkeydown="if(event.key==='Enter')checkPw()">
     <button class="pw-btn" onclick="checkPw()">확인</button>
     <div class="pw-err" id="pwErr"></div>
   </div>
@@ -157,17 +153,14 @@ tbody td{padding:9px 12px;border-right:1px solid rgba(42,49,71,0.5);white-space:
   <div class="loading-text" id="LT">데이터 로딩 중...</div>
 </div>
 
-<!-- 토스트 -->
-<div id="toast"></div>
-
 <!-- 헤더 -->
 <header>
-  <h1>🏢 APT 매물 조회</h1>
+  <h1>🏢 APT</h1>
   <div class="header-right">
-    <button onclick="openMsgModal()" style="background:rgba(251,191,36,0.12);border:1.5px solid rgba(251,191,36,0.35);border-radius:6px;color:var(--yellow);padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;">💬 안내문구</button>
-    <a href="https://docs.google.com/spreadsheets/d/1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw/edit#gid=505657259" target="_blank" style="background:rgba(52,211,153,0.12);border:1.5px solid rgba(52,211,153,0.35);border-radius:6px;color:var(--green);padding:5px 11px;font-size:12px;font-weight:600;text-decoration:none;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;">📋 매물장</a>
-    <button onclick="openAddNew()" style="background:rgba(79,156,249,0.12);border:1.5px solid rgba(79,156,249,0.35);border-radius:6px;color:var(--accent);padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;">＋ 새 매물</button>
-    <button class="sync-btn" id="SB" onclick="syncSheets()"><span id="SI">🔄</span> 동기화</button>
+    <button class="hdr-btn hdr-btn-msg" onclick="openMsgModal()">💬 안내문구</button>
+    <a class="hdr-btn hdr-btn-sheet" href="https://docs.google.com/spreadsheets/d/1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw/edit#gid=505657259" target="_blank">📋 매물장</a>
+    <button class="hdr-btn hdr-btn-add" onclick="openAddNew()">＋ 새 매물</button>
+    <button class="sync-btn" id="SB" onclick="syncSheets()"><span id="SI">🔄</span></button>
     <div class="total-badge">총 <span id="TC">-</span>건</div>
   </div>
 </header>
@@ -193,7 +186,7 @@ tbody td{padding:9px 12px;border-right:1px solid rgba(42,49,71,0.5);white-space:
       <button class="sel-btn bld-one" id="bld-힐스" onclick="selBld('힐스')">힐스</button>
       <button class="sel-btn bld-one" id="bld-중푸" onclick="selBld('중푸')">중푸</button>
       <button class="sel-btn bld-one" id="bld-송푸" onclick="selBld('송푸')">송푸</button>
-      <div style="width:100%;height:1px;background:var(--border);margin:4px 0;"></div>
+      <div class="bld-divider"></div>
       <button class="sel-btn bld-one" id="bld-그린파크" onclick="selBld('그린파크')">그린파크</button>
       <button class="sel-btn bld-one" id="bld-꿈에" onclick="selBld('꿈에')">꿈에</button>
       <button class="sel-btn bld-one" id="bld-더힐" onclick="selBld('더힐')">더힐</button>
@@ -241,7 +234,7 @@ tbody td{padding:9px 12px;border-right:1px solid rgba(42,49,71,0.5);white-space:
   </div>
   <div class="filter-divider"></div>
   <div class="search-row">
-    <div class="search-input-wrap">
+    <div class="search-wrap">
       <span class="search-icon">🔍</span>
       <input class="search-input" id="SI2" type="text" placeholder="동 · 호 · 전화번호 · 소유자 (전체 건물 검색)">
     </div>
@@ -252,7 +245,7 @@ tbody td{padding:9px 12px;border-right:1px solid rgba(42,49,71,0.5);white-space:
 <!-- 결과바 -->
 <div class="result-bar">
   <span id="RC">로딩 중...</span>
-  <span id="LS" style="font-size:11px;color:var(--text3);"></span>
+  <span id="LS" style="font-size:11px;"></span>
 </div>
 
 <!-- 카드 -->
@@ -281,139 +274,53 @@ tbody td{padding:9px 12px;border-right:1px solid rgba(42,49,71,0.5);white-space:
 </div>
 <div class="empty-state" id="ES" style="display:none"><div class="empty-icon">🔍</div><p>검색 결과가 없습니다</p></div>
 
-<!-- 안내문구 모달 -->
-<div id="MSG_MODAL" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeMsgModal()">
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;width:100%;max-height:92vh;overflow-y:auto;animation:slideUp 0.22s ease;">
-    <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0;"></div>
-    <div style="padding:14px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;">
-      <div style="font-size:17px;font-weight:700;">💬 안내문구</div>
-      <div style="display:flex;gap:8px;">
-        <button onclick="openMsgAdd()" style="background:rgba(52,211,153,0.12);border:1.5px solid rgba(52,211,153,0.35);border-radius:6px;color:var(--green);padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;">＋ 추가</button>
-        <button onclick="closeMsgModal()" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text2);padding:5px 10px;cursor:pointer;font-size:15px;">✕</button>
-      </div>
-    </div>
-    <div style="padding:16px 20px;" id="MSG_LIST"></div>
-  </div>
-</div>
-
-<!-- 안내문구 상세 모달 -->
-<div id="MSG_DETAIL" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:300;align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeMsgDetail()">
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;width:100%;max-height:80vh;overflow-y:auto;animation:slideUp 0.22s ease;">
-    <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0;"></div>
-    <div style="padding:14px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;">
-      <div style="font-size:16px;font-weight:700;" id="MSG_DETAIL_TITLE"></div>
-      <button onclick="closeMsgDetail()" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text2);padding:5px 10px;cursor:pointer;font-size:15px;">✕</button>
-    </div>
-    <div style="padding:16px 20px;">
-      <div id="MSG_DETAIL_BODY" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px;font-size:14px;color:var(--text);line-height:1.8;white-space:pre-wrap;word-break:break-all;margin-bottom:16px;min-height:80px;"></div>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <button onclick="copyMsg()" style="padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">📋 복사하기</button>
-        <button onclick="sendKakao()" style="padding:12px;background:#FEE500;border:none;border-radius:8px;color:#000;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">💛 카카오톡으로 전송</button>
-        <button onclick="sendSMS()" style="padding:12px;background:rgba(52,211,153,0.15);border:1.5px solid rgba(52,211,153,0.4);border-radius:8px;color:var(--green);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">💬 문자로 전송</button>
-        <div style="display:flex;gap:8px;">
-          <button onclick="openMsgEdit()" style="flex:1;padding:10px;background:rgba(79,156,249,0.12);border:1.5px solid rgba(79,156,249,0.35);border-radius:8px;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;">✏️ 수정</button>
-          <button onclick="deleteMsgCur()" style="padding:10px 16px;background:rgba(248,113,113,0.12);border:1.5px solid rgba(248,113,113,0.35);border-radius:8px;color:var(--red);font-size:13px;font-weight:600;cursor:pointer;">🗑 삭제</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- 안내문구 편집/추가 모달 -->
-<div id="MSG_EDIT" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:400;align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeMsgEdit()">
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;width:100%;max-height:85vh;overflow-y:auto;animation:slideUp 0.22s ease;">
-    <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0;"></div>
-    <div style="padding:14px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;">
-      <div style="font-size:16px;font-weight:700;" id="MSG_EDIT_TITLE">문구 추가</div>
-      <button onclick="closeMsgEdit()" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text2);padding:5px 10px;cursor:pointer;font-size:15px;">✕</button>
-    </div>
-    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px;">
-      <div style="display:flex;flex-direction:column;gap:4px;">
-        <label style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.5px;">카테고리</label>
-        <input id="ME_CAT" class="ef-input" type="text" placeholder="예) 매매, 전세, 기타" list="me-cat-list">
-        <datalist id="me-cat-list">
-          <option value="매매"><option value="전세"><option value="월세"><option value="기타">
-        </datalist>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:4px;">
-        <label style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.5px;">제목</label>
-        <input id="ME_TITLE" class="ef-input" type="text" placeholder="문구 제목">
-      </div>
-      <div style="display:flex;flex-direction:column;gap:4px;">
-        <label style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.5px;">내용</label>
-        <textarea id="ME_BODY" class="ef-textarea" rows="6" placeholder="안내 문구 내용을 입력하세요..."></textarea>
-      </div>
-      <div style="display:flex;gap:8px;padding-bottom:8px;">
-        <button onclick="saveMsgEdit()" style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;">💾 저장</button>
-        <button onclick="closeMsgEdit()" style="padding:12px 18px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:14px;cursor:pointer;">취소</button>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="pagination" id="PG"></div>
-
 <!-- 상세 패널 -->
 <div class="detail-overlay" id="DO" onclick="if(event.target===this)closeDet()">
   <div class="detail-panel">
     <div class="detail-handle"></div>
     <div class="detail-header">
-      <div>
-        <div class="detail-title" id="DT"></div>
-        <div class="detail-subtitle" id="DS"></div>
-      </div>
-      <div style="display:flex;gap:8px;flex-shrink:0;align-items:center;">
-        <a href="https://docs.google.com/spreadsheets/d/1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw/edit#gid=505657259" target="_blank" style="background:rgba(52,211,153,0.12);border:1.5px solid rgba(52,211,153,0.35);border-radius:7px;color:var(--green);padding:6px 11px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;">📋</a>
-        <button id="editToggleBtn" onclick="toggleEdit()" style="background:rgba(79,156,249,0.15);border:1.5px solid rgba(79,156,249,0.4);border-radius:7px;color:#4f9cf9;padding:6px 13px;font-size:13px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap;">✏️ 수정</button>
+      <div><div class="detail-title" id="DT"></div><div class="detail-subtitle" id="DS"></div></div>
+      <div style="display:flex;gap:7px;flex-shrink:0;align-items:center;">
+        <a href="https://docs.google.com/spreadsheets/d/1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw/edit#gid=505657259" target="_blank" style="background:rgba(52,211,153,0.12);border:1.5px solid rgba(52,211,153,0.35);border-radius:7px;color:var(--green);padding:6px 10px;font-size:12px;font-weight:600;text-decoration:none;">📋</a>
+        <button id="editToggleBtn" onclick="toggleEdit()" style="background:rgba(79,156,249,0.15);border:1.5px solid rgba(79,156,249,0.4);border-radius:7px;color:#4f9cf9;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;">✏️ 수정</button>
         <button class="detail-close" onclick="closeDet()">✕</button>
       </div>
     </div>
     <div class="detail-body" id="DB"></div>
     <!-- 수정 폼 -->
     <div class="edit-form" id="EF">
-      <div class="edit-label">✏️ 내용 수정</div>
+      <div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;">✏️ 내용 수정</div>
       <div class="edit-grid">
         <div class="ef-group"><label class="ef-label">유형</label>
-          <select id="e-type" class="ef-select">
-            <option value="">선택 안함</option>
-            <option>매매</option><option>전세</option><option>월세</option>
-            <option>매전세</option><option>매월세</option><option>전월세</option><option>매전월</option>
-          </select></div>
+          <select id="e-type" class="ef-select"><option value="">선택 안함</option><option>매매</option><option>전세</option><option>월세</option><option>매전세</option><option>매월세</option><option>전월세</option><option>매전월</option></select></div>
         <div class="ef-group"><label class="ef-label">프로세스</label>
-          <select id="e-proc" class="ef-select">
-            <option value="">선택 안함</option>
-            <option>제안가능(물건등록)</option><option>제안가능(미등록)</option><option>타부동산</option>
-            <option>대기</option><option>보류</option><option>통오더</option><option>매물 확보</option>
-            <option>계약</option><option>잔금</option><option>잔금정산</option>
-            <option>재계약</option><option>재계약확인</option><option>완료</option><option>매매완료</option>
-          </select></div>
-        <div class="ef-group"><label class="ef-label">금액</label>
-          <input id="e-price" class="ef-input" type="text" placeholder="예) 13.7억"></div>
-        <div class="ef-group"><label class="ef-label">실행일</label>
-          <input id="e-date" class="ef-input" type="text" placeholder="예) 2025-01-01"></div>
-        <div class="ef-group"><label class="ef-label">만기일</label>
-          <input id="e-expire" class="ef-input" type="text" placeholder="만기일"></div>
-        <div class="ef-group"><label class="ef-label">계약일</label>
-          <input id="e-contract" class="ef-input" type="text" placeholder="계약일"></div>
-        <div class="ef-group"><label class="ef-label">계약금중일부</label>
-          <input id="e-deposit" class="ef-input" type="text" placeholder="계약금중일부"></div>
-        <div class="ef-group"><label class="ef-label">약정일</label>
-          <input id="e-agree" class="ef-input" type="text" placeholder="약정일"></div>
-        <div class="ef-group"><label class="ef-label">토허제접수</label>
-          <input id="e-toher" class="ef-input" type="text" placeholder="토허제접수"></div>
-        <div class="ef-group"><label class="ef-label">중도금</label>
-          <input id="e-middle" class="ef-input" type="text" placeholder="중도금"></div>
-        <div class="ef-group"><label class="ef-label">잔금일</label>
-          <input id="e-balance" class="ef-input" type="text" placeholder="잔금일"></div>
-        <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매도·임대(VAT포함)</label>
-          <input id="e-rev1" class="ef-input" type="text" placeholder="발생수익 매도·임대"></div>
-        <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매수·임차(VAT포함)</label>
-          <input id="e-rev2" class="ef-input" type="text" placeholder="발생수익 매수·임차"></div>
+          <select id="e-proc" class="ef-select"><option value="">선택 안함</option><option>제안가능(물건등록)</option>
+<option>제안가능(미등록)</option>
+<option>타부동산</option>
+<option>대기</option>
+<option>보류</option>
+<option>통오더</option>
+<option>매물 확보</option>
+<option>계약</option>
+<option>잔금</option>
+<option>잔금정산</option>
+<option>재계약</option>
+<option>재계약확인</option>
+<option>완료</option>
+<option>매매완료</option></select></div>
+        <div class="ef-group"><label class="ef-label">금액</label><input id="e-price" class="ef-input" type="text" placeholder="예) 13.7억"></div>
+        <div class="ef-group"><label class="ef-label">실행일</label><input id="e-date" class="ef-input" type="text"></div>
+        <div class="ef-group"><label class="ef-label">만기일</label><input id="e-expire" class="ef-input" type="text"></div>
+        <div class="ef-group"><label class="ef-label">계약일</label><input id="e-contract" class="ef-input" type="text"></div>
+        <div class="ef-group"><label class="ef-label">계약금중일부</label><input id="e-deposit" class="ef-input" type="text"></div>
+        <div class="ef-group"><label class="ef-label">약정일</label><input id="e-agree" class="ef-input" type="text"></div>
+        <div class="ef-group"><label class="ef-label">토허제접수</label><input id="e-toher" class="ef-input" type="text"></div>
+        <div class="ef-group"><label class="ef-label">중도금</label><input id="e-middle" class="ef-input" type="text"></div>
+        <div class="ef-group"><label class="ef-label">잔금일</label><input id="e-balance" class="ef-input" type="text"></div>
+        <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매도·임대</label><input id="e-rev1" class="ef-input" type="text"></div>
+        <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매수·임차</label><input id="e-rev2" class="ef-input" type="text"></div>
       </div>
-      <div class="ef-group" style="margin-bottom:14px;">
-        <label class="ef-label">상담 내용</label>
-        <textarea id="e-memo" class="ef-textarea" rows="4" placeholder="상담 내용 입력..."></textarea>
-      </div>
+      <div class="ef-group" style="margin-bottom:12px;"><label class="ef-label">상담 내용</label><textarea id="e-memo" class="ef-textarea" rows="4"></textarea></div>
       <div class="ef-actions">
         <button class="ef-save" id="saveBtnEdit" onclick="saveEdit()">💾 저장</button>
         <button class="ef-cancel" onclick="cancelEdit()">취소</button>
@@ -423,60 +330,18 @@ tbody td{padding:9px 12px;border-right:1px solid rgba(42,49,71,0.5);white-space:
 </div>
 
 <!-- 새 매물 모달 -->
-<div class="add-modal" id="AM" onclick="if(event.target===this)closeAddNew()">
-  <div class="add-panel">
+<div class="modal-overlay" id="AM" onclick="if(event.target===this)closeAddNew()">
+  <div class="modal-panel">
     <div class="detail-handle"></div>
-    <div class="detail-header">
-      <div><div class="detail-title">＋ 새 매물 추가</div><div class="detail-subtitle">매물장 맨 아래에 새 행이 추가됩니다</div></div>
+    <div class="modal-header">
+      <div class="modal-title">＋ 새 매물 추가</div>
       <button class="detail-close" onclick="closeAddNew()">✕</button>
     </div>
-    <div style="padding:16px 20px;">
+    <div class="modal-body">
       <div class="edit-grid">
-        <div class="ef-group"><label class="ef-label">건물명 * (직접입력 가능)</label>
+        <div class="ef-group"><label class="ef-label">건물명 *</label>
           <input id="n-building" class="ef-input" list="bld-list" placeholder="선택 또는 직접 입력" autocomplete="off">
-          <datalist id="bld-list">
-            <option value="그린파크">
-<option value="꿈에">
-<option value="더샵">
-<option value="더힐">
-<option value="동천센자">
-<option value="래미안위례">
-<option value="래미안이편한">
-<option value="롯데">
-<option value="보미">
-<option value="센자">
-<option value="센트레">
-<option value="센푸">
-<option value="송파롯데캐슬파인힐">
-<option value="송파시그니처롯데캐슬">
-<option value="송파위례리슈빌">
-<option value="송푸">
-<option value="신안">
-<option value="아이">
-<option value="아이2">
-<option value="아트리버">
-<option value="엠코플로리체">
-<option value="위례센트로엘">
-<option value="위례숲우미린">
-<option value="위푸">
-<option value="이택">
-<option value="자이">
-<option value="제일풍경채">
-<option value="주택">
-<option value="중푸">
-<option value="지웰">
-<option value="판교밸리자이">
-<option value="포레나송파">
-<option value="한화오벨리스크">
-<option value="호반베르디움">
-<option value="호반써밋">
-<option value="호반써밋2">
-<option value="호반써밋애비뉴">
-<option value="힐스">
-<option value="힐스북위례">
-<option value="힐스위례">
-          </datalist>
-            <option value="그린파크">그린파크</option>
+          <datalist id="bld-list"><option value="그린파크">그린파크</option>
 <option value="꿈에">꿈에</option>
 <option value="더샵">더샵</option>
 <option value="더힐">더힐</option>
@@ -515,38 +380,32 @@ tbody td{padding:9px 12px;border-right:1px solid rgba(42,49,71,0.5);white-space:
 <option value="호반써밋애비뉴">호반써밋애비뉴</option>
 <option value="힐스">힐스</option>
 <option value="힐스북위례">힐스북위례</option>
-<option value="힐스위례">힐스위례</option>
-          </select></div>
+<option value="힐스위례">힐스위례</option></datalist></div>
         <div class="ef-group"><label class="ef-label">유형 *</label>
-          <select id="n-type" class="ef-select">
-            <option value="">선택</option>
-            <option>매매</option><option>전세</option><option>월세</option>
-            <option>매전세</option><option>매월세</option><option>전월세</option><option>매전월</option>
-          </select></div>
-        <div class="ef-group"><label class="ef-label">동 *</label>
-          <input id="n-dong" class="ef-input" type="text" placeholder="예) 101"></div>
-        <div class="ef-group"><label class="ef-label">호 *</label>
-          <input id="n-ho" class="ef-input" type="text" placeholder="예) 201"></div>
-        <div class="ef-group"><label class="ef-label">금액</label>
-          <input id="n-price" class="ef-input" type="text" placeholder="예) 13.7억"></div>
+          <select id="n-type" class="ef-select"><option value="">선택</option><option>매매</option><option>전세</option><option>월세</option><option>매전세</option><option>매월세</option><option>전월세</option><option>매전월</option></select></div>
+        <div class="ef-group"><label class="ef-label">동 *</label><input id="n-dong" class="ef-input" type="text" placeholder="예) 101"></div>
+        <div class="ef-group"><label class="ef-label">호 *</label><input id="n-ho" class="ef-input" type="text" placeholder="예) 201"></div>
+        <div class="ef-group"><label class="ef-label">금액</label><input id="n-price" class="ef-input" type="text" placeholder="예) 13.7억"></div>
         <div class="ef-group"><label class="ef-label">프로세스</label>
-          <select id="n-proc" class="ef-select">
-            <option value="">선택</option>
-            <option>제안가능(물건등록)</option><option>제안가능(미등록)</option><option>타부동산</option>
-            <option>대기</option><option>보류</option><option>통오더</option><option>매물 확보</option>
-            <option>계약</option><option>잔금</option><option>잔금정산</option><option>완료</option><option>매매완료</option>
-          </select></div>
-        <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">소유자</label>
-          <input id="n-owner" class="ef-input" type="text" placeholder="소유자명 / 연락처"></div>
-        <div class="ef-group"><label class="ef-label">실행일</label>
-          <input id="n-date" class="ef-input" type="text"></div>
-        <div class="ef-group"><label class="ef-label">만기일</label>
-          <input id="n-expire2" class="ef-input" type="text" placeholder="만기일"></div>
+          <select id="n-proc" class="ef-select"><option value="">선택</option><option>제안가능(물건등록)</option>
+<option>제안가능(미등록)</option>
+<option>타부동산</option>
+<option>대기</option>
+<option>보류</option>
+<option>통오더</option>
+<option>매물 확보</option>
+<option>계약</option>
+<option>잔금</option>
+<option>잔금정산</option>
+<option>재계약</option>
+<option>재계약확인</option>
+<option>완료</option>
+<option>매매완료</option></select></div>
+        <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">소유자</label><input id="n-owner" class="ef-input" type="text" placeholder="소유자명 / 연락처"></div>
+        <div class="ef-group"><label class="ef-label">실행일</label><input id="n-date" class="ef-input" type="text"></div>
+        <div class="ef-group"><label class="ef-label">만기일</label><input id="n-expire2" class="ef-input" type="text"></div>
       </div>
-      <div class="ef-group" style="margin-bottom:16px;">
-        <label class="ef-label">상담 내용</label>
-        <textarea id="n-memo" class="ef-textarea" rows="4" placeholder="상담 내용 입력..."></textarea>
-      </div>
+      <div class="ef-group" style="margin-bottom:14px;"><label class="ef-label">상담 내용</label><textarea id="n-memo" class="ef-textarea" rows="4"></textarea></div>
       <div class="ef-actions" style="padding-bottom:8px;">
         <button id="addSaveBtn" class="ef-save" style="background:var(--green);" onclick="saveNewRow()">＋ 매물장에 추가</button>
         <button class="ef-cancel" onclick="closeAddNew()">취소</button>
@@ -555,34 +414,100 @@ tbody td{padding:9px 12px;border-right:1px solid rgba(42,49,71,0.5);white-space:
   </div>
 </div>
 
+<!-- 안내문구 목록 모달 -->
+<div class="modal-overlay" id="MSG_MODAL" onclick="if(event.target===this)closeMsgModal()">
+  <div class="modal-panel">
+    <div class="detail-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">💬 안내문구</div>
+      <div style="display:flex;gap:7px;">
+        <button onclick="openMsgAdd()" style="background:rgba(52,211,153,0.12);border:1.5px solid rgba(52,211,153,0.35);border-radius:6px;color:var(--green);padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;">＋ 추가</button>
+        <button class="detail-close" onclick="closeMsgModal()">✕</button>
+      </div>
+    </div>
+    <div class="modal-body" id="MSG_LIST"></div>
+  </div>
+</div>
+
+<!-- 안내문구 상세 -->
+<div class="modal-overlay" id="MSG_DETAIL" onclick="if(event.target===this)closeMsgDetail()" style="z-index:300;">
+  <div class="modal-panel">
+    <div class="detail-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="MD_TITLE"></div>
+      <button class="detail-close" onclick="closeMsgDetail()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="MD_BODY" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:14px;color:var(--text);line-height:1.8;white-space:pre-wrap;word-break:break-all;margin-bottom:14px;min-height:80px;"></div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button onclick="copyMsg()" style="padding:11px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-weight:600;cursor:pointer;">📋 복사하기</button>
+        <button onclick="sendKakao()" style="padding:11px;background:#FEE500;border:none;border-radius:8px;color:#000;font-size:14px;font-weight:700;cursor:pointer;">💛 카카오톡으로 전송</button>
+        <button onclick="sendSMS()" style="padding:11px;background:rgba(52,211,153,0.15);border:1.5px solid rgba(52,211,153,0.4);border-radius:8px;color:var(--green);font-size:14px;font-weight:600;cursor:pointer;">💬 문자로 전송</button>
+        <div style="display:flex;gap:8px;">
+          <button onclick="openMsgEdit()" style="flex:1;padding:10px;background:rgba(79,156,249,0.12);border:1.5px solid rgba(79,156,249,0.35);border-radius:8px;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;">✏️ 수정</button>
+          <button onclick="deleteMsgCur()" style="padding:10px 14px;background:rgba(248,113,113,0.12);border:1.5px solid rgba(248,113,113,0.35);border-radius:8px;color:var(--red);font-size:13px;font-weight:600;cursor:pointer;">🗑 삭제</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 안내문구 편집 -->
+<div class="modal-overlay" id="MSG_EDIT" onclick="if(event.target===this)closeMsgEdit()" style="z-index:400;">
+  <div class="modal-panel">
+    <div class="detail-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="ME_TITLE2">문구 추가</div>
+      <button class="detail-close" onclick="closeMsgEdit()">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:10px;">
+      <div class="ef-group"><label class="ef-label">카테고리</label>
+        <input id="ME_CAT" class="ef-input" type="text" placeholder="예) 매매, 전세, 기타" list="me-cat-list">
+        <datalist id="me-cat-list"><option value="매매"><option value="전세"><option value="월세"><option value="기타"></datalist></div>
+      <div class="ef-group"><label class="ef-label">제목</label><input id="ME_TITLE" class="ef-input" type="text" placeholder="문구 제목"></div>
+      <div class="ef-group"><label class="ef-label">내용</label><textarea id="ME_BODY" class="ef-textarea" rows="6" placeholder="안내 문구 내용..."></textarea></div>
+      <div class="ef-actions" style="padding-bottom:8px;">
+        <button onclick="saveMsgEdit()" class="ef-save">💾 저장</button>
+        <button onclick="closeMsgEdit()" class="ef-cancel">취소</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-// ── 설정 ──────────────────────────────────────────────────
-var PW = '4600';
+
+// ── 설정 ─────────────────────────────────────────
+var PW    = '4600';
 var SSID  = '1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw';
 var AKEY  = 'AIzaSyD5YiNNP1d9cmnehlSLDViEOBdjZhealMw';
 var SGID  = '505657259';
 var ASURL = 'https://script.google.com/macros/s/AKfycbxTiJ8j13uUoUlMHtx27mbdxK-BokV-inImTKYloGGKg2h6bcX2HkaTOGyZYbN2I1yw5A/exec';
 var TM = {"매매":["매매","매전세","매월세","매전월"],"전세":["전세","매전세","전월세","매전월"],"월세":["월세","매월세","전월세","매전월"]};
-var B6 = ["아이","아이2","더샵","힐스","중푸","송푸"];
+var B6 = ["아이", "아이2", "더샵", "힐스", "중푸", "송푸"];
+var B6_SET = new Set(B6);
 var PP = ["제안가능(물건등록)","제안가능(미등록)","타부동산"];
+var ALL_BLDS = ["그린파크", "꿈에", "더샵", "더힐", "동천센자", "래미안위례", "래미안이편한", "롯데", "보미", "센자", "센트레", "센푸", "송파롯데캐슬파인힐", "송파시그니처롯데캐슬", "송파위례리슈빌", "송푸", "신안", "아이", "아이2", "아트리버", "엠코플로리체", "위례센트로엘", "위례숲우미린", "위푸", "이택", "자이", "제일풍경채", "주택", "중푸", "지웰", "판교밸리자이", "포레나송파", "한화오벨리스크", "호반베르디움", "호반써밋", "호반써밋2", "호반써밋애비뉴", "힐스", "힐스북위례", "힐스위례"];
+var ALL_MSGS = [{"cat": "매매", "title": "매도 의향 확인", "body": "안녕하세요, 부동산 담당자입니다.\n혹시 현재 매도 의향이 있으신가요?\n좋은 조건으로 빠르게 진행해 드릴 수 있습니다."}, {"cat": "매매", "title": "가격 조율 제안", "body": "안녕하세요.\n현재 시세 대비 합리적인 가격으로 매수 희망 고객이 있습니다.\n잠깐 통화 가능하실까요?"}, {"cat": "매매", "title": "재계약 안내", "body": "안녕하세요, 곧 계약 만기가 다가오고 있습니다.\n재계약 또는 새로운 조건 협의를 위해 연락드립니다."}, {"cat": "전세", "title": "전세 매물 안내", "body": "안녕하세요.\n조건에 맞는 전세 매물이 나왔습니다.\n관심 있으시면 연락 주세요."}, {"cat": "전세", "title": "전세 만기 안내", "body": "안녕하세요.\n전세 계약 만기일이 다가오고 있습니다.\n재계약 여부 확인을 위해 연락드립니다."}, {"cat": "월세", "title": "월세 매물 안내", "body": "안녕하세요.\n원하시는 조건의 월세 매물이 있습니다.\n편하신 시간에 연락 주세요."}, {"cat": "기타", "title": "방문 일정 확인", "body": "안녕하세요.\n매물 확인을 위한 방문 일정을 잡고 싶습니다.\n가능한 날짜를 알려주시면 감사하겠습니다."}, {"cat": "기타", "title": "서류 안내", "body": "계약 진행을 위해 필요한 서류 목록 안내드립니다.\n- 신분증\n- 등기권리증\n- 인감도장 및 인감증명서\n준비 부탁드립니다."}, {"cat": "기타", "title": "중개보수 안내", "body": "안녕하세요.\n이번 거래의 중개보수는 법정 요율 기준으로 산정됩니다.\n궁금하신 점은 언제든지 연락 주세요."}];
+var MSG_STORAGE_KEY = 'apt_msgs_v1';
+var CACHE_KEY = 'apt_cache_v1';
+var CACHE_TIME_KEY = 'apt_cache_time_v1';
 
-// ── 상태 ──────────────────────────────────────────────────
-var RAW=[],FD=[],SC='실행일',SD=-1,CP=1,PS=50,SCROLL_END=50;
-var fTypes=new Set(),fBlds=new Set();
-var fT=null,fB=null,fP=null,fS=''; // fT/fB는 하위호환용, 실제는 fTypes/fBlds 사용
-var CUR_IDX=-1;
+// ── 상태 ─────────────────────────────────────────
+var RAW=[],FD=[],SC='실행일',SD=-1,SCROLL_END=50;
+var fTypes=new Set(),fBlds=new Set(),fP=null,fS='';
+var CUR_IDX=-1,_editMsgIdx=-1,_curMsgBody='';
+var _sheetName='';
 
-// ── 토스트 ────────────────────────────────────────────────
+// ── 토스트 ────────────────────────────────────────
 var _toastTid=null;
 function showToast(msg){
   var t=document.getElementById('toast');
-  t.textContent=msg;
-  t.classList.add('show');
+  t.textContent=msg; t.classList.add('show');
   clearTimeout(_toastTid);
-  _toastTid=setTimeout(function(){t.classList.remove('show');},4000);
+  _toastTid=setTimeout(function(){t.classList.remove('show');},3500);
 }
 
-// ── 비밀번호 ──────────────────────────────────────────────
+// ── 비밀번호 ──────────────────────────────────────
 function checkPw(){
   var v=document.getElementById('pwInput').value;
   if(v===PW){
@@ -595,120 +520,82 @@ function checkPw(){
     setTimeout(function(){document.getElementById('pwErr').textContent='';},2000);
   }
 }
-if(sessionStorage.getItem('apt_auth')==='1'){
-  window.addEventListener('DOMContentLoaded',function(){
-    document.getElementById('pwOverlay').style.display='none';
-  });
+
+// ── 캐시 ─────────────────────────────────────────
+function saveCache(data){
+  try{
+    localStorage.setItem(CACHE_KEY,JSON.stringify(data));
+    localStorage.setItem(CACHE_TIME_KEY,Date.now().toString());
+  }catch(e){}
+}
+function loadCache(){
+  try{
+    var c=localStorage.getItem(CACHE_KEY),t=localStorage.getItem(CACHE_TIME_KEY);
+    if(c&&t){
+      var age=Math.round((Date.now()-parseInt(t))/60000);
+      var ageStr=age<60?age+'분':Math.round(age/60)+'시간';
+      document.getElementById('LS').textContent='캐시 '+ageStr+' 전';
+      return JSON.parse(c);
+    }
+  }catch(e){}
+  return [];
 }
 
-// ── 데이터 디코딩 ─────────────────────────────────────────
-function decodeData(){
-  return []; // 내장 데이터 제거됨 - 캐시 또는 동기화 사용
-}
-
+// ── 데이터 초기화 ─────────────────────────────────
 function initData(raw){
   RAW=raw;
   document.getElementById('TC').textContent=RAW.length.toLocaleString();
   FD=RAW.slice();
   FD.sort(function(a,b){return((b['실행일']||'')).localeCompare((a['실행일']||''),'ko');});
+  SCROLL_END=50;
   render();
   document.getElementById('RC').innerHTML='검색결과: <b>'+RAW.length.toLocaleString()+'</b>건';
   document.getElementById('LO').classList.remove('show');
   if(RAW.length===0){
     document.getElementById('ES').style.display='block';
-    document.getElementById('ES').innerHTML='<div class="empty-icon">🔄</div><p style="margin-bottom:12px;">데이터가 없습니다</p><button onclick="syncSheets()" style="background:var(--accent);border:none;border-radius:8px;color:#fff;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;">&#128229; 매물장 동기화</button>';
+    document.getElementById('ES').innerHTML='<div class="empty-icon">&#128260;</div><p style="margin-bottom:12px;">데이터가 없습니다</p><button onclick="syncSheets()" style="background:var(--accent);border:none;border-radius:8px;color:#fff;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;">동기화하기</button>';
   }
 }
 
+// ── 로드 ──────────────────────────────────────────
 window.onload=function(){
-  if(sessionStorage.getItem('apt_auth')!=='1'){
-    document.getElementById('pwOverlay').style.display='flex';
+  loadMsgs();
+  if(sessionStorage.getItem('apt_auth')==='1'){
+    document.getElementById('pwOverlay').style.display='none';
   }
-  loadMsgs(); // 저장된 문구 로드
   document.getElementById('LO').classList.add('show');
   document.getElementById('LT').textContent='데이터 로딩 중...';
   setTimeout(function(){
-    try{
-      // 로컬스토리지 캐시 우선, 없으면 내장 데이터
-      var cached = loadCache();
-      initData(cached);
-    }
+    try{ initData(loadCache()); }
     catch(e){ document.getElementById('LT').textContent='로드 실패: '+e.message; }
-  },100);
+  },80);
 };
 
-// ── 캐시 관련 ─────────────────────────────────────────────
-var CACHE_KEY = 'apt_cache_v1';
-var CACHE_TIME_KEY = 'apt_cache_time_v1';
-
-function saveCache(data){
-  try{
-    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-    localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
-  }catch(e){ /* 스토리지 용량 초과 시 무시 */ }
-}
-
-function loadCache(){
-  try{
-    var cached = localStorage.getItem(CACHE_KEY);
-    var cacheTime = localStorage.getItem(CACHE_TIME_KEY);
-    if(cached && cacheTime){
-      var ageMin = (Date.now() - parseInt(cacheTime)) / 60000;
-      var data = JSON.parse(cached);
-      var ageStr = ageMin < 60 ? Math.round(ageMin)+'분' : Math.round(ageMin/60)+'시간';
-      document.getElementById('LS').textContent = '캐시 '+ageStr+' 전';
-      return data;
-    }
-  }catch(e){}
-  // 캐시 없음 → 빈 배열 반환, 안내 표시
-  return [];
-}
-
-// ── 동기화 (핵심 열만 빠르게) ─────────────────────────────
-// 핵심 열 인덱스 (헤더에서 찾아서 해당 열만 가져옴)
-var CORE_COLS = ['실행일','유형','건물명','동','호','타입 (공용)','타입 (전용)',
-  '소유자','소유자2','이름','금액','프로세스','방','에','융자','층공개',
-  '광고주기','약정일','토허제','계약일','만기일','잔금일','중도금',
-  '계약금중일부','독점','입주형태','임차인','거주자명','현재점유형태',
-  '소유형태','이실장소유자명','발생수익  매도,임대(VAT포함)',
-  '발생수익-매수,임차  (VAT포함)','비고','공급  면적(㎡)','전용면적(㎡)','평'];
-
-// 상담내용은 무거워서 별도 조회
-var DETAIL_COLS = ['상담 내용'];
-var _sheetName = '';
-
+// ── 동기화 ────────────────────────────────────────
 async function getSheetName(){
   if(_sheetName) return _sheetName;
-  var mr = await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SSID+'?key='+AKEY);
-  var m = await mr.json();
+  var r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SSID+'?key='+AKEY);
+  var m=await r.json();
   if(m.error) throw new Error(m.error.message);
-  var sf = m.sheets && m.sheets.find(function(s){return String(s.properties.sheetId)===SGID;});
-  _sheetName = sf ? sf.properties.title : (m.sheets&&m.sheets[0]?m.sheets[0].properties.title:'');
+  var sf=m.sheets&&m.sheets.find(function(s){return String(s.properties.sheetId)===SGID;});
+  _sheetName=sf?sf.properties.title:(m.sheets&&m.sheets[0]?m.sheets[0].properties.title:'');
   return _sheetName;
 }
-
 async function syncSheets(){
   var sb=document.getElementById('SB'),si=document.getElementById('SI'),lo=document.getElementById('LO'),lt=document.getElementById('LT');
   sb.classList.add('loading');si.textContent='↻';si.className='spin';lo.classList.add('show');lt.textContent='시트 연결 중...';
   try{
-    var sn = await getSheetName();
-    lt.textContent = '"'+sn+'" 로드 중...';
-
-    // 핵심 열만 가져오기 (상담내용 제외 → 빠름)
-    var url = 'https://sheets.googleapis.com/v4/spreadsheets/'+SSID+'/values/'+encodeURIComponent(sn)+'?key='+AKEY;
-    var dr = await fetch(url);
-    var dj = await dr.json();
+    var sn=await getSheetName();
+    lt.textContent='"'+sn+'" 로드 중...';
+    var dr=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SSID+'/values/'+encodeURIComponent(sn)+'?key='+AKEY);
+    var dj=await dr.json();
     if(!dj.values||dj.values.length<2) throw new Error('데이터 없음');
-
-    var hd = dj.values[0].map(function(h){return h.replace(/\n/g,' ').trim();});
-    var nd = dj.values.slice(1).map(function(row,i){
+    var hd=dj.values[0].map(function(h){return h.replace(/\n/g,' ').trim();});
+    var nd=dj.values.slice(1).map(function(row,i){
       var o={'__row__':i+2};
-      hd.forEach(function(h,j){
-        if(row[j]&&row[j].trim()) o[h]=row[j].replace(/\n/g,' ').trim();
-      });
+      hd.forEach(function(h,j){if(row[j]&&row[j].trim()) o[h]=row[j].replace(/\n/g,' ').trim();});
       return o;
     });
-
     saveCache(nd);
     document.getElementById('LS').textContent='✓ '+new Date().toLocaleTimeString('ko-KR')+' 동기화';
     initData(nd); applyAll();
@@ -716,25 +603,194 @@ async function syncSheets(){
   finally{lo.classList.remove('show');sb.classList.remove('loading');si.textContent='🔄';si.className='';}
 }
 
+// ── 필터 ──────────────────────────────────────────
+function selType(t){
+  var idMap={'매매':'type-mae','전세':'type-jun','월세':'type-wol'};
+  if(fTypes.has(t)){fTypes.delete(t);document.getElementById(idMap[t]).classList.remove('active');}
+  else{fTypes.add(t);document.getElementById(idMap[t]).classList.add('active');}
+  applyAll();
+}
+function selBld(b){
+  if(b==='6대장'){
+    var allIn=Array.from(B6_SET).every(function(x){return fBlds.has(x);});
+    B6_SET.forEach(function(x){
+      if(allIn){fBlds.delete(x);var el=document.getElementById('bld-'+x);if(el)el.classList.remove('active');}
+      else{fBlds.add(x);var el=document.getElementById('bld-'+x);if(el)el.classList.add('active');}
+    });
+    document.getElementById('bld-6대장').classList.toggle('active',!allIn);
+  } else {
+    if(fBlds.has(b)){fBlds.delete(b);document.getElementById('bld-'+b).classList.remove('active');}
+    else{fBlds.add(b);document.getElementById('bld-'+b).classList.add('active');}
+    var allB6=Array.from(B6_SET).every(function(x){return fBlds.has(x);});
+    document.getElementById('bld-6대장').classList.toggle('active',allB6);
+  }
+  applyAll();
+}
+function selProc(p){
+  fP=(fP===p)?null:p;
+  document.querySelectorAll('.sel-btn[id^="proc-"]').forEach(function(b){b.classList.remove('active');});
+  if(fP){var m={'P':'proc-propose','L':'proc-latent','A':'proc-all'};document.getElementById(m[fP]).classList.add('active');}
+  applyAll();
+}
+function resetAll(){
+  fTypes.clear();fBlds.clear();fP=null;fS='';
+  document.getElementById('SI2').value='';
+  document.querySelectorAll('.sel-btn').forEach(function(b){b.classList.remove('active');});
+  FD=RAW.slice();asr();
+}
 
-// ── 상세 패널 ─────────────────────────────────────────────
+// 검색어 파싱: "아이702호","더샵 1205","힐스101동302호"
+function parseSearch(sq){
+  for(var i=0;i<ALL_BLDS.length;i++){
+    var b=ALL_BLDS[i].toLowerCase();
+    if(sq.startsWith(b)){
+      var rest=sq.slice(b.length).trim();
+      var dm=rest.match(/([0-9]+)\s*동/);
+      var hm=rest.match(/([0-9]+)\s*호/);
+      var num=rest.replace(/동|호|\s/g,'');
+      var ho=hm?hm[1]:(!dm&&num?num:null);
+      var dong=dm?dm[1]:null;
+      if(!ho&&!dong) return null;
+      return {bld:b,dong:dong,ho:ho};
+    }
+  }
+  return null;
+}
+
+function applyAll(){
+  var sq=fS.toLowerCase().trim();
+  FD=RAW.filter(function(r){
+    if(sq){
+      var p=parseSearch(sq);
+      if(p){
+        var bm=!p.bld||(r['건물명']||'').toLowerCase().indexOf(p.bld)!==-1;
+        var hm=!p.ho||(r['호']||'').toLowerCase().indexOf(p.ho)!==-1;
+        var dm=!p.dong||(r['동']||'').toLowerCase().indexOf(p.dong)!==-1;
+        return bm&&hm&&dm;
+      }
+      var pri=[(r['동']||''),(r['호']||''),(r['소유자']||''),(r['소유자2']||''),(r['이름']||'')].join(' ').toLowerCase();
+      var sec=[(r['건물명']||''),(r['금액']||''),(r['상담 내용']||''),(r['임차인']||'')].join(' ').toLowerCase();
+      return pri.indexOf(sq)!==-1||sec.indexOf(sq)!==-1;
+    }
+    if(fTypes.size>0){
+      var allowed=new Set();
+      fTypes.forEach(function(t){TM[t].forEach(function(v){allowed.add(v);});});
+      if(!allowed.has(r['유형'])) return false;
+    }
+    if(fBlds.size>0&&!fBlds.has(r['건물명'])) return false;
+    if(fP&&fP!=='A'){var ip=PP.indexOf(r['프로세스'])!==-1;if(fP==='P'&&!ip)return false;if(fP==='L'&&ip)return false;}
+    return true;
+  });
+  asr();
+}
+function srt(col,th){
+  if(SC===col)SD*=-1;else{SC=col;SD=1;}
+  document.querySelectorAll('thead th').forEach(function(t){t.classList.remove('sorted');});
+  if(th)th.classList.add('sorted');
+  asr();
+}
+function asr(){
+  FD.sort(function(a,b){return((a[SC]||'')).localeCompare((b[SC]||''),'ko')*SD;});
+  if(fTypes.size>0){
+    var seen=new Set();
+    FD=FD.filter(function(r){
+      var k=(r['건물명']||'')+'|'+(r['동']||'')+'|'+(r['호']||'');
+      if(seen.has(k))return false;seen.add(k);return true;
+    });
+  }
+  SCROLL_END=50;render();
+  document.getElementById('RC').innerHTML='검색결과: <b>'+FD.length.toLocaleString()+'</b>건';
+  document.getElementById('ES').style.display=FD.length===0?'block':'none';
+}
+
+// ── 렌더 헬퍼 ────────────────────────────────────
+function xph(t){
+  if(!t)return[];
+  var re=new RegExp('0[0-9]{1,2}[ -]?[0-9]{3,4}[ -]?[0-9]{4}','g');
+  var m=(t+'').match(re)||[];var seen={},res=[];
+  m.forEach(function(p){var c=p.replace(/[ -]/g,'');if(!seen[c]){seen[c]=1;res.push(c);}});
+  return res;
+}
+function fph(p){if(p.length===11)return p.slice(0,3)+'-'+p.slice(3,7)+'-'+p.slice(7);if(p.length===10)return p.slice(0,3)+'-'+p.slice(3,6)+'-'+p.slice(6);return p;}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function gtc(t){return({'매매':'badge-mae','전세':'badge-jun','월세':'badge-wol','전월세':'badge-mix','매전세':'badge-mix','매전월':'badge-mix','매월세':'badge-mix'})[t]||'';}
+function gpc(p){return({'완료':'proc-done','매매완료':'proc-done','계약':'proc-cont','재계약':'proc-cont','재계약확인':'proc-cont','보류':'proc-hold','대기':'proc-hold','통오더':'proc-ord','매물 확보':'proc-wait','잔금':'proc-pay','잔금정산':'proc-pay','타부동산':'proc-other','제안가능(물건등록)':'proc-prop','제안가능(미등록)':'proc-prop'})[p]||'';}
+function makeCard(r,i){
+  var ph=xph([(r['소유자']||''),(r['소유자2']||''),(r['이름']||'')].join(' '));
+  var phHtml=ph.map(function(p){return '<a class="phone-link" href="tel:'+p+'" onclick="event.stopPropagation()">📞 '+fph(p)+'</a>';}).join('');
+  return '<div class="card" onclick="det('+i+')">'+
+    '<div class="card-top"><div><div class="card-address">'+esc(r['동']||'-')+'동 '+esc(r['호']||'-')+'호</div><div class="card-building">'+esc(r['건물명']||'-')+'</div></div>'+
+    '<div class="card-badges"><span class="badge '+gtc(r['유형']||'')+'">'+esc(r['유형']||'-')+'</span><span class="badge '+gpc(r['프로세스']||'')+'">'+esc(r['프로세스']||'-')+'</span></div></div>'+
+    '<div class="card-mid"><span class="card-price">'+esc(r['금액']||'-')+'</span><span class="card-meta">'+esc(r['타입 (전용)']||r['타입 (공용)']||'')+(r['방']?' · 방'+r['방']:'')+(r['전용면적(㎡)']?' · '+r['전용면적(㎡)']+'㎡':'')+'</span></div>'+
+    (phHtml?'<div class="card-phones">'+phHtml+'</div>':'')+
+    (r['상담 내용']?'<div class="card-memo">'+esc(r['상담 내용'])+'</div>':'')+
+    '<div class="card-date">'+esc(r['실행일']||'')+'</div></div>';
+}
+function makeRow(r,i){
+  return '<tr onclick="det('+i+')">'+
+    '<td class="col-date">'+esc(r['실행일']||'-')+'</td>'+
+    '<td class="col-type"><span class="badge '+gtc(r['유형']||'')+'">'+esc(r['유형']||'-')+'</span></td>'+
+    '<td class="col-building">'+esc(r['건물명']||'-')+'</td>'+
+    '<td class="col-dong">'+esc(r['동']||'-')+'</td>'+
+    '<td class="col-ho">'+esc(r['호']||'-')+'</td>'+
+    '<td class="col-typev">'+esc(r['타입 (전용)']||r['타입 (공용)']||'-')+'</td>'+
+    '<td class="col-owner">'+esc(r['소유자']||'-')+'</td>'+
+    '<td class="col-price" style="color:#4f9cf9;font-family:monospace">'+esc(r['금액']||'-')+'</td>'+
+    '<td class="col-process"><span class="badge '+gpc(r['프로세스']||'')+'">'+esc(r['프로세스']||'-')+'</span></td>'+
+    '<td class="col-room" style="text-align:center">'+esc(r['방']||'-')+'</td>'+
+    '<td class="col-contract">'+esc(r['계약일']||'-')+'</td>'+
+    '<td class="col-area" style="font-family:monospace">'+esc(r['전용면적(㎡)']||'-')+'</td>'+
+    '<td class="col-memo">'+esc(r['상담 내용']||'-')+'</td></tr>';
+}
+
+// ── 렌더 ──────────────────────────────────────────
+function render(){
+  // 카드: 무한스크롤 (SCROLL_END개)
+  var cards='';
+  FD.slice(0,SCROLL_END).forEach(function(r,i){cards+=makeCard(r,i);});
+  document.getElementById('CL').innerHTML=cards;
+  // 테이블: 전체
+  var rows='';
+  FD.forEach(function(r,i){rows+=makeRow(r,i);});
+  document.getElementById('TB').innerHTML=rows;
+}
+
+// 무한스크롤
+window.addEventListener('scroll',function(){
+  if(window.innerWidth>=900) return;
+  var sb=document.documentElement.scrollHeight-window.scrollY-window.innerHeight;
+  if(sb<300&&SCROLL_END<FD.length){
+    SCROLL_END=Math.min(SCROLL_END+30,FD.length);
+    var cards='';
+    FD.slice(0,SCROLL_END).forEach(function(r,i){cards+=makeCard(r,i);});
+    document.getElementById('CL').innerHTML=cards;
+  }
+});
+
+// ── 상세 패널 ─────────────────────────────────────
 function det(idx){
   CUR_IDX=idx; cancelEdit();
   var r=FD[idx];
-  _renderDetPanel(r);
-}
-function _renderDetPanel(r){
-  var isContract = (r['소유자']||'').indexOf('계약')!==-1 ||(r['소유자2']||'').indexOf('계약')!==-1||(r['이름']||'').indexOf('계약')!==-1;
-  var contractBadge = isContract ? ' <span style="background:rgba(248,113,113,0.2);border:1px solid #f87171;color:#f87171;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;vertical-align:middle;">계약손님</span>' : '';
-  document.getElementById('DT').innerHTML = esc((r['건물명']||'')+' '+(r['동']||'')+'동 '+(r['호']||'')+'호') + contractBadge;
+  // 계약손님 라벨
+  var isContract=(r['소유자']||'').indexOf('계약')!==-1||(r['소유자2']||'').indexOf('계약')!==-1||(r['이름']||'').indexOf('계약')!==-1;
+  var badge=isContract?' <span style="background:rgba(248,113,113,0.2);border:1px solid #f87171;color:#f87171;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;vertical-align:middle;">계약손님</span>':'';
+  document.getElementById('DT').innerHTML=esc((r['건물명']||'')+' '+(r['동']||'')+'동 '+(r['호']||'')+'호')+badge;
   document.getElementById('DS').textContent=(r['유형']||'')+' · '+(r['프로세스']||'')+' · '+(r['실행일']||'');
+  // 전화번호
   var ph=xph([(r['소유자']||''),(r['소유자2']||''),(r['이름']||''),(r['임차인']||'')].join(' '));
   var h='';
-  
+  if(ph.length){
+    window._contactData=ph.map(function(p){return{phone:p,name:(r['건물명']||'')+(r['동']||'')+'동'+(r['호']||'')+'호 '+(r['소유자']||'').slice(0,15),memo:(r['상담 내용']||'').slice(0,50)};});
+    h='<div class="detail-phones">'+ph.map(function(p,ci){
+      return '<a class="phone-link" href="tel:'+p+'">📞 '+fph(p)+'</a>'+
+             '<button class="vcf-btn" onclick="saveContactByIdx('+ci+')">👤 저장</button>';
+    }).join('')+'</div>';
+  }
+  // 섹션
   var ss=[
-    {t:'기본 정보',d:[['건물명',r['건물명']],['동',r['동']],['호',r['호']],['유형',r['유형']],['타입(공용)',r['타입 (공용)']],['타입(전용)',r['타입 (전용)']],['금액',r['금액'],1],['프로세스',r['프로세스']],['방',r['방']],['에',r['에']],['융자',r['융자']],['층공개',r['층공개']],['독점',r['독점']],['토허제',r['토허제']],['광고주기',r['광고주기']],['입주형태',r['입주형태']]]},
+    {t:'기본 정보',d:[['건물명',r['건물명']],['동',r['동']],['호',r['호']],['유형',r['유형']],['타입(공용)',r['타입 (공용)']],['타입(전용)',r['타입 (전용)']],['금액',r['금액'],1],['프로세스',r['프로세스']],['방',r['방']],['에어컨',r['에']],['융자',r['융자']],['층공개',r['층공개']],['독점',r['독점']],['토허제',r['토허제']],['광고주기',r['광고주기']],['입주형태',r['입주형태']]]},
     {t:'소유자 정보',d:[['소유자',r['소유자']],['소유자2',r['소유자2']],['이름',r['이름']],['임차인',r['임차인']],['거주자명',r['거주자명']],['현재점유형태',r['현재점유형태']],['소유형태',r['소유형태']],['이실장소유자',r['이실장소유자명']]]},
-    {t:'계약 정보',d:[['약정일',r['약정일']],['계약일',r['계약일']],['만기일',r['만기일']],['잔금일',r['잔금일']],['중도금',r['중도금']],['계약금중일부',r['계약금중일부']]]},
+    {t:'계약 정보',d:[['계약금중일부',r['계약금중일부']],['약정일',r['약정일']],['토허제접수',r['토허제']],['계약일',r['계약일']],['중도금',r['중도금']],['잔금일',r['잔금일']],['만기일',r['만기일']]]},
     {t:'면적',d:[['공급면적(㎡)',r['공급  면적(㎡)']],['전용면적(㎡)',r['전용면적(㎡)']],['평',r['평']]]},
     {t:'수익',d:[['발생수익 매도·임대(VAT포함)',r['발생수익  매도,임대(VAT포함)']],['발생수익 매수·임차(VAT포함)',r['발생수익-매수,임차  (VAT포함)']]]},
   ];
@@ -747,199 +803,27 @@ function _renderDetPanel(r){
   if(r['상담 내용'])h+='<div class="detail-section"><div class="detail-section-title">상담 내용</div><div class="memo-box">'+esc(r['상담 내용'])+'</div></div>';
   if(r['비고'])h+='<div class="detail-section"><div class="detail-section-title">비고</div><div class="memo-box">'+esc(r['비고'])+'</div></div>';
   document.getElementById('DB').innerHTML=h;
-  if(!document.getElementById('DO').classList.contains('open')){
-    document.getElementById('DO').classList.add('open');
-    document.body.style.overflow='hidden';
-  }
+  document.getElementById('DO').classList.add('open');
+  document.body.style.overflow='hidden';
 }
-
-
-function saveContactByIdx(idx){
-  var d = (window._contactData||[])[idx];
-  if(d) saveContact(d.phone, d.name, d.memo);
-}
-function saveContact(phone, name, memo){
-  // vCard 생성
-  var vcard = [
-    'BEGIN:VCARD',
-    'VERSION:3.0',
-    'FN:'+name,
-    'TEL;TYPE=CELL:'+phone,
-    'NOTE:'+memo,
-    'END:VCARD'
-  ].join('\r\n');
-  var blob = new Blob([vcard], {type:'text/vcard'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = name.replace(/\s+/g,'_')+'.vcf';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(function(){URL.revokeObjectURL(url);}, 1000);
-  showToast('👤 주소록 파일 저장\n연락처 앱에서 가져오기 하세요');
-}
-
-
-var ALL_MSGS = [{"cat": "매매", "title": "매도 의향 확인", "body": "안녕하세요, 부동산 담당자입니다.\n혹시 현재 매도 의향이 있으신가요?\n좋은 조건으로 빠르게 진행해 드릴 수 있습니다."}, {"cat": "매매", "title": "가격 조율 제안", "body": "안녕하세요.\n현재 시세 대비 합리적인 가격으로 매수 희망 고객이 있습니다.\n잠깐 통화 가능하실까요?"}, {"cat": "매매", "title": "재계약 안내", "body": "안녕하세요, 곧 계약 만기가 다가오고 있습니다.\n재계약 또는 새로운 조건 협의를 위해 연락드립니다.\n편하신 시간에 연락 부탁드립니다."}, {"cat": "전세", "title": "전세 매물 안내", "body": "안녕하세요.\n조건에 맞는 전세 매물이 나왔습니다.\n관심 있으시면 연락 주세요."}, {"cat": "전세", "title": "전세 만기 안내", "body": "안녕하세요.\n전세 계약 만기일이 다가오고 있습니다.\n재계약 여부 확인을 위해 연락드립니다."}, {"cat": "월세", "title": "월세 매물 안내", "body": "안녕하세요.\n원하시는 조건의 월세 매물이 있습니다.\n편하신 시간에 연락 주세요."}, {"cat": "월세", "title": "월세 조율 제안", "body": "안녕하세요.\n월세 금액 조율이 가능한 물건이 있습니다.\n한번 만나서 이야기 나눠볼까요?"}, {"cat": "기타", "title": "방문 일정 확인", "body": "안녕하세요.\n매물 확인을 위한 방문 일정을 잡고 싶습니다.\n가능한 날짜를 알려주시면 감사하겠습니다."}, {"cat": "기타", "title": "서류 안내", "body": "계약 진행을 위해 필요한 서류 목록 안내드립니다.\n- 신분증\n- 등기권리증\n- 인감도장 및 인감증명서\n준비 부탁드립니다."}, {"cat": "기타", "title": "중개보수 안내", "body": "안녕하세요.\n이번 거래의 중개보수는 법정 요율 기준으로 산정됩니다.\n궁금하신 점은 언제든지 연락 주세요."}];
-var _curMsgBody = '';
-
-function openMsgModal(){
-  var html = '';
-  var cats = ["매매", "전세", "월세", "기타"];
-  var catMap = {"\ub9e4\ub9e4": [0, 1, 2], "\uc804\uc138": [3, 4], "\uc6d4\uc138": [5, 6], "\uae30\ud0c0": [7, 8, 9]};
-  cats.forEach(function(cat){
-    html += '<div style="margin-bottom:20px;">';
-    html += '<div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);">'+cat+'</div>';
-    html += '<div style="display:flex;flex-direction:column;gap:8px;">';
-    catMap[cat].forEach(function(msgIdx){
-      var m = ALL_MSGS[msgIdx];
-      html += '<button onclick="openMsgDetail('+msgIdx+')" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;text-align:left;cursor:pointer;width:100%;">'+
-        '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;">'+m.title+'</div>'+
-        '<div style="font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+m.body.replace(/\n/g,' ')+'</div>'+
-      '</button>';
-    });
-    html += '</div></div>';
-  });
-  document.getElementById('MSG_LIST').innerHTML = html;
-  document.getElementById('MSG_MODAL').style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-function closeMsgModal(){
-  document.getElementById('MSG_MODAL').style.display = 'none';
-  document.body.style.overflow = '';
-}
-
-function openMsgDetail(msgIdx){
-  var m = ALL_MSGS[msgIdx];
-  _curMsgBody = m.body;
-  document.getElementById('MSG_DETAIL_TITLE').textContent = m.title;
-  document.getElementById('MSG_DETAIL_BODY').textContent = m.body;
-  document.getElementById('MSG_DETAIL').style.display = 'flex';
-}
-
-var _editMsgIdx = -1; // -1 = 새 추가, >= 0 = 수정
-
-// 로컬스토리지에서 ALL_MSGS 로드/저장
-var MSG_STORAGE_KEY = 'apt_msgs_v1';
-function loadMsgs(){
-  try{
-    var saved = localStorage.getItem(MSG_STORAGE_KEY);
-    if(saved) ALL_MSGS = JSON.parse(saved);
-  }catch(e){}
-}
-function saveMsgs(){
-  try{ localStorage.setItem(MSG_STORAGE_KEY, JSON.stringify(ALL_MSGS)); }catch(e){}
-}
-
-function openMsgAdd(){
-  _editMsgIdx = -1;
-  document.getElementById('MSG_EDIT_TITLE').textContent = '문구 추가';
-  document.getElementById('ME_CAT').value = '';
-  document.getElementById('ME_TITLE').value = '';
-  document.getElementById('ME_BODY').value = '';
-  document.getElementById('MSG_EDIT').style.display = 'flex';
-}
-
-function openMsgEdit(){
-  if(_editMsgIdx < 0 || _editMsgIdx >= ALL_MSGS.length) return;
-  var m = ALL_MSGS[_editMsgIdx];
-  document.getElementById('MSG_EDIT_TITLE').textContent = '문구 수정';
-  document.getElementById('ME_CAT').value = m.cat || '';
-  document.getElementById('ME_TITLE').value = m.title || '';
-  document.getElementById('ME_BODY').value = m.body || '';
-  document.getElementById('MSG_EDIT').style.display = 'flex';
-}
-
-function closeMsgEdit(){
-  document.getElementById('MSG_EDIT').style.display = 'none';
-}
-
-function saveMsgEdit(){
-  var cat = document.getElementById('ME_CAT').value.trim();
-  var title = document.getElementById('ME_TITLE').value.trim();
-  var body = document.getElementById('ME_BODY').value;
-  if(!cat || !title || !body.trim()){
-    showToast('카테고리, 제목, 내용을 모두 입력하세요'); return;
-  }
-  if(_editMsgIdx < 0){
-    // 새 추가
-    ALL_MSGS.push({cat: cat, title: title, body: body});
-    showToast('✅ 문구가 추가되었습니다');
-  } else {
-    // 수정
-    ALL_MSGS[_editMsgIdx] = {cat: cat, title: title, body: body};
-    showToast('✅ 문구가 수정되었습니다');
-  }
-  saveMsgs();
-  closeMsgEdit();
-  openMsgModal(); // 목록 새로고침
-}
-
-function deleteMsgCur(){
-  if(_editMsgIdx < 0 || _editMsgIdx >= ALL_MSGS.length) return;
-  if(!confirm(ALL_MSGS[_editMsgIdx].title + '\n\n이 문구를 삭제할까요?')) return;
-  ALL_MSGS.splice(_editMsgIdx, 1);
-  saveMsgs();
-  showToast('🗑 삭제되었습니다');
-  closeMsgDetail();
-  openMsgModal();
-}
-
-// openMsgDetail 수정 (인덱스 저장)
-var _origOpenMsgDetail = openMsgDetail;
-openMsgDetail = function(msgIdx){
-  _editMsgIdx = msgIdx;
-  _origOpenMsgDetail(msgIdx);
-};
-
-function closeMsgDetail(){
-  document.getElementById('MSG_DETAIL').style.display = 'none';
-}
-
-function copyMsg(){
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(_curMsgBody).then(function(){
-      showToast('📋 복사 완료!');
-    });
-  } else {
-    var ta=document.createElement('textarea');
-    ta.value=_curMsgBody; ta.style.position='fixed'; ta.style.opacity='0';
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('📋 복사 완료!');
-  }
-}
-
-function sendKakao(){
-  // 카카오톡 공유 (앱 딥링크)
-  var encoded = encodeURIComponent(_curMsgBody);
-  // iOS/Android 카카오톡 딥링크
-  var kakaoUrl = 'kakaolink://open?text='+encoded;
-  var fallback = 'https://kakao.com';
-  var win = window.open(kakaoUrl);
-  // 앱 없으면 클립보드 복사 후 안내
-  setTimeout(function(){
-    copyMsg();
-    showToast('카카오톡 앱을 열어 붙여넣기 하세요\n(텍스트가 복사되었습니다)');
-  }, 1500);
-}
-
-function sendSMS(){
-  var encoded = encodeURIComponent(_curMsgBody);
-  // iOS: sms:&body=..., Android: sms:?body=...
-  var ua = navigator.userAgent.toLowerCase();
-  var sep = ua.indexOf('iphone')>-1||ua.indexOf('ipad')>-1 ? '&' : '?';
-  window.location.href = 'sms:'+sep+'body='+encoded;
-}
-
 function closeDet(){document.getElementById('DO').classList.remove('open');document.body.style.overflow='';cancelEdit();}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDet();});
 
-// ── 수정 폼 ───────────────────────────────────────────────
+// ── 주소록 저장 ───────────────────────────────────
+function saveContactByIdx(idx){var d=(window._contactData||[])[idx];if(d)saveContact(d.phone,d.name,d.memo);}
+function saveContact(phone,name,memo){
+  var vcard=['BEGIN:VCARD','VERSION:3.0','FN:'+name,'TEL;TYPE=CELL:'+phone,'NOTE:'+memo,'END:VCARD'].join('\r\n');
+  var blob=new Blob([vcard],{type:'text/vcard'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download=name.replace(/\s+/g,'_')+'.vcf';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  showToast('👤 주소록 파일 저장\n연락처 앱에서 가져오기 하세요');
+}
+
+// ── 수정 폼 ───────────────────────────────────────
 function toggleEdit(){
-  var ef=document.getElementById('EF');
-  var btn=document.getElementById('editToggleBtn');
+  var ef=document.getElementById('EF'),btn=document.getElementById('editToggleBtn');
   if(ef.style.display==='none'||ef.style.display===''){
     var r=FD[CUR_IDX];
     document.getElementById('e-type').value=r['유형']||'';
@@ -957,24 +841,19 @@ function toggleEdit(){
     document.getElementById('e-rev2').value=r['발생수익-매수,임차  (VAT포함)']||'';
     document.getElementById('e-memo').value=r['상담 내용']||'';
     ef.style.display='block';
-    btn.textContent='▲ 닫기';
-    btn.style.background='rgba(91,105,128,0.2)';
-    btn.style.borderColor='rgba(91,105,128,0.4)';
-    btn.style.color='var(--text2)';
+    btn.textContent='▲ 닫기';btn.style.background='rgba(91,105,128,0.2)';btn.style.borderColor='rgba(91,105,128,0.4)';btn.style.color='var(--text2)';
     setTimeout(function(){ef.scrollIntoView({behavior:'smooth',block:'nearest'});},80);
-  }else{cancelEdit();}
+  } else {cancelEdit();}
 }
 function cancelEdit(){
   var ef=document.getElementById('EF');if(ef)ef.style.display='none';
   var btn=document.getElementById('editToggleBtn');
   if(btn){btn.textContent='✏️ 수정';btn.style.background='rgba(79,156,249,0.15)';btn.style.borderColor='rgba(79,156,249,0.4)';btn.style.color='#4f9cf9';}
 }
-
 async function saveEdit(){
   var r=FD[CUR_IDX];
-  if(!r['__row__']){showToast('⚠️ 행 번호 없음\n🔄 동기화 후 다시 시도하세요');return;}
-  var vals={};
-  var v;
+  if(!r['__row__']){showToast('⚠️ 행 번호 없음\n🔄 동기화 후 다시 시도');return;}
+  var vals={},v;
   v=document.getElementById('e-type').value;    if(v)vals['유형']=v;
   v=document.getElementById('e-proc').value;    if(v)vals['프로세스']=v;
   v=document.getElementById('e-price').value;   if(v)vals['금액']=v;
@@ -991,72 +870,119 @@ async function saveEdit(){
   vals['상담 내용']=document.getElementById('e-memo').value;
   if(Object.keys(vals).length===0){showToast('수정할 내용을 입력하세요');return;}
   var btn=document.getElementById('saveBtnEdit');
-  btn.textContent='저장 중...';btn.disabled=true;
-  showToast('⏳ 저장 중...');
+  btn.textContent='저장 중...';btn.disabled=true;showToast('⏳ 저장 중...');
   try{
-    var res=await fetch(ASURL,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({action:'update',rowIndex:r['__row__'],values:vals})
-    });
-    var text=await res.text();
-    var json=JSON.parse(text);
+    var res=await fetch(ASURL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'update',rowIndex:r['__row__'],values:vals})});
+    var json=JSON.parse(await res.text());
     if(json.success){
       Object.keys(vals).forEach(function(k){r[k]=vals[k];});
-      showToast('✅ 저장 완료!\n매물장에 반영되었습니다');
-      cancelEdit();
-      det(CUR_IDX);
-    }else{
-      showToast('❌ 실패: '+json.message);
-    }
-  }catch(e){
-    showToast('❌ 오류: '+e.message);
-  }finally{
-    btn.textContent='💾 저장';btn.disabled=false;
-  }
+      showToast('✅ 저장 완료!');cancelEdit();det(CUR_IDX);
+    } else {showToast('❌ 실패: '+json.message);}
+  }catch(e){showToast('❌ 오류: '+e.message);}
+  finally{btn.textContent='💾 저장';btn.disabled=false;}
 }
 
-// ── 새 매물 ───────────────────────────────────────────────
+// ── 새 매물 ───────────────────────────────────────
 function openAddNew(){
   var today=new Date();
   document.getElementById('n-date').value=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
   ['n-building','n-type','n-dong','n-ho','n-price','n-proc','n-owner','n-expire2','n-memo'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('AM').classList.add('open');
-  document.body.style.overflow='hidden';
+  document.getElementById('AM').classList.add('open');document.body.style.overflow='hidden';
 }
 function closeAddNew(){document.getElementById('AM').classList.remove('open');document.body.style.overflow='';}
-
 async function saveNewRow(){
-  var bld=document.getElementById('n-building').value;
+  var bld=document.getElementById('n-building').value.trim();
   var typ=document.getElementById('n-type').value;
   var dng=document.getElementById('n-dong').value.trim();
   var ho=document.getElementById('n-ho').value.trim();
-  if(!bld||!typ||!dng||!ho){showToast('⚠️ 건물명, 유형, 동, 호는\n필수 입력 항목입니다');return;}
-  var vals={'건물명':bld,'유형':typ,'동':dng,'호':ho,
-    '금액':document.getElementById('n-price').value,
-    '프로세스':document.getElementById('n-proc').value,
-    '소유자':document.getElementById('n-owner').value,
-    '실행일':document.getElementById('n-date').value,
-    '만기일':document.getElementById('n-expire2').value,
-    '상담 내용':document.getElementById('n-memo').value};
-  var btn=document.getElementById('addSaveBtn');
-  btn.textContent='추가 중...';btn.disabled=true;
-  showToast('⏳ 추가 중...');
+  if(!bld||!typ||!dng||!ho){showToast('⚠️ 건물명, 유형, 동, 호는 필수');return;}
+  var vals={'건물명':bld,'유형':typ,'동':dng,'호':ho,'금액':document.getElementById('n-price').value,'프로세스':document.getElementById('n-proc').value,'소유자':document.getElementById('n-owner').value,'실행일':document.getElementById('n-date').value,'만기일':document.getElementById('n-expire2').value,'상담 내용':document.getElementById('n-memo').value};
+  var btn=document.getElementById('addSaveBtn');btn.textContent='추가 중...';btn.disabled=true;showToast('⏳ 추가 중...');
   try{
-    var res=await fetch(ASURL,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({action:'append',values:vals})
-    });
+    var res=await fetch(ASURL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'append',values:vals})});
     var json=JSON.parse(await res.text());
-    if(json.success){showToast('✅ 새 매물 추가 완료!\n🔄 동기화를 눌러 검색기에 반영하세요');closeAddNew();}
+    if(json.success){showToast('✅ 추가 완료!\n🔄 동기화를 눌러 반영하세요');closeAddNew();}
     else showToast('❌ 실패: '+json.message);
-  }catch(e){
-    showToast('❌ 오류: '+e.message);
-  }finally{btn.textContent='＋ 매물장에 추가';btn.disabled=false;}
+  }catch(e){showToast('❌ 오류: '+e.message);}
+  finally{btn.textContent='＋ 매물장에 추가';btn.disabled=false;}
+}
+
+// ── 안내문구 ──────────────────────────────────────
+function loadMsgs(){
+  try{var s=localStorage.getItem(MSG_STORAGE_KEY);if(s)ALL_MSGS=JSON.parse(s);}catch(e){}
+}
+function saveMsgs(){try{localStorage.setItem(MSG_STORAGE_KEY,JSON.stringify(ALL_MSGS));}catch(e){}}
+function openMsgModal(){
+  var cats={};
+  ALL_MSGS.forEach(function(m,i){if(!cats[m.cat])cats[m.cat]=[];cats[m.cat].push(i);});
+  var h='';
+  Object.keys(cats).forEach(function(cat){
+    h+='<div style="margin-bottom:18px;"><div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border);">'+cat+'</div>';
+    h+='<div style="display:flex;flex-direction:column;gap:7px;">';
+    cats[cat].forEach(function(mi){
+      var m=ALL_MSGS[mi];
+      h+='<button onclick="openMsgDetail('+mi+')" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px 14px;text-align:left;cursor:pointer;width:100%;">'+
+        '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px;">'+esc(m.title)+'</div>'+
+        '<div style="font-size:12px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(m.body.replace(/\n/g,' '))+'</div></button>';
+    });
+    h+='</div></div>';
+  });
+  document.getElementById('MSG_LIST').innerHTML=h;
+  document.getElementById('MSG_MODAL').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeMsgModal(){document.getElementById('MSG_MODAL').classList.remove('open');document.body.style.overflow='';}
+function openMsgDetail(mi){
+  _editMsgIdx=mi;_curMsgBody=ALL_MSGS[mi].body;
+  document.getElementById('MD_TITLE').textContent=ALL_MSGS[mi].title;
+  document.getElementById('MD_BODY').textContent=ALL_MSGS[mi].body;
+  document.getElementById('MSG_DETAIL').classList.add('open');
+}
+function closeMsgDetail(){document.getElementById('MSG_DETAIL').classList.remove('open');}
+function copyMsg(){
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(_curMsgBody).then(function(){showToast('📋 복사 완료!');});}
+  else{var ta=document.createElement('textarea');ta.value=_curMsgBody;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('📋 복사 완료!');}
+}
+function sendKakao(){
+  copyMsg();
+  setTimeout(function(){showToast('카카오톡 앱을 열어\n붙여넣기 하세요');},500);
+}
+function sendSMS(){
+  var ua=navigator.userAgent.toLowerCase();
+  var sep=(ua.indexOf('iphone')>-1||ua.indexOf('ipad')>-1)?'&':'?';
+  window.location.href='sms:'+sep+'body='+encodeURIComponent(_curMsgBody);
+}
+function openMsgAdd(){
+  _editMsgIdx=-1;
+  document.getElementById('ME_TITLE2').textContent='문구 추가';
+  document.getElementById('ME_CAT').value='';document.getElementById('ME_TITLE').value='';document.getElementById('ME_BODY').value='';
+  document.getElementById('MSG_EDIT').classList.add('open');
+}
+function openMsgEdit(){
+  if(_editMsgIdx<0)return;var m=ALL_MSGS[_editMsgIdx];
+  document.getElementById('ME_TITLE2').textContent='문구 수정';
+  document.getElementById('ME_CAT').value=m.cat||'';document.getElementById('ME_TITLE').value=m.title||'';document.getElementById('ME_BODY').value=m.body||'';
+  document.getElementById('MSG_EDIT').classList.add('open');
+}
+function closeMsgEdit(){document.getElementById('MSG_EDIT').classList.remove('open');}
+function saveMsgEdit(){
+  var cat=document.getElementById('ME_CAT').value.trim();
+  var title=document.getElementById('ME_TITLE').value.trim();
+  var body=document.getElementById('ME_BODY').value;
+  if(!cat||!title||!body.trim()){showToast('카테고리, 제목, 내용을 모두 입력하세요');return;}
+  if(_editMsgIdx<0){ALL_MSGS.push({cat:cat,title:title,body:body});showToast('✅ 문구가 추가되었습니다');}
+  else{ALL_MSGS[_editMsgIdx]={cat:cat,title:title,body:body};showToast('✅ 문구가 수정되었습니다');}
+  saveMsgs();closeMsgEdit();
+  openMsgModal();
+}
+function deleteMsgCur(){
+  if(_editMsgIdx<0||_editMsgIdx>=ALL_MSGS.length)return;
+  if(!confirm(ALL_MSGS[_editMsgIdx].title+'\n\n이 문구를 삭제할까요?'))return;
+  ALL_MSGS.splice(_editMsgIdx,1);saveMsgs();
+  showToast('🗑 삭제되었습니다');closeMsgDetail();openMsgModal();
 }
 
 document.getElementById('SI2').addEventListener('input',function(e){fS=e.target.value;applyAll();});
+
 </script>
 </body>
 </html>
