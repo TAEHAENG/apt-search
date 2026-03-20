@@ -259,6 +259,7 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
     <tbody id="TB"></tbody>
   </table>
 </div>
+<div id="PAGER"></div>
 <div class="empty-state" id="ES" style="display:none"><div class="empty-icon">🔍</div><p>검색 결과가 없습니다</p></div>
 
 <!-- 상세 패널 -->
@@ -537,9 +538,8 @@ window.onload=function(){
     if(cached.length>0){
       initData(cached); // 캐시 있으면 즉시 표시, 로딩화면 없음
     } else {
-      document.getElementById('LO').classList.add('show');
-      document.getElementById('LT').textContent='동기화 버튼을 눌러 데이터를 불러오세요';
-      initData([]);
+      // 캐시 없으면 자동으로 동기화 시작
+      syncSheets();
     }
   }catch(e){ console.error('로드 실패:',e.message); }
 };
@@ -671,7 +671,7 @@ function asr(){
       if(seen.has(k))return false;seen.add(k);return true;
     });
   }
-  SCROLL_END=50;render();
+  SCROLL_END=50;PAGE=1;render();
   document.getElementById('RC').innerHTML='검색결과: <b>'+FD.length.toLocaleString()+'</b>건';
   document.getElementById('ES').style.display=FD.length===0?'block':'none';
 }
@@ -717,15 +717,38 @@ function makeRow(r,i){
 }
 
 // ── 렌더 ──────────────────────────────────────────
+var PAGE=1,PER=50;
 function render(){
-  // 카드: 무한스크롤 (SCROLL_END개)
+  // 카드: 무한스크롤
   var cards='';
   FD.slice(0,SCROLL_END).forEach(function(r,i){cards+=makeCard(r,i);});
   document.getElementById('CL').innerHTML=cards;
-  // 테이블: 전체
+  // 테이블: 페이지네이션 50건
+  var st=(PAGE-1)*PER, pg=FD.slice(st,st+PER);
   var rows='';
-  FD.forEach(function(r,i){rows+=makeRow(r,i);});
+  pg.forEach(function(r,i){rows+=makeRow(r,st+i);});
   document.getElementById('TB').innerHTML=rows;
+  renderPager();
+}
+function renderPager(){
+  var tot=Math.ceil(FD.length/PER);
+  var el=document.getElementById('PAGER');
+  if(!el||tot<=1){if(el)el.innerHTML='';return;}
+  var h='<div style="display:flex;align-items:center;justify-content:center;gap:4px;padding:10px;">';
+  h+='<button onclick="goPage('+(PAGE-1)+')" '+(PAGE===1?'disabled':'')+' style="padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">◀</button>';
+  var s=Math.max(1,PAGE-2),en=Math.min(tot,s+4);if(en-s<4)s=Math.max(1,en-4);
+  if(s>1)h+='<button onclick="goPage(1)" style="padding:5px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">1</button><span style="color:var(--text3);padding:0 2px;">…</span>';
+  for(var i=s;i<=en;i++)h+='<button onclick="goPage('+i+')" style="padding:5px 9px;background:'+(i===PAGE?'var(--accent)':'var(--surface2)')+';border:1px solid '+(i===PAGE?'var(--accent)':'var(--border)')+';border-radius:5px;color:'+(i===PAGE?'#fff':'var(--text2)')+';cursor:pointer;">'+i+'</button>';
+  if(en<tot)h+='<span style="color:var(--text3);padding:0 2px;">…</span><button onclick="goPage('+tot+')" style="padding:5px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">'+tot+'</button>';
+  h+='<button onclick="goPage('+(PAGE+1)+')" '+(PAGE===tot?'disabled':'')+' style="padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">▶</button>';
+  h+='<span style="font-size:11px;color:var(--text3);margin-left:4px;">'+PAGE+'/'+tot+'p</span></div>';
+  el.innerHTML=h;
+}
+function goPage(p){
+  var tot=Math.ceil(FD.length/PER);
+  if(p<1||p>tot)return;
+  PAGE=p; render();
+  document.querySelector('.table-wrap').scrollTop=0;
 }
 
 // 무한스크롤
