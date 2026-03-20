@@ -531,16 +531,17 @@ function initData(raw){
 
 // ── 로드 ──────────────────────────────────────────
 window.onload=function(){
-  loadMsgs();  document.getElementById('LO').classList.add('show');
-  document.getElementById('LT').textContent='데이터 로딩 중...';
-  setTimeout(function(){
-    try{
-      var cached = loadCache();
-      initData(cached);
-
+  loadMsgs();
+  try{
+    var cached=loadCache();
+    if(cached.length>0){
+      initData(cached); // 캐시 있으면 즉시 표시, 로딩화면 없음
+    } else {
+      document.getElementById('LO').classList.add('show');
+      document.getElementById('LT').textContent='동기화 버튼을 눌러 데이터를 불러오세요';
+      initData([]);
     }
-    catch(e){ document.getElementById('LT').textContent='로드 실패: '+e.message; }
-  },80);
+  }catch(e){ console.error('로드 실패:',e.message); }
 };
 
 // ── 동기화 ────────────────────────────────────────
