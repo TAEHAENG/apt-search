@@ -129,6 +129,12 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
 .loading-overlay{display:none;position:fixed;inset:0;background:rgba(13,15,20,0.92);z-index:300;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
 .loading-overlay.show{display:flex;}.loading-spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}.loading-text{font-size:13px;color:var(--text2);}
 .empty-state{text-align:center;padding:50px 24px;color:var(--text3);}.empty-icon{font-size:34px;margin-bottom:10px;}
+
+/* 건물 확장 버튼 */
+.bld-expand-btn{background:none;border:1.5px dashed var(--border);border-radius:8px;padding:5px 12px;font-size:12px;color:var(--text3);cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.bld-expand-btn:hover{border-color:var(--text2);color:var(--text2);}
+.bld-extra{display:none;width:100%;flex-wrap:wrap;gap:5px;margin-top:2px;}
+.bld-extra.open{display:flex;}
 </style>
 </head>
 <body>
@@ -186,7 +192,9 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
       <button class="sel-btn bld-one" id="bld-힐스" onclick="selBld('힐스')">힐스</button>
       <button class="sel-btn bld-one" id="bld-중푸" onclick="selBld('중푸')">중푸</button>
       <button class="sel-btn bld-one" id="bld-송푸" onclick="selBld('송푸')">송푸</button>
-      <div class="bld-divider"></div>
+      <button class="bld-expand-btn" id="bldExpandBtn" onclick="toggleBldExpand()">＋ 전체 보기</button>
+    </div>
+    <div class="bld-extra" id="bldExtra">
       <button class="sel-btn bld-one" id="bld-그린파크" onclick="selBld('그린파크')">그린파크</button>
       <button class="sel-btn bld-one" id="bld-꿈에" onclick="selBld('꿈에')">꿈에</button>
       <button class="sel-btn bld-one" id="bld-더힐" onclick="selBld('더힐')">더힐</button>
@@ -219,10 +227,9 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
       <button class="sel-btn bld-one" id="bld-호반써밋" onclick="selBld('호반써밋')">호반써밋</button>
       <button class="sel-btn bld-one" id="bld-호반써밋2" onclick="selBld('호반써밋2')">호반써밋2</button>
       <button class="sel-btn bld-one" id="bld-호반써밋애비뉴" onclick="selBld('호반써밋애비뉴')">호반써밋애비뉴</button>
-      <button class="sel-btn bld-one" id="bld-힐스북위례" onclick="selBld('힐스북위례')">힐스북위례</button>
-      <button class="sel-btn bld-one" id="bld-힐스위례" onclick="selBld('힐스위례')">힐스위례</button>
     </div>
   </div>
+
   <div class="filter-divider"></div>
   <div class="filter-row">
     <div class="filter-row-label">③ 프로세스</div>
@@ -806,6 +813,20 @@ function det(idx){
   document.getElementById('DO').classList.add('open');
   document.body.style.overflow='hidden';
 }
+
+function toggleBldExpand(){
+  var ex=document.getElementById('bldExtra');
+  var btn=document.getElementById('bldExpandBtn');
+  var isOpen=ex.classList.contains('open');
+  if(isOpen){
+    ex.classList.remove('open');
+    btn.textContent='＋ 전체 보기';
+  } else {
+    ex.classList.add('open');
+    btn.textContent='－ 접기';
+  }
+}
+
 function closeDet(){document.getElementById('DO').classList.remove('open');document.body.style.overflow='';cancelEdit();}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDet();});
 
