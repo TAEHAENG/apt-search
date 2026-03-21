@@ -1418,8 +1418,9 @@ function buyerSwitchTab(name,el){
 }
 
 // ══════════ 제안하기 흐름 ══════════
+var _savedProposalBuyerRow=-1; // 기존 구입자 행 번호
 function openProposalMode(){
-  _proposalBuyerIdx=_curBuyerIdx; // 어떤 구입자에서 눌렀는지 기억
+  _proposalBuyerIdx=_curBuyerIdx;
   closeBuyerDet();_proposalMode=true;switchView('search');
   showToast('매물을 체크박스로 선택 후\n우측 하단 「📦 이 매물로 제안하기」를 누르세요');
 }
@@ -1441,17 +1442,19 @@ function proposeToCurrentBuyer(){
 
   // 기존 구입자에서 온 경우 → 해당 구입자 정보 자동 채우기 + 기존 제안 이력 표시
   var savedIdx=_proposalBuyerIdx;_proposalBuyerIdx=-1;
+  _savedProposalBuyerRow=-1; // 초기화
   if(savedIdx>=0&&_buyerListFiltered[savedIdx]){
     var b=_buyerListFiltered[savedIdx];
+    _savedProposalBuyerRow=b['__row__']||-1; // ★ 행 번호 저장
     document.getElementById('b-namephone').value=b['고객명(전화번호)']||'';
-    document.getElementById('b-movein').value=b['입주희망일']||'';
+    document.getElementById('b-movein').value=b['입주일']||'';        // ★ 헤더명 일치
     document.getElementById('b-budget').value=b['예산']||'';
     document.getElementById('b-type').value=b['거래유형']||'';
-    document.getElementById('b-status').value=b['진행상태']||'';
-    document.getElementById('b-want').value=b['찾는매물']||'';
+    document.getElementById('b-status').value=b['진행']||'';          // ★ 헤더명 일치
+    document.getElementById('b-want').value=b['찾는 매물']||'';       // ★ 헤더명 일치
     document.getElementById('b-memo').value=b['상담 내용']||'';
     // 기존 제안 이력 표시
-    var prevPropose=(b['제안매물']||'').trim();
+    var prevPropose=(b['제안 매물']||'').trim();                       // ★ 헤더명 일치
     var hb=document.getElementById('buyer-history-box');
     var hc=document.getElementById('buyer-history-content');
     if(prevPropose&&hb&&hc){hc.textContent=prevPropose;hb.style.display='block';}
@@ -1493,28 +1496,42 @@ async function saveBuyerRecord(){
   var namephone=document.getElementById('b-namephone').value.trim();
   if(!namephone){showToast('⚠️ 고객명(전화번호)은 필수입니다');return;}
   var ymd=new Date().toISOString().slice(0,10);
-  // ★ textarea에서 직접 읽기 (사용자가 수정한 내용 그대로)
   var listingText=(document.getElementById('buyer-propose-textarea').value||'').trim();
+
+  // ★ 시트 헤더명과 정확히 일치
   var vals={
-    '상담일':ymd,'고객명(전화번호)':namephone,
-    '입주희망일':document.getElementById('b-movein').value.trim(),
-    '예산':document.getElementById('b-budget').value.trim(),
+    '기입일':ymd,
+    '고객명(전화번호)':namephone,
     '거래유형':document.getElementById('b-type').value,
-    '진행상태':document.getElementById('b-status').value,
-    '찾는매물':document.getElementById('b-want').value.trim(),
-    '제안매물':listingText,
-    '상담 내용':document.getElementById('b-memo').value.trim() // ★ 띄어쓰기
+    '예산':document.getElementById('b-budget').value.trim(),
+    '입주일':document.getElementById('b-movein').value.trim(),
+    '찾는 매물':document.getElementById('b-want').value.trim(),
+    '제안 매물':listingText,
+    '상담 내용':document.getElementById('b-memo').value.trim(),
+    '진행':document.getElementById('b-status').value
   };
+
   var btn=document.getElementById('buyer-save-btn');btn.textContent='저장 중...';btn.disabled=true;showToast('⏳ 저장 중...');
   try{
-    var res=await fetch(ASURL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'appendBuyer',sheetName:BUYER_SHEET,values:vals})});
+    var action, body;
+    // ★ 기존 구입자에서 온 경우 → 제안 매물만 업데이트
+    if(_savedProposalBuyerRow>0){
+      action='updateBuyer';
+      body=JSON.stringify({action:action,sheetName:BUYER_SHEET,rowIndex:_savedProposalBuyerRow,values:{'제안 매물':listingText,'상담 내용':vals['상담 내용'],'진행':vals['진행']}});
+    } else {
+      // 신규 구입자 → 새 행 추가
+      action='appendBuyer';
+      body=JSON.stringify({action:action,sheetName:BUYER_SHEET,values:vals});
+    }
+    var res=await fetch(ASURL,{method:'POST',headers:{'Content-Type':'text/plain'},body:body});
     var json=JSON.parse(await res.text());
     if(json.success){
-      showToast('✅ 상담 기록이 저장되었습니다!');
+      showToast('✅ '+(action==='updateBuyer'?'제안 내용이 업데이트되었습니다!':'상담 기록이 저장되었습니다!'));
       ['b-namephone','b-budget','b-want','b-memo','b-movein'].forEach(function(id){document.getElementById(id).value='';});
       document.getElementById('b-type').value='';document.getElementById('b-status').value='';
       var ta=document.getElementById('buyer-propose-textarea');if(ta)ta.value='';
       var hb=document.getElementById('buyer-history-box');if(hb)hb.style.display='none';
+      _savedProposalBuyerRow=-1;
       buyerClearListings();
     } else {showToast('❌ 저장 실패: '+(json.message||''));}
   }catch(e){showToast('❌ 오류: '+e.message);}
@@ -1542,7 +1559,7 @@ async function loadBuyerList(){
 function applyBuyerSearch(){
   var sq=(document.getElementById('buyer-search')||{value:''}).value.toLowerCase().trim();
   _buyerListFiltered=sq?_buyerList.filter(function(r){
-    return[(r['고객명(전화번호)']||''),(r['찾는매물']||''),(r['상담 내용']||''),(r['제안매물']||'')].join(' ').toLowerCase().indexOf(sq)!==-1;
+    return[(r['고객명(전화번호)']||''),(r['찾는 매물']||''),(r['상담 내용']||''),(r['제안 매물']||'')].join(' ').toLowerCase().indexOf(sq)!==-1;
   }):_buyerList.slice();
   var cnt=document.getElementById('buyer-count');if(cnt)cnt.textContent=_buyerListFiltered.length+'건';
   renderBuyerTable();
@@ -1551,15 +1568,15 @@ function renderBuyerTable(){
   var tbody=document.getElementById('buyer-tbody');if(!tbody)return;
   if(!_buyerListFiltered.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text3);">검색 결과가 없습니다</td></tr>';return;}
   tbody.innerHTML=_buyerListFiltered.map(function(r,i){
-    var listing=(r['제안매물']||'').split('\n')[0]||'';
+    var listing=(r['제안 매물']||'').split('\n')[0]||'';
     return '<tr onclick="openBuyerDet('+i+')">'+
-      '<td>'+esc(r['상담일']||'-')+'</td>'+
+      '<td>'+esc(r['기입일']||'-')+'</td>'+
       '<td style="font-weight:600;">'+esc(r['고객명(전화번호)']||'-')+'</td>'+
-      '<td>'+esc(r['입주희망일']||'-')+'</td>'+
+      '<td>'+esc(r['입주일']||'-')+'</td>'+
       '<td style="font-family:monospace;color:#b45309;">'+esc(r['예산']||'-')+'</td>'+
       '<td>'+esc(r['거래유형']||'-')+'</td>'+
-      '<td>'+esc(r['찾는매물']||'-')+'</td>'+
-      '<td>'+(r['진행상태']?'<span class="badge proc-prop" style="font-size:10px;">'+esc(r['진행상태'])+'</span>':'-')+'</td>'+
+      '<td>'+esc(r['찾는 매물']||'-')+'</td>'+
+      '<td>'+(r['진행']?'<span class="badge proc-prop" style="font-size:10px;">'+esc(r['진행'])+'</span>':'-')+'</td>'+
       '<td style="color:var(--text2);font-size:11px;">'+esc(listing||'-')+'</td>'+
     '</tr>';
   }).join('');
@@ -1571,17 +1588,17 @@ function openBuyerDet(i){
   _curBuyerIdx=i;cancelBuyerEdit();
   var r=_buyerListFiltered[i];
   document.getElementById('buyer-det-title').textContent=r['고객명(전화번호)']||'-';
-  document.getElementById('buyer-det-sub').textContent=(r['거래유형']||'')+' · '+(r['진행상태']||'')+' · '+(r['상담일']||'');
+  document.getElementById('buyer-det-sub').textContent=(r['거래유형']||'')+' · '+(r['진행']||'')+' · '+(r['기입일']||'');
   var h='';
   var phones=xph([r['고객명(전화번호)']||'']);
   if(phones.length){h+='<div style="margin-bottom:14px;display:flex;flex-wrap:wrap;gap:8px;">'+phones.map(function(p){return'<a class="ph-btn" href="tel:'+p+'">📞 '+fph(p)+'</a>';}).join('')+'</div>';}
-  var fields=[['입주희망일',r['입주희망일']],['예산',r['예산']],['거래유형',r['거래유형']],['찾는매물',r['찾는매물']],['진행상태',r['진행상태']]];
+  var fields=[['입주일',r['입주일']],['예산',r['예산']],['거래유형',r['거래유형']],['찾는 매물',r['찾는 매물']],['진행',r['진행']],['방문경로',r['방문경로']]];
   var ff=fields.filter(function(f){return f[1];});
   if(ff.length){h+='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:14px;">';ff.forEach(function(f){h+='<div><div class="di-label">'+esc(f[0])+'</div><div class="di-value">'+esc(f[1])+'</div></div>';});h+='</div>';}
-  var memo=r['상담 내용']||''; // ★ 띄어쓰기
-  if(r['제안매물']||memo){
-    h+='<div class="detail-section"><div class="detail-section-title">📅 '+esc(r['상담일']||'')+' 상담 기록</div><div class="timeline-item"><div class="timeline-dot"></div>';
-    if(r['제안매물'])h+='<div class="timeline-listings">'+esc(r['제안매물'])+'</div>';
+  var memo=r['상담 내용']||'';
+  if(r['제안 매물']||memo){
+    h+='<div class="detail-section"><div class="detail-section-title">📅 '+esc(r['기입일']||'')+' 상담 기록</div><div class="timeline-item"><div class="timeline-dot"></div>';
+    if(r['제안 매물'])h+='<div class="timeline-listings">'+esc(r['제안 매물'])+'</div>';
     if(memo)h+='<div style="font-size:12px;color:var(--text2);line-height:1.6;white-space:pre-wrap;">'+esc(memo)+'</div>';
     h+='</div></div>';
   }
@@ -1594,12 +1611,12 @@ function toggleBuyerEdit(){
   if(!ef.style.display||ef.style.display==='none'){
     var r=_buyerListFiltered[_curBuyerIdx];if(!r)return;
     document.getElementById('be-namephone').value=r['고객명(전화번호)']||'';
-    document.getElementById('be-movein').value=r['입주희망일']||'';
+    document.getElementById('be-movein').value=r['입주일']||'';
     document.getElementById('be-budget').value=r['예산']||'';
     document.getElementById('be-type').value=r['거래유형']||'';
-    document.getElementById('be-status').value=r['진행상태']||'';
-    document.getElementById('be-want').value=r['찾는매물']||'';
-    document.getElementById('be-memo').value=r['상담 내용']||''; // ★ 띄어쓰기
+    document.getElementById('be-status').value=r['진행']||'';
+    document.getElementById('be-want').value=r['찾는 매물']||'';
+    document.getElementById('be-memo').value=r['상담 내용']||'';
     ef.style.display='block';document.getElementById('buyer-edit-toggle-btn').textContent='▲ 닫기';
     setTimeout(function(){ef.scrollIntoView({behavior:'smooth',block:'nearest'});},80);
   } else {cancelBuyerEdit();}
@@ -1609,12 +1626,12 @@ async function saveBuyerEdit(){
   var r=_buyerListFiltered[_curBuyerIdx];if(!r||!r['__row__']){showToast('⚠️ 행 번호 없음');return;}
   var vals={
     '고객명(전화번호)':document.getElementById('be-namephone').value,
-    '입주희망일':document.getElementById('be-movein').value,
+    '입주일':document.getElementById('be-movein').value,
     '예산':document.getElementById('be-budget').value,
     '거래유형':document.getElementById('be-type').value,
-    '진행상태':document.getElementById('be-status').value,
-    '찾는매물':document.getElementById('be-want').value,
-    '상담 내용':document.getElementById('be-memo').value // ★ 띄어쓰기
+    '진행':document.getElementById('be-status').value,
+    '찾는 매물':document.getElementById('be-want').value,
+    '상담 내용':document.getElementById('be-memo').value
   };
   var btn=document.getElementById('buyer-save-edit-btn');btn.textContent='저장 중...';btn.disabled=true;showToast('⏳ 저장 중...');
   try{
