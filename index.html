@@ -1439,7 +1439,7 @@ function proposeToCurrentBuyer(){
   if(!_buyerListings.length){showToast('선택된 매물이 없습니다');return;}
   _proposalMode=false;clearSelection();
 
-  // 기존 구입자에서 온 경우 → 해당 구입자 정보 자동 채우기
+  // 기존 구입자에서 온 경우 → 해당 구입자 정보 자동 채우기 + 기존 제안 이력 표시
   var savedIdx=_proposalBuyerIdx;_proposalBuyerIdx=-1;
   if(savedIdx>=0&&_buyerListFiltered[savedIdx]){
     var b=_buyerListFiltered[savedIdx];
@@ -1449,7 +1449,15 @@ function proposeToCurrentBuyer(){
     document.getElementById('b-type').value=b['거래유형']||'';
     document.getElementById('b-status').value=b['진행상태']||'';
     document.getElementById('b-want').value=b['찾는매물']||'';
-    document.getElementById('b-memo').value=b['상담 내용']||''; // ★ 띄어쓰기 통일
+    document.getElementById('b-memo').value=b['상담 내용']||'';
+    // 기존 제안 이력 표시
+    var prevPropose=(b['제안매물']||'').trim();
+    var hb=document.getElementById('buyer-history-box');
+    var hc=document.getElementById('buyer-history-content');
+    if(prevPropose&&hb&&hc){hc.textContent=prevPropose;hb.style.display='block';}
+    else if(hb){hb.style.display='none';}
+    // textarea는 비운 상태로 — 새 매물만 입력
+    var ta=document.getElementById('buyer-propose-textarea');if(ta)ta.value='';
   }
   document.querySelectorAll('.buyer-tab-btn').forEach(function(b){b.classList.remove('active');});
   document.querySelectorAll('.buyer-tab-content').forEach(function(c){c.classList.remove('active');});
@@ -1459,14 +1467,24 @@ function proposeToCurrentBuyer(){
   showToast('✅ '+_buyerListings.length+'건 제안 매물 입력 완료');
 }
 
-// ══════════ 제안매물 렌더 ══════════
+// ══════════ 제안매물 렌더 (textarea에 자동 주입) ══════════
 var _buyerListings=[];
 function renderBuyerListings(){
-  var box=document.getElementById('buyer-listing-box');if(!box)return;
-  if(!_buyerListings.length){box.className='listing-preview-box';box.innerHTML='<div class="listing-preview-empty">매물 화면 체크박스 선택 후 「📦 이 매물로 제안하기」를 누르세요</div>';}
-  else{box.className='listing-preview-box has-data';box.textContent=_buyerListings.map(function(it){return it.text;}).join('\n');}
+  var ta=document.getElementById('buyer-propose-textarea');if(!ta)return;
+  if(!_buyerListings.length){ta.value='';return;}
+  var newText=_buyerListings.map(function(it){return it.text;}).join('\n');
+  // 기존 내용 아래 한 줄 띄고 추가
+  var existing=ta.value.trim();
+  ta.value=existing?existing+'\n\n'+newText:newText;
+  // 스크롤을 아래로
+  ta.scrollTop=ta.scrollHeight;
 }
-function buyerClearListings(){_buyerListings=[];renderBuyerListings();showToast('제안 매물 초기화');}
+function buyerClearListings(){
+  _buyerListings=[];
+  var ta=document.getElementById('buyer-propose-textarea');if(ta)ta.value='';
+  var hb=document.getElementById('buyer-history-box');if(hb)hb.style.display='none';
+  showToast('제안 매물 초기화');
+}
 function importLastCall(){showToast('📱 전화 앱에서 최근 통화 번호를\n복사 후 붙여넣기 해주세요');setTimeout(function(){var el=document.getElementById('b-namephone');if(el)el.focus();},300);}
 
 // ══════════ 구입자 저장 (★상담 내용 띄어쓰기 통일) ══════════
@@ -1475,7 +1493,8 @@ async function saveBuyerRecord(){
   var namephone=document.getElementById('b-namephone').value.trim();
   if(!namephone){showToast('⚠️ 고객명(전화번호)은 필수입니다');return;}
   var ymd=new Date().toISOString().slice(0,10);
-  var listingText=_buyerListings.map(function(it){return it.text;}).join('\n');
+  // ★ textarea에서 직접 읽기 (사용자가 수정한 내용 그대로)
+  var listingText=(document.getElementById('buyer-propose-textarea').value||'').trim();
   var vals={
     '상담일':ymd,'고객명(전화번호)':namephone,
     '입주희망일':document.getElementById('b-movein').value.trim(),
@@ -1494,6 +1513,8 @@ async function saveBuyerRecord(){
       showToast('✅ 상담 기록이 저장되었습니다!');
       ['b-namephone','b-budget','b-want','b-memo','b-movein'].forEach(function(id){document.getElementById(id).value='';});
       document.getElementById('b-type').value='';document.getElementById('b-status').value='';
+      var ta=document.getElementById('buyer-propose-textarea');if(ta)ta.value='';
+      var hb=document.getElementById('buyer-history-box');if(hb)hb.style.display='none';
       buyerClearListings();
     } else {showToast('❌ 저장 실패: '+(json.message||''));}
   }catch(e){showToast('❌ 오류: '+e.message);}
@@ -1616,7 +1637,14 @@ async function saveBuyerEdit(){
   <div class="buyer-tab-content active" id="btab-register">
     <div style="margin-bottom:14px;">
       <div class="buyer-sec-title">📦 제안 매물</div>
-      <div id="buyer-listing-box" class="listing-preview-box"><div class="listing-preview-empty">매물 화면 체크박스 선택 후 「📦 이 매물로 제안하기」를 누르세요</div></div>
+      <!-- 기존 제안 이력 (읽기 전용) -->
+      <div id="buyer-history-box" style="display:none;background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;">
+        <div style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.5px;margin-bottom:6px;">📋 기존 제안 이력</div>
+        <div id="buyer-history-content" style="font-size:12px;color:var(--text2);line-height:1.8;white-space:pre-wrap;font-family:'DM Mono',monospace;"></div>
+      </div>
+      <!-- 새 제안 입력 (편집 가능) -->
+      <textarea id="buyer-propose-textarea" class="ef-textarea" rows="4"
+        placeholder="매물 화면 체크박스 선택 후 「📦 이 매물로 제안하기」를 누르면 자동 입력됩니다&#10;직접 수정도 가능합니다"></textarea>
       <button onclick="buyerClearListings()" style="margin-top:6px;background:none;border:1px solid var(--border);border-radius:6px;color:var(--text3);font-size:12px;padding:5px 12px;cursor:pointer;">✕ 초기화</button>
     </div>
     <div class="buyer-sec-title">👤 구입자 정보</div>
