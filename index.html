@@ -324,6 +324,18 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
     <!-- 수정 폼 -->
     <div class="edit-form" id="EF">
       <div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;">✏️ 내용 수정</div>
+      <!-- 소유자 정보 섹션 -->
+      <div style="font-size:10px;font-weight:700;color:#ffffff;letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;padding:5px 8px;background:var(--section-title);border-radius:4px;">👤 소유자 정보</div>
+      <div class="edit-grid" style="margin-bottom:14px;">
+        <div class="ef-group"><label class="ef-label">소유자</label><input id="e-owner1" class="ef-input" type="text" placeholder="소유자 이름/전화번호"></div>
+        <div class="ef-group"><label class="ef-label">소유자2</label><input id="e-owner2" class="ef-input" type="text" placeholder="소유자2 이름/전화번호"></div>
+        <div class="ef-group"><label class="ef-label">이름</label><input id="e-ownername" class="ef-input" type="text" placeholder="이름"></div>
+        <div class="ef-group"><label class="ef-label">임차인</label><input id="e-tenant" class="ef-input" type="text" placeholder="임차인 이름/전화번호"></div>
+        <div class="ef-group"><label class="ef-label">손님구분(거주자명)</label><input id="e-resident" class="ef-input" type="text" placeholder="거주자명"></div>
+        <div class="ef-group"><label class="ef-label">현재점유형태</label><input id="e-occupancy" class="ef-input" type="text" placeholder="현재점유형태"></div>
+      </div>
+      <!-- 매물 정보 섹션 -->
+      <div style="font-size:10px;font-weight:700;color:#ffffff;letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;padding:5px 8px;background:var(--section-title);border-radius:4px;">🏢 매물 정보</div>
       <div class="edit-grid">
         <div class="ef-group"><label class="ef-label">유형</label>
           <select id="e-type" class="ef-select"><option value="">선택 안함</option><option>매매</option><option>전세</option><option>월세</option><option>매전세</option><option>매월세</option><option>전월세</option><option>매전월</option></select></div>
@@ -963,6 +975,14 @@ async function fetchLatestRow(rowIndex){
 
 // 폼에 데이터 채우기
 function fillEditForm(r){
+  // 소유자 정보
+  document.getElementById('e-owner1').value=r['소유자']||'';
+  document.getElementById('e-owner2').value=r['소유자2']||'';
+  document.getElementById('e-ownername').value=r['이름']||'';
+  document.getElementById('e-tenant').value=r['임차인']||'';
+  document.getElementById('e-resident').value=r['거주자명']||'';
+  document.getElementById('e-occupancy').value=r['현재점유형태']||'';
+  // 매물 정보
   document.getElementById('e-type').value=r['유형']||'';
   document.getElementById('e-proc').value=r['프로세스']||'';
   document.getElementById('e-price').value=r['금액']||'';
@@ -1098,6 +1118,14 @@ async function saveEdit(){
   var r=FD[CUR_IDX];
   if(!r['__row__']){showToast('⚠️ 행 번호 없음\n🔄 동기화 후 다시 시도');return;}
   var vals={},v;
+  // 소유자 정보 수집 (빈 값도 전송하여 지울 수 있게)
+  vals['소유자']=document.getElementById('e-owner1').value;
+  vals['소유자2']=document.getElementById('e-owner2').value;
+  vals['이름']=document.getElementById('e-ownername').value;
+  vals['임차인']=document.getElementById('e-tenant').value;
+  vals['거주자명']=document.getElementById('e-resident').value;
+  vals['현재점유형태']=document.getElementById('e-occupancy').value;
+  // 매물 정보 수집
   v=document.getElementById('e-type').value;    if(v)vals['유형']=v;
   v=document.getElementById('e-proc').value;    if(v)vals['프로세스']=v;
   v=document.getElementById('e-price').value;   if(v)vals['금액']=v;
@@ -1189,7 +1217,12 @@ async function fetchMsgsFromSheet(){
     var url='https://sheets.googleapis.com/v4/spreadsheets/'+SSID+'/values/'+encodeURIComponent('안내문구')+'?key='+AKEY;
     var res=await fetch(url);
     var json=await res.json();
-    if(!json.values||json.values.length<2) return;
+    if(json.error) throw new Error(json.error.message);
+    if(!json.values||json.values.length<2){
+      // 시트에 데이터 없음 — 로컬 캐시 유지
+      try{var s=localStorage.getItem(MSG_STORAGE_KEY);if(s)ALL_MSGS=JSON.parse(s);}catch(ex){}
+      return;
+    }
     // 헤더: 카테고리, 제목, 내용
     var msgs=[];
     json.values.slice(1).forEach(function(row,i){
@@ -1197,13 +1230,18 @@ async function fetchMsgsFromSheet(){
         msgs.push({cat:row[0].trim(),title:row[1].trim(),body:row[2].trim(),rowIndex:i+2});
       }
     });
+    // 시트 데이터를 항상 우선 적용 (비어있어도 덮어쓰지 않도록 length 체크)
     if(msgs.length>0){
       ALL_MSGS=msgs;
       try{localStorage.setItem(MSG_STORAGE_KEY,JSON.stringify(ALL_MSGS));}catch(e){}
+    } else {
+      // 시트에 유효한 행 없음 — 로컬 캐시 유지
+      try{var s2=localStorage.getItem(MSG_STORAGE_KEY);if(s2)ALL_MSGS=JSON.parse(s2);}catch(ex){}
     }
   }catch(e){
     // 시트 로드 실패 시 로컬 캐시 사용
     try{var s=localStorage.getItem(MSG_STORAGE_KEY);if(s)ALL_MSGS=JSON.parse(s);}catch(ex){}
+    console.warn('안내문구 시트 로드 실패:', e.message);
   }
 }
 function openMsgModal(){
