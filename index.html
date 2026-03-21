@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>APT 매물 조회</title>
 <style>@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
-:root{--bg:#0d0f14;--surface:#161923;--surface2:#1e2433;--border:#2a3147;--accent:#4f9cf9;--text:#e8ecf5;--text2:#8b95b0;--text3:#5a637a;--green:#34d399;--yellow:#fbbf24;--red:#f87171;--purple:#a78bfa;--orange:#f97316;}
+:root{--bg:#f5f6f8;--surface:#ffffff;--surface2:#f0f2f5;--border:#dde1e8;--accent:#2563eb;--text:#1a1d23;--text2:#6b7280;--text3:#9ca3af;--green:#059669;--yellow:#d97706;--red:#dc2626;--purple:#7c3aed;--orange:#ea580c;}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 /* 헤더 */
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:100;}
+header{background:var(--surface);border-bottom:1px solid var(--border);box-shadow:0 1px 6px rgba(0,0,0,0.07);padding:10px 12px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:100;}
 header h1{font-size:15px;font-weight:700;color:var(--accent);white-space:nowrap;}
 .header-right{margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;}
 .hdr-btn{border-radius:6px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:3px;}
@@ -50,7 +50,7 @@ header h1{font-size:15px;font-weight:700;color:var(--accent);white-space:nowrap;
 .result-bar b{color:var(--accent);}
 /* 카드 */
 .card-list{padding:8px 10px;display:flex;flex-direction:column;gap:7px;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 13px 24px;cursor:pointer;position:relative;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 13px 24px;cursor:pointer;position:relative;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 .card:active{background:var(--surface2);}
 .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:7px;}
 .card-address{font-size:15px;font-weight:700;}.card-building{font-size:12px;color:var(--text3);margin-top:2px;}
@@ -75,8 +75,8 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
 .col-date{width:86px}.col-type{width:60px}.col-building{width:88px}.col-dong{width:52px}.col-ho{width:48px}.col-typev{width:60px}.col-owner{width:148px}.col-price{width:84px}.col-process{width:112px}.col-room{width:38px}.col-contract{width:80px}.col-area{width:64px}.col-memo{width:200px}
 /* 뱃지 */
 .badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap;}
-.badge-mae{background:rgba(79,156,249,0.15);color:#4f9cf9;}.badge-jun{background:rgba(52,211,153,0.15);color:#34d399;}.badge-wol{background:rgba(251,191,36,0.15);color:#fbbf24;}.badge-mix{background:rgba(167,139,250,0.15);color:#a78bfa;}
-.proc-done{background:rgba(52,211,153,0.15);color:#34d399;}.proc-cont{background:rgba(79,156,249,0.15);color:#4f9cf9;}.proc-hold{background:rgba(91,105,128,0.25);color:#8b95b0;}.proc-ord{background:rgba(251,191,36,0.15);color:#fbbf24;}.proc-wait{background:rgba(167,139,250,0.15);color:#a78bfa;}.proc-pay{background:rgba(52,211,153,0.2);color:#34d399;}.proc-other{background:rgba(248,113,113,0.15);color:#f87171;}.proc-prop{background:rgba(249,115,22,0.15);color:#f97316;}
+.badge-mae{background:#dbeafe;color:#1d4ed8;}.badge-jun{background:#d1fae5;color:#065f46;}.badge-wol{background:#fef3c7;color:#92400e;}.badge-mix{background:#ede9fe;color:#5b21b6;}
+.proc-done{background:#d1fae5;color:#065f46;}.proc-cont{background:#dbeafe;color:#1d4ed8;}.proc-hold{background:#f3f4f6;color:#6b7280;}.proc-ord{background:#fef3c7;color:#92400e;}.proc-wait{background:#ede9fe;color:#5b21b6;}.proc-pay{background:#d1fae5;color:#065f46;}.proc-other{background:#fee2e2;color:#991b1b;}.proc-prop{background:#ffedd5;color:#9a3412;}
 /* 상세 패널 */
 .detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:flex-end;justify-content:center;}
 .detail-overlay.open{display:flex;}
@@ -107,7 +107,7 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
 .ef-save{flex:1;padding:11px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;}
 .ef-cancel{padding:11px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:14px;cursor:pointer;}
 /* 토스트 */
-#toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#1e2433;border:1px solid #34d399;color:#e8ecf5;padding:9px 16px;border-radius:10px;font-size:13px;z-index:9999;text-align:center;line-height:1.5;white-space:pre-line;box-shadow:0 4px 20px rgba(0,0,0,0.5);pointer-events:none;transition:opacity 0.3s;opacity:0;min-width:180px;max-width:80vw;}
+#toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#1f2937;border:1px solid #059669;color:#f9fafb;padding:9px 16px;border-radius:10px;font-size:13px;z-index:9999;text-align:center;line-height:1.5;white-space:pre-line;box-shadow:0 4px 20px rgba(0,0,0,0.5);pointer-events:none;transition:opacity 0.3s;opacity:0;min-width:180px;max-width:80vw;}
 #toast.show{opacity:1;}
 /* 모달 공통 */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:flex-end;justify-content:center;}
@@ -127,11 +127,41 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
 .bld-expand-btn:hover{border-color:var(--text2);color:var(--text2);}
 .bld-extra{display:none;width:100%;flex-wrap:wrap;gap:5px;margin-top:2px;}
 .bld-extra.open{display:flex;}
+
+.pw-overlay{position:fixed;inset:0;background:#f5f6f8;z-index:9999;display:flex;align-items:center;justify-content:center;}
+.pw-box{background:#ffffff;border:1px solid #dde1e8;border-radius:16px;padding:36px 32px;width:320px;max-width:90vw;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.08);}
+.pw-logo{font-size:32px;margin-bottom:12px;}
+.pw-title{font-size:18px;font-weight:700;color:#1a1d23;margin-bottom:6px;}
+.pw-sub{font-size:13px;color:#9ca3af;margin-bottom:24px;}
+.pw-input{width:100%;background:#f0f2f5;border:1.5px solid #dde1e8;border-radius:8px;padding:12px;color:#1a1d23;font-size:18px;outline:none;text-align:center;letter-spacing:6px;font-family:'DM Mono',monospace;box-sizing:border-box;}
+.pw-input:focus{border-color:#2563eb;background:#fff;}
+.pw-btn{width:100%;margin-top:12px;padding:12px;background:#2563eb;border:none;border-radius:8px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
+.pw-btn:hover{background:#1d4ed8;}
+.pw-auto{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;font-size:13px;color:#6b7280;cursor:pointer;user-select:none;}
+.pw-auto input{width:15px;height:15px;cursor:pointer;accent-color:#2563eb;}
+.pw-err{color:#dc2626;font-size:13px;margin-top:10px;min-height:20px;}
 </style>
 </head>
 <body>
 
 <div id="toast"></div>
+
+<!-- 로그인 -->
+<div class="pw-overlay" id="pwOverlay">
+  <div class="pw-box">
+    <div class="pw-logo">🏢</div>
+    <div class="pw-title">APT 매물 조회</div>
+    <div class="pw-sub">비밀번호를 입력하세요</div>
+    <input class="pw-input" id="pwInput" type="password" placeholder="••••••" maxlength="20"
+      onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="pw-btn" onclick="checkPw()">확인</button>
+    <label class="pw-auto">
+      <input type="checkbox" id="pwAuto"> 자동 로그인
+    </label>
+    <div class="pw-err" id="pwErr"></div>
+  </div>
+</div>
+
 
 <!-- 로딩 -->
 <div class="loading-overlay" id="LO">
@@ -531,7 +561,40 @@ function initData(raw){
 }
 
 // ── 로드 ──────────────────────────────────────────
+
+var PW = '4600';
+var AUTO_KEY = 'apt_autologin';
+
+function checkPw(){
+  var v = document.getElementById('pwInput').value;
+  if(v === PW){
+    var auto = document.getElementById('pwAuto').checked;
+    if(auto){
+      localStorage.setItem(AUTO_KEY, '1');
+    } else {
+      localStorage.removeItem(AUTO_KEY);
+      sessionStorage.setItem(AUTO_KEY, '1');
+    }
+    document.getElementById('pwOverlay').style.display = 'none';
+  } else {
+    document.getElementById('pwErr').textContent = '비밀번호가 틀렸습니다';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+    setTimeout(function(){ document.getElementById('pwErr').textContent = ''; }, 2000);
+  }
+}
+
+function isAuthed(){
+  return localStorage.getItem(AUTO_KEY) === '1' || sessionStorage.getItem(AUTO_KEY) === '1';
+}
+
 window.onload=function(){
+  // 인증 확인
+  if(!isAuthed()){
+    document.getElementById('pwOverlay').style.display = 'flex';
+  } else {
+    document.getElementById('pwOverlay').style.display = 'none';
+  }
   loadMsgs();
   try{
     var cached=loadCache();
@@ -769,7 +832,7 @@ function det(idx){
   var r=FD[idx];
   // 계약손님 라벨
   var isContract=(r['소유자']||'').indexOf('계약')!==-1||(r['소유자2']||'').indexOf('계약')!==-1||(r['이름']||'').indexOf('계약')!==-1;
-  var badge=isContract?' <span style="background:rgba(248,113,113,0.2);border:1px solid #f87171;color:#f87171;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;vertical-align:middle;">계약손님</span>':'';
+  var badge=isContract?' <span style="background:#fee2e2;border:1px solid #dc2626;color:#dc2626;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;vertical-align:middle;">계약손님</span>':'';
   document.getElementById('DT').innerHTML=esc((r['건물명']||'')+' '+(r['동']||'')+'동 '+(r['호']||'')+'호')+badge;
   document.getElementById('DS').textContent=(r['유형']||'')+' · '+(r['프로세스']||'')+' · '+(r['실행일']||'');
   // 전화번호
