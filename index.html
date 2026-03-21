@@ -136,23 +136,19 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
 .bld-extra{display:none;width:100%;flex-wrap:wrap;gap:5px;margin-top:2px;}
 .bld-extra.open{display:flex;}
 
-/* 주요특징 태그 */
-.feature-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
-.feature-tag{display:inline-flex;align-items:center;gap:4px;background:#e0f2fe;border:1px solid #7dd3fc;color:#0369a1;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:500;}
-.feature-tag .tag-del{background:none;border:none;color:#0369a1;cursor:pointer;font-size:13px;padding:0;line-height:1;opacity:0.6;}
-.feature-tag .tag-del:hover{opacity:1;}
-.tag-input-wrap{display:flex;gap:6px;align-items:center;}
-.tag-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;}
-.tag-input:focus{border-color:#0369a1;}
-.tag-add-btn{padding:7px 12px;background:#e0f2fe;border:1px solid #7dd3fc;border-radius:6px;color:#0369a1;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
-
-/* 매물 상세 - 특징 태그 표시 */
-.feat-tag-display{display:inline-flex;align-items:center;background:#e0f2fe;border:1px solid #7dd3fc;color:#0369a1;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:500;white-space:nowrap;}
-
-/* 뷰 전환 */
+/* 뷰 전환 토글 */
 .view-toggle{display:flex;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;overflow:hidden;flex-shrink:0;}
 .view-toggle-btn{padding:5px 11px;font-size:12px;font-weight:600;color:#94a3b8;border:none;background:none;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
 .view-toggle-btn.active{background:rgba(255,255,255,0.18);color:#f1f5f9;}
+
+/* 주요특징 태그 */
+.feat-tag-display{display:inline-flex;align-items:center;background:#e0f2fe;border:1px solid #7dd3fc;color:#0369a1;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:500;white-space:nowrap;}
+.feature-tag{display:inline-flex;align-items:center;gap:4px;background:#e0f2fe;border:1px solid #7dd3fc;color:#0369a1;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:500;}
+.feature-tag .tag-del{background:none;border:none;color:#0369a1;cursor:pointer;font-size:14px;padding:0;line-height:1;opacity:0.7;}
+.tag-input-wrap{display:flex;gap:6px;align-items:center;margin-bottom:14px;}
+.tag-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;}
+.tag-input:focus{border-color:#0369a1;}
+.tag-add-btn{padding:7px 12px;background:#e0f2fe;border:1px solid #7dd3fc;border-radius:6px;color:#0369a1;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
 
 /* 구입자 뷰 */
 #buyer-view{display:none;}
@@ -164,45 +160,31 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
 .buyer-sec-title{font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;text-transform:uppercase;padding:5px 8px;background:var(--section-title);border-radius:4px;margin-bottom:10px;}
 .buyer-form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:12px;}
 @media(min-width:480px){.buyer-form-grid{grid-template-columns:repeat(3,1fr);}}
-
-/* 제안매물 프리뷰 박스 */
 .listing-preview-box{background:var(--surface2);border:1.5px dashed var(--border);border-radius:8px;padding:12px;min-height:60px;font-size:13px;color:var(--text2);line-height:1.8;white-space:pre-wrap;font-family:'DM Mono',monospace;}
 .listing-preview-box.has-data{background:#f0fdf4;border-color:rgba(52,211,153,0.5);color:var(--text);}
 .listing-preview-empty{color:var(--text3);font-size:12px;text-align:center;padding:10px 0;}
-
-/* 구입자 카드 */
 .buyer-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
 .buyer-card:active{background:var(--surface2);}
 .bc-name{font-size:15px;font-weight:700;}
-.bc-phone{font-size:12px;color:var(--green);font-family:'DM Mono',monospace;font-weight:500;}
 .bc-meta{font-size:12px;color:var(--text3);margin:2px 0 6px;}
 .bc-listings{font-size:11px;color:var(--text2);background:var(--surface2);border-radius:6px;padding:7px 10px;font-family:'DM Mono',monospace;line-height:1.7;white-space:pre-wrap;margin-bottom:5px;}
 .bc-date{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;}
 .badge-proc-b{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;background:#fef3c7;color:#92400e;}
-
-/* 구입자 검색바 */
 .buyer-search-wrap{position:relative;margin-bottom:10px;}
 .buyer-search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 10px 9px 32px;color:var(--text);font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;}
 .buyer-search-input:focus{border-color:#b45309;}
 .buyer-search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;}
-
-/* 상담이력 타임라인 */
 .timeline-item{border-left:2px solid var(--border);padding:0 0 14px 14px;margin-left:6px;position:relative;}
 .timeline-item:last-child{padding-bottom:0;}
-.timeline-dot{width:10px;height:10px;background:var(--accent);border-radius:50%;position:absolute;left:-6px;top:3px;}
+.timeline-dot{width:10px;height:10px;background:#b45309;border-radius:50%;position:absolute;left:-6px;top:3px;}
 .timeline-date{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:4px;}
 .timeline-listings{font-size:12px;background:#f0fdf4;border:1px solid rgba(52,211,153,0.3);border-radius:6px;padding:7px 10px;font-family:'DM Mono',monospace;line-height:1.7;white-space:pre-wrap;margin-bottom:5px;}
 .timeline-memo{font-size:12px;color:var(--text2);line-height:1.6;white-space:pre-wrap;}
-
-/* 구입자 상세 오버레이 */
 #buyer-DO{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:flex-end;justify-content:center;}
 #buyer-DO.open{display:flex;}
 @media(min-width:600px){#buyer-DO{align-items:center;}#buyer-DO .detail-panel{border-radius:12px!important;max-width:680px;width:95vw;max-height:88vh!important;}}
-
-/* 우측하단 플로팅 버튼 (매물선택→제안하기) */
-#propose-fab{display:none;position:fixed;bottom:20px;right:16px;z-index:150;background:#b45309;border:none;border-radius:14px;color:#fff;font-size:13px;font-weight:700;padding:12px 18px;cursor:pointer;box-shadow:0 4px 16px rgba(180,83,9,0.45);animation:slideUp 0.2s ease;}
+#propose-fab{display:none;position:fixed;bottom:20px;right:16px;z-index:150;background:#b45309;border:none;border-radius:14px;color:#fff;font-size:13px;font-weight:700;padding:12px 18px;cursor:pointer;box-shadow:0 4px 16px rgba(180,83,9,0.45);}
 #propose-fab.show{display:flex;align-items:center;gap:6px;}
-
 .pw-overlay{position:fixed;inset:0;background:#eef0f4;z-index:9999;display:flex;align-items:center;justify-content:center;}
 .pw-box{background:#ffffff;border:1px solid #dde1e8;border-radius:16px;padding:36px 32px;width:320px;max-width:90vw;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.08);}
 .pw-logo{font-size:32px;margin-bottom:12px;}
@@ -347,7 +329,6 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
     <button onclick="clearSelection()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);border-radius:6px;color:#fff;padding:5px 10px;font-size:12px;cursor:pointer;">✕ 해제</button>
   </div>
 </div>
-<!-- 구입자 페이지용 플로팅 제안하기 버튼 -->
 <button id="propose-fab" onclick="proposeToCurrentBuyer()">📦 이 매물로 제안하기</button>
 <div class="result-bar">
   <span id="RC">로딩 중...</span>
@@ -399,41 +380,28 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
       <div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;">✏️ 내용 수정</div>
       <!-- 주요특징 태그 -->
       <div style="font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;padding:5px 8px;background:#0369a1;border-radius:4px;">🏷 주요특징 태그</div>
-      <div class="feature-tags" id="edit-tags-display"></div>
-      <div class="tag-input-wrap" style="margin-bottom:14px;">
-        <input class="tag-input" id="edit-tag-input" type="text" placeholder="예) 공가, 탄성코트, 계약손님 (엔터 또는 쉼표로 추가)">
-        <button class="tag-add-btn" onclick="addEditTag()">추가</button>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;min-height:10px;" id="edit-tags-display"></div>
+      <div class="tag-input-wrap">
+        <input class="tag-input" id="edit-tag-input" type="text" placeholder="예) 공가, 탄성코트, 계약손님  (엔터·쉼표로 추가)">
+        <button class="tag-add-btn" onclick="addEditTag()">＋추가</button>
       </div>
-      <!-- 소유자 정보 섹션 -->
+      <!-- 소유자 정보 -->
       <div style="font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;padding:5px 8px;background:var(--section-title);border-radius:4px;">👤 소유자 정보</div>
       <div class="edit-grid" style="margin-bottom:14px;">
-        <div class="ef-group"><label class="ef-label">소유자</label><input id="e-owner1" class="ef-input" type="text" placeholder="소유자 이름/전화번호"></div>
-        <div class="ef-group"><label class="ef-label">소유자2</label><input id="e-owner2" class="ef-input" type="text" placeholder="소유자2 이름/전화번호"></div>
+        <div class="ef-group"><label class="ef-label">소유자</label><input id="e-owner1" class="ef-input" type="text" placeholder="이름/전화번호"></div>
+        <div class="ef-group"><label class="ef-label">소유자2</label><input id="e-owner2" class="ef-input" type="text" placeholder="이름/전화번호"></div>
         <div class="ef-group"><label class="ef-label">이름</label><input id="e-ownername" class="ef-input" type="text"></div>
         <div class="ef-group"><label class="ef-label">임차인</label><input id="e-tenant" class="ef-input" type="text"></div>
         <div class="ef-group"><label class="ef-label">손님구분(거주자명)</label><input id="e-resident" class="ef-input" type="text"></div>
         <div class="ef-group"><label class="ef-label">현재점유형태</label><input id="e-occupancy" class="ef-input" type="text"></div>
       </div>
-      <!-- 매물 정보 섹션 -->
+      <!-- 매물 정보 -->
       <div style="font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;padding:5px 8px;background:var(--section-title);border-radius:4px;">🏢 매물 정보</div>
       <div class="edit-grid">
         <div class="ef-group"><label class="ef-label">유형</label>
           <select id="e-type" class="ef-select"><option value="">선택 안함</option><option>매매</option><option>전세</option><option>월세</option><option>매전세</option><option>매월세</option><option>전월세</option><option>매전월</option></select></div>
         <div class="ef-group"><label class="ef-label">프로세스</label>
-          <select id="e-proc" class="ef-select"><option value="">선택 안함</option><option>제안가능(물건등록)</option>
-<option>제안가능(미등록)</option>
-<option>타부동산</option>
-<option>대기</option>
-<option>보류</option>
-<option>통오더</option>
-<option>매물 확보</option>
-<option>계약</option>
-<option>잔금</option>
-<option>잔금정산</option>
-<option>재계약</option>
-<option>재계약확인</option>
-<option>완료</option>
-<option>매매완료</option></select></div>
+          <select id="e-proc" class="ef-select"><option value="">선택 안함</option><option>제안가능(물건등록)</option><option>제안가능(미등록)</option><option>타부동산</option><option>대기</option><option>보류</option><option>통오더</option><option>매물 확보</option><option>계약</option><option>잔금</option><option>잔금정산</option><option>재계약</option><option>재계약확인</option><option>완료</option><option>매매완료</option></select></div>
         <div class="ef-group"><label class="ef-label">금액</label><input id="e-price" class="ef-input" type="text" placeholder="예) 13.7억"></div>
         <div class="ef-group"><label class="ef-label">실행일</label><input id="e-date" class="ef-input" type="text"></div>
         <div class="ef-group"><label class="ef-label">만기일</label><input id="e-expire" class="ef-input" type="text"></div>
@@ -957,6 +925,53 @@ window.addEventListener('scroll',function(){
 });
 
 // ── 상세 패널 ─────────────────────────────────────
+function det(idx){
+  CUR_IDX=idx; cancelEdit();
+  var r=FD[idx];
+  var isContract=(r['소유자']||'').indexOf('계약')!==-1||(r['소유자2']||'').indexOf('계약')!==-1||(r['이름']||'').indexOf('계약')!==-1;
+  var badge=isContract?' <span style="background:#fee2e2;border:1px solid #dc2626;color:#dc2626;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;vertical-align:middle;">계약손님</span>':'';
+  document.getElementById('DT').innerHTML=esc((r['건물명']||'')+' '+(r['동']||'')+'동 '+(r['호']||'')+'호')+badge;
+  document.getElementById('DS').textContent=(r['유형']||'')+' · '+(r['프로세스']||'')+' · '+(r['실행일']||'');
+  var h='';
+  // 1. 주요특징 태그 (맨 위)
+  var featRaw=r['주요특징']||'';
+  if(featRaw){
+    var tags=featRaw.split(/[,，\n]/).map(function(t){return t.trim().replace(/^#/,'');}).filter(Boolean);
+    if(tags.length){
+      h+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">';
+      tags.forEach(function(t){h+='<span class="feat-tag-display">#'+esc(t)+'</span>';});
+      h+='</div>';
+    }
+  }
+  // 2. 기본정보
+  var sec1=[['건물명',r['건물명']],['동',r['동']],['호',r['호']],['유형',r['유형']],['타입(공용)',r['타입 (공용)']],['타입(전용)',r['타입 (전용)']],['금액',r['금액'],1],['프로세스',r['프로세스']],['방',r['방']],['에어컨',r['에']],['융자',r['융자']],['층공개',r['층공개']],['독점',r['독점']],['토허제',r['토허제']],['광고주기',r['광고주기']],['입주형태',r['입주형태']]];
+  var f1=sec1.filter(function(x){return x[1];});
+  if(f1.length){h+='<div class="detail-section"><div class="detail-section-title">기본 정보</div><div class="detail-grid">'+f1.map(function(x){return'<div class="detail-item"><span class="di-label">'+x[0]+'</span><span class="di-value'+(x[2]?' hl':'')+'">'+esc(x[1]||'-')+'</span></div>';}).join('')+'</div></div>';}
+  // 3. 전화번호 (기본정보 바로 아래)
+  var ph=xph([(r['소유자']||''),(r['소유자2']||''),(r['이름']||''),(r['임차인']||'')].join(' '));
+  if(ph.length){
+    window._contactData=ph.map(function(p){return{phone:p,name:(r['건물명']||'')+(r['동']||'')+'동'+(r['호']||'')+'호 '+(r['소유자']||'').slice(0,15),memo:(r['상담 내용']||'').slice(0,50)};});
+    h+='<div class="detail-phones">'+ph.map(function(p,ci){return'<a class="phone-link" href="tel:'+p+'">📞 '+fph(p)+'</a><button class="vcf-btn" onclick="saveContactByIdx('+ci+')">👤 저장</button>';}).join('')+'</div>';
+  }
+  // 4. 나머지 섹션
+  var secs=[
+    {t:'소유자 정보',d:[['소유자',r['소유자']],['소유자2',r['소유자2']],['이름',r['이름']],['임차인',r['임차인']],['손님구분',r['거주자명']],['현재점유형태',r['현재점유형태']],['소유형태',r['소유형태']],['이실장소유자',r['이실장소유자명']]]},
+    {t:'계약 정보',d:[['계약금중일부',r['계약금중일부']],['약정일',r['약정일']],['토허제접수',r['토허제']],['계약일',r['계약일']],['중도금',r['중도금']],['잔금일',r['잔금일']],['만기일',r['만기일']]]},
+    {t:'면적',d:[['공급면적(㎡)',r['공급  면적(㎡)']],['전용면적(㎡)',r['전용면적(㎡)']],['평',r['평']]]},
+    {t:'수익',d:[['발생수익 매도·임대(VAT포함)',r['발생수익  매도,임대(VAT포함)']],['발생수익 매수·임차(VAT포함)',r['발생수익-매수,임차  (VAT포함)']]]}
+  ];
+  secs.forEach(function(sec){
+    var f=sec.d.filter(function(x){return x[1];});if(!f.length)return;
+    h+='<div class="detail-section"><div class="detail-section-title">'+sec.t+'</div><div class="detail-grid">'+f.map(function(x){return'<div class="detail-item"><span class="di-label">'+x[0]+'</span><span class="di-value">'+esc(x[1]||'-')+'</span></div>';}).join('')+'</div></div>';
+  });
+  if(r['상담 내용'])h+='<div class="detail-section"><div class="detail-section-title">상담 내용</div><div class="memo-box">'+esc(r['상담 내용'])+'</div></div>';
+  if(r['비고'])h+='<div class="detail-section"><div class="detail-section-title">비고</div><div class="memo-box">'+esc(r['비고'])+'</div></div>';
+  h+='<div style="padding:0 0 6px;"><button onclick="openCalendar()" style="width:100%;padding:11px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;color:#15803d;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">📅 구글 캘린더에 일정 등록</button></div>';
+  document.getElementById('DB').innerHTML=h;
+  document.getElementById('DO').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
 function toggleBldExpand(){
   var ex=document.getElementById('bldExtra');
   var btn=document.getElementById('bldExpandBtn');
@@ -1009,6 +1024,37 @@ async function fetchLatestRow(rowIndex){
   }
 }
 
+// 폼에 데이터 채우기
+function fillEditForm(r){
+  // 주요특징 태그
+  _editTags=(r['주요특징']||'').split(/[,，\n]/).map(function(t){return t.trim().replace(/^#/,'');}).filter(Boolean);
+  renderEditTags();
+  var ti=document.getElementById('edit-tag-input');if(ti)ti.value='';
+  // 소유자
+  document.getElementById('e-owner1').value=r['소유자']||'';
+  document.getElementById('e-owner2').value=r['소유자2']||'';
+  document.getElementById('e-ownername').value=r['이름']||'';
+  document.getElementById('e-tenant').value=r['임차인']||'';
+  document.getElementById('e-resident').value=r['거주자명']||'';
+  document.getElementById('e-occupancy').value=r['현재점유형태']||'';
+  // 매물
+  document.getElementById('e-type').value=r['유형']||'';
+  document.getElementById('e-proc').value=r['프로세스']||'';
+  document.getElementById('e-price').value=r['금액']||'';
+  document.getElementById('e-date').value=r['실행일']||'';
+  document.getElementById('e-expire').value=r['만기일']||'';
+  document.getElementById('e-contract').value=r['계약일']||'';
+  document.getElementById('e-deposit').value=r['계약금중일부']||'';
+  document.getElementById('e-agree').value=r['약정일']||'';
+  document.getElementById('e-toher').value=r['토허제']||'';
+  document.getElementById('e-middle').value=r['중도금']||'';
+  document.getElementById('e-balance').value=r['잔금일']||'';
+  document.getElementById('e-rev1').value=r['발생수익  매도,임대(VAT포함)']||'';
+  document.getElementById('e-rev2').value=r['발생수익-매수,임차  (VAT포함)']||'';
+  document.getElementById('e-memo').value=r['상담 내용']||'';
+}
+
+
 // 구글 캘린더 딥링크
 function openCalendar(){
   var r = FD[CUR_IDX];
@@ -1052,7 +1098,21 @@ function toggleSelect(idx, cb){
 function clearSelection(){
   _selected.clear();
   updateSelectBar();
+  // 체크박스 해제
   document.querySelectorAll('.card input[type=checkbox]').forEach(function(cb){cb.checked=false;});
+}
+function copySelectedText(){
+  var today = new Date();
+  var ymd = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  var lines = [];
+  Array.from(_selected).sort(function(a,b){return a-b;}).forEach(function(i){
+    var r = FD[i];
+    lines.push(ymd+' / '+(r['건물명']||'')+' '+(r['동']||'')+'동 '+(r['호']||'')+'호');
+  });
+  var text = lines.join('\n');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){ showToast('📋 '+_selected.size+'건 복사 완료!\n구입자 페이지에 붙여넣기 하세요'); });
+  }
 }
 
 function closeDet(){document.getElementById('DO').classList.remove('open');document.body.style.overflow='';cancelEdit();}
@@ -1099,6 +1159,51 @@ function cancelEdit(){
   var btn=document.getElementById('editToggleBtn');
   if(btn){btn.textContent='✏️ 수정';btn.style.background='rgba(79,156,249,0.15)';btn.style.borderColor='rgba(79,156,249,0.4)';btn.style.color='#4f9cf9';}
 }
+async function saveEdit(){
+  var r=FD[CUR_IDX];
+  if(!r['__row__']){showToast('⚠️ 행 번호 없음\n🔄 동기화 후 다시 시도');return;}
+  var vals={};
+  vals['주요특징']=_editTags.map(function(t){return'#'+t;}).join(', ');
+  vals['소유자']=document.getElementById('e-owner1').value;
+  vals['소유자2']=document.getElementById('e-owner2').value;
+  vals['이름']=document.getElementById('e-ownername').value;
+  vals['임차인']=document.getElementById('e-tenant').value;
+  vals['거주자명']=document.getElementById('e-resident').value;
+  vals['현재점유형태']=document.getElementById('e-occupancy').value;
+  var v;
+  v=document.getElementById('e-type').value;    if(v)vals['유형']=v;
+  v=document.getElementById('e-proc').value;    if(v)vals['프로세스']=v;
+  v=document.getElementById('e-price').value;   if(v)vals['금액']=v;
+  v=document.getElementById('e-date').value;    if(v)vals['실행일']=v;
+  v=document.getElementById('e-expire').value;  if(v)vals['만기일']=v;
+  v=document.getElementById('e-contract').value;if(v)vals['계약일']=v;
+  v=document.getElementById('e-deposit').value; if(v)vals['계약금중일부']=v;
+  v=document.getElementById('e-agree').value;   if(v)vals['약정일']=v;
+  v=document.getElementById('e-toher').value;   if(v)vals['토허제']=v;
+  v=document.getElementById('e-middle').value;  if(v)vals['중도금']=v;
+  v=document.getElementById('e-balance').value; if(v)vals['잔금일']=v;
+  v=document.getElementById('e-rev1').value;    if(v)vals['발생수익  매도,임대(VAT포함)']=v;
+  v=document.getElementById('e-rev2').value;    if(v)vals['발생수익-매수,임차  (VAT포함)']=v;
+  vals['상담 내용']=document.getElementById('e-memo').value;
+  var btn=document.getElementById('saveBtnEdit');
+  btn.textContent='저장 중...';btn.disabled=true;showToast('⏳ 저장 중...');
+  try{
+    var res=await fetch(ASURL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'update',rowIndex:r['__row__'],values:vals})});
+    var json=JSON.parse(await res.text());
+    if(json.success){
+      Object.keys(vals).forEach(function(k){r[k]=vals[k];});
+      showToast('✅ 저장 완료!');cancelEdit();
+      if(r['__row__']){
+        fetchLatestRow(r['__row__']).then(function(fresh){
+          if(fresh){Object.keys(fresh).forEach(function(k){r[k]=fresh[k];});FD[CUR_IDX]=r;saveCache(RAW);}
+          det(CUR_IDX);showSyncPrompt();
+        });
+      } else {det(CUR_IDX);showSyncPrompt();}
+    } else {showToast('❌ 실패: '+json.message);}
+  }catch(e){showToast('❌ 오류: '+e.message);}
+  finally{btn.textContent='💾 저장';btn.disabled=false;}
+}
+
 // ── 새 매물 ───────────────────────────────────────
 function openAddNew(){
   var today=new Date();
@@ -1267,230 +1372,56 @@ async function deleteMsgCur(){
 document.getElementById('SI2').addEventListener('input',function(e){fS=e.target.value;applyAll();});
 
 // ══════════════════════════════════════════════════
-// 주요특징 태그 (수정 폼)
+// 주요특징 태그
 // ══════════════════════════════════════════════════
-var _editTags = [];
+var _editTags=[];
 function renderEditTags(){
-  var wrap = document.getElementById('edit-tags-display');
-  if(!wrap) return;
-  if(_editTags.length===0){wrap.innerHTML='';return;}
-  wrap.innerHTML = _editTags.map(function(t,i){
+  var wrap=document.getElementById('edit-tags-display');if(!wrap)return;
+  wrap.innerHTML=_editTags.map(function(t,i){
     return '<span class="feature-tag">#'+esc(t)+'<button class="tag-del" onclick="removeEditTag('+i+')">×</button></span>';
   }).join('');
 }
 function addEditTag(){
-  var inp = document.getElementById('edit-tag-input');
-  var val = inp.value;
-  val.split(/[,，\n]/).forEach(function(t){
+  var inp=document.getElementById('edit-tag-input');if(!inp)return;
+  inp.value.split(/[,，\n]/).forEach(function(t){
     t=t.trim().replace(/^#/,'');
-    if(t && _editTags.indexOf(t)===-1) _editTags.push(t);
+    if(t&&_editTags.indexOf(t)===-1)_editTags.push(t);
   });
-  inp.value='';
-  renderEditTags();
+  inp.value='';renderEditTags();
 }
 function removeEditTag(i){_editTags.splice(i,1);renderEditTags();}
 document.addEventListener('keydown',function(e){
-  if(e.key==='Enter'&&document.activeElement&&document.activeElement.id==='edit-tag-input'){
-    e.preventDefault(); addEditTag();
-  }
+  if(e.key==='Enter'&&document.activeElement&&document.activeElement.id==='edit-tag-input'){e.preventDefault();addEditTag();}
 });
-
-// ══════════════════════════════════════════════════
-// 매물 상세 - det() 함수 오버라이드 (주요특징 + 연락처순서 + 소유자수정)
-// ══════════════════════════════════════════════════
-var _origDet = det;
-det = function(idx){
-  CUR_IDX=idx; cancelEdit();
-  var r=FD[idx];
-  var isContract=(r['소유자']||'').indexOf('계약')!==-1||(r['소유자2']||'').indexOf('계약')!==-1||(r['이름']||'').indexOf('계약')!==-1;
-  var badge=isContract?' <span style="background:#fee2e2;border:1px solid #dc2626;color:#dc2626;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;vertical-align:middle;">계약손님</span>':'';
-  document.getElementById('DT').innerHTML=esc((r['건물명']||'')+' '+(r['동']||'')+'동 '+(r['호']||'')+'호')+badge;
-  document.getElementById('DS').textContent=(r['유형']||'')+' · '+(r['프로세스']||'')+' · '+(r['실행일']||'');
-
-  var h='';
-
-  // 1. 주요특징 태그 (맨 위)
-  var featRaw = r['주요특징']||'';
-  if(featRaw){
-    var featTags = featRaw.split(/[,，\n]/).map(function(t){return t.trim().replace(/^#/,'');}).filter(Boolean);
-    if(featTags.length){
-      h+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">';
-      featTags.forEach(function(t){h+='<span class="feat-tag-display">#'+esc(t)+'</span>';});
-      h+='</div>';
-    }
-  }
-
-  // 2. 기본정보 섹션
-  var ss=[
-    {t:'기본 정보',d:[['건물명',r['건물명']],['동',r['동']],['호',r['호']],['유형',r['유형']],['타입(공용)',r['타입 (공용)']],['타입(전용)',r['타입 (전용)']],['금액',r['금액'],1],['프로세스',r['프로세스']],['방',r['방']],['에어컨',r['에']],['융자',r['융자']],['층공개',r['층공개']],['독점',r['독점']],['토허제',r['토허제']],['광고주기',r['광고주기']],['입주형태',r['입주형태']]]},
-  ];
-  ss.forEach(function(sec){
-    var f=sec.d.filter(function(x){return x[1];});if(!f.length)return;
-    h+='<div class="detail-section"><div class="detail-section-title">'+sec.t+'</div><div class="detail-grid">'+
-      f.map(function(x){return'<div class="detail-item"><span class="di-label">'+x[0]+'</span><span class="di-value'+(x[2]?' hl':'')+'">'+esc(x[1]||'-')+'</span></div>';}).join('')+
-    '</div></div>';
-  });
-
-  // 3. 전화번호 (기본정보 아래)
-  var ph=xph([(r['소유자']||''),(r['소유자2']||''),(r['이름']||''),(r['임차인']||'')].join(' '));
-  if(ph.length){
-    window._contactData=ph.map(function(p){return{phone:p,name:(r['건물명']||'')+(r['동']||'')+'동'+(r['호']||'')+'호 '+(r['소유자']||'').slice(0,15),memo:(r['상담 내용']||'').slice(0,50)};});
-    h+='<div class="detail-phones">'+ph.map(function(p,ci){
-      return '<a class="phone-link" href="tel:'+p+'">📞 '+fph(p)+'</a>'+
-             '<button class="vcf-btn" onclick="saveContactByIdx('+ci+')">👤 저장</button>';
-    }).join('')+'</div>';
-  }
-
-  // 4. 나머지 섹션
-  var ss2=[
-    {t:'소유자 정보',d:[['소유자',r['소유자']],['소유자2',r['소유자2']],['이름',r['이름']],['임차인',r['임차인']],['손님구분',r['거주자명']],['현재점유형태',r['현재점유형태']],['소유형태',r['소유형태']],['이실장소유자',r['이실장소유자명']]]},
-    {t:'계약 정보',d:[['계약금중일부',r['계약금중일부']],['약정일',r['약정일']],['토허제접수',r['토허제']],['계약일',r['계약일']],['중도금',r['중도금']],['잔금일',r['잔금일']],['만기일',r['만기일']]]},
-    {t:'면적',d:[['공급면적(㎡)',r['공급  면적(㎡)']],['전용면적(㎡)',r['전용면적(㎡)']],['평',r['평']]]},
-    {t:'수익',d:[['발생수익 매도·임대(VAT포함)',r['발생수익  매도,임대(VAT포함)']],['발생수익 매수·임차(VAT포함)',r['발생수익-매수,임차  (VAT포함)']]]},
-  ];
-  ss2.forEach(function(sec){
-    var f=sec.d.filter(function(x){return x[1];});if(!f.length)return;
-    h+='<div class="detail-section"><div class="detail-section-title">'+sec.t+'</div><div class="detail-grid">'+
-      f.map(function(x){return'<div class="detail-item"><span class="di-label">'+x[0]+'</span><span class="di-value">'+esc(x[1]||'-')+'</span></div>';}).join('')+
-    '</div></div>';
-  });
-  if(r['상담 내용'])h+='<div class="detail-section"><div class="detail-section-title">상담 내용</div><div class="memo-box">'+esc(r['상담 내용'])+'</div></div>';
-  if(r['비고'])h+='<div class="detail-section"><div class="detail-section-title">비고</div><div class="memo-box">'+esc(r['비고'])+'</div></div>';
-  h+='<div style="padding:0 0 6px;">'+
-    '<button onclick="openCalendar()" style="width:100%;padding:11px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;color:#15803d;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">📅 구글 캘린더에 일정 등록</button></div>';
-  document.getElementById('DB').innerHTML=h;
-  document.getElementById('DO').classList.add('open');
-  document.body.style.overflow='hidden';
-};
-
-// fillEditForm - 주요특징 포함
-var _origFillEditForm = fillEditForm;
-fillEditForm = function(r){
-  // 태그
-  _editTags = (r['주요특징']||'').split(/[,，\n]/).map(function(t){return t.trim().replace(/^#/,'');}).filter(Boolean);
-  renderEditTags();
-  document.getElementById('edit-tag-input').value='';
-  // 소유자 정보
-  document.getElementById('e-owner1').value=r['소유자']||'';
-  document.getElementById('e-owner2').value=r['소유자2']||'';
-  document.getElementById('e-ownername').value=r['이름']||'';
-  document.getElementById('e-tenant').value=r['임차인']||'';
-  document.getElementById('e-resident').value=r['거주자명']||'';
-  document.getElementById('e-occupancy').value=r['현재점유형태']||'';
-  // 매물 정보
-  document.getElementById('e-type').value=r['유형']||'';
-  document.getElementById('e-proc').value=r['프로세스']||'';
-  document.getElementById('e-price').value=r['금액']||'';
-  document.getElementById('e-date').value=r['실행일']||'';
-  document.getElementById('e-expire').value=r['만기일']||'';
-  document.getElementById('e-contract').value=r['계약일']||'';
-  document.getElementById('e-deposit').value=r['계약금중일부']||'';
-  document.getElementById('e-agree').value=r['약정일']||'';
-  document.getElementById('e-toher').value=r['토허제']||'';
-  document.getElementById('e-middle').value=r['중도금']||'';
-  document.getElementById('e-balance').value=r['잔금일']||'';
-  document.getElementById('e-rev1').value=r['발생수익  매도,임대(VAT포함)']||'';
-  document.getElementById('e-rev2').value=r['발생수익-매수,임차  (VAT포함)']||'';
-  document.getElementById('e-memo').value=r['상담 내용']||'';
-};
-
-// saveEdit - 주요특징 포함
-var _origSaveEdit = saveEdit;
-saveEdit = async function(){
-  var r=FD[CUR_IDX];
-  if(!r['__row__']){showToast('⚠️ 행 번호 없음\n🔄 동기화 후 다시 시도');return;}
-  var vals={};
-  // 주요특징
-  vals['주요특징'] = _editTags.map(function(t){return '#'+t;}).join(', ');
-  // 소유자
-  vals['소유자']=document.getElementById('e-owner1').value;
-  vals['소유자2']=document.getElementById('e-owner2').value;
-  vals['이름']=document.getElementById('e-ownername').value;
-  vals['임차인']=document.getElementById('e-tenant').value;
-  vals['거주자명']=document.getElementById('e-resident').value;
-  vals['현재점유형태']=document.getElementById('e-occupancy').value;
-  // 매물
-  var v;
-  v=document.getElementById('e-type').value;    if(v)vals['유형']=v;
-  v=document.getElementById('e-proc').value;    if(v)vals['프로세스']=v;
-  v=document.getElementById('e-price').value;   if(v)vals['금액']=v;
-  v=document.getElementById('e-date').value;    if(v)vals['실행일']=v;
-  v=document.getElementById('e-expire').value;  if(v)vals['만기일']=v;
-  v=document.getElementById('e-contract').value;if(v)vals['계약일']=v;
-  v=document.getElementById('e-deposit').value; if(v)vals['계약금중일부']=v;
-  v=document.getElementById('e-agree').value;   if(v)vals['약정일']=v;
-  v=document.getElementById('e-toher').value;   if(v)vals['토허제']=v;
-  v=document.getElementById('e-middle').value;  if(v)vals['중도금']=v;
-  v=document.getElementById('e-balance').value; if(v)vals['잔금일']=v;
-  v=document.getElementById('e-rev1').value;    if(v)vals['발생수익  매도,임대(VAT포함)']=v;
-  v=document.getElementById('e-rev2').value;    if(v)vals['발생수익-매수,임차  (VAT포함)']=v;
-  vals['상담 내용']=document.getElementById('e-memo').value;
-  var btn=document.getElementById('saveBtnEdit');
-  btn.textContent='저장 중...';btn.disabled=true;showToast('⏳ 저장 중...');
-  try{
-    var res=await fetch(ASURL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'update',rowIndex:r['__row__'],values:vals})});
-    var json=JSON.parse(await res.text());
-    if(json.success){
-      Object.keys(vals).forEach(function(k){r[k]=vals[k];});
-      showToast('✅ 저장 완료!');cancelEdit();
-      if(r['__row__']){
-        fetchLatestRow(r['__row__']).then(function(fresh){
-          if(fresh){Object.keys(fresh).forEach(function(k){r[k]=fresh[k];});FD[CUR_IDX]=r;saveCache(RAW);}
-          det(CUR_IDX);showSyncPrompt();
-        });
-      } else {det(CUR_IDX);showSyncPrompt();}
-    } else {showToast('❌ 실패: '+json.message);}
-  }catch(e){showToast('❌ 오류: '+e.message);}
-  finally{btn.textContent='💾 저장';btn.disabled=false;}
-};
-
-// copySelectedText (덮어쓰기)
-function copySelectedText(){
-  var today=new Date();
-  var ymd=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
-  var lines=[];
-  Array.from(_selected).sort(function(a,b){return a-b;}).forEach(function(i){
-    var r=FD[i];
-    lines.push(ymd+' / '+(r['건물명']||'')+' '+(r['유형']||'')+' '+(r['동']||'')+'동 '+(r['호']||'')+'호');
-  });
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(lines.join('\n')).then(function(){showToast('📋 '+_selected.size+'건 복사 완료!');});
-  }
-}
 
 // ══════════════════════════════════════════════════
 // 뷰 전환
 // ══════════════════════════════════════════════════
 var _curView='search';
-var _proposalMode=false; // 매물 선택 후 구입자 상담으로 돌아가기 모드
-var _proposalBuyerIdx=-1;
+var _proposalMode=false;
 
 function switchView(v){
   _curView=v;
   var isSearch=(v==='search');
-  var searchEls=['.filter-panel','.result-bar','#CL','.table-wrap','#PAGER','#ES'];
-  searchEls.forEach(function(sel){
-    var el=document.querySelector(sel);
-    if(el)el.style.display=isSearch?'':'none';
+  ['.filter-panel','.result-bar','#CL','.table-wrap','#PAGER','#ES'].forEach(function(sel){
+    var el=document.querySelector(sel);if(el)el.style.display=isSearch?'':'none';
   });
-  document.getElementById('SELECT_BAR').style.display=(!isSearch||_selected.size===0)?'none':'flex';
+  var sb=document.getElementById('SELECT_BAR');
+  if(sb)sb.style.display=(isSearch&&_selected.size>0)?'flex':'none';
   document.getElementById('buyer-view').style.display=isSearch?'none':'block';
   document.getElementById('vbtn-search').classList.toggle('active',isSearch);
   document.getElementById('vbtn-buyer').classList.toggle('active',!isSearch);
-  // 플로팅 버튼 표시 조건: 매물 화면 + 제안모드 + 선택된 매물 있음
   updateProposeFab();
 }
-
 function updateProposeFab(){
   var fab=document.getElementById('propose-fab');
-  var show=_curView==='search'&&_proposalMode&&_selected.size>0;
-  fab.classList.toggle('show',show);
+  fab.classList.toggle('show',_curView==='search'&&_proposalMode&&_selected.size>0);
 }
 
 // ══════════════════════════════════════════════════
 // 구입자 탭 전환
 // ══════════════════════════════════════════════════
-function switchBuyerTab(name,el){
+function buyerSwitchTab(name,el){
   document.querySelectorAll('.buyer-tab-btn').forEach(function(b){b.classList.remove('active');});
   document.querySelectorAll('.buyer-tab-content').forEach(function(c){c.classList.remove('active');});
   document.getElementById('btab-'+name).classList.add('active');
@@ -1502,102 +1433,76 @@ function switchBuyerTab(name,el){
 // 제안하기 흐름
 // ══════════════════════════════════════════════════
 function openProposalMode(){
-  // 구입자 상세에서 "제안하기" 클릭 → 매물 화면으로 이동, 플로팅 버튼 활성화
   closeBuyerDet();
   _proposalMode=true;
   switchView('search');
-  showToast('매물을 체크박스로 선택하세요\n선택 후 우측하단 버튼을 누르면 자동 입력됩니다');
+  showToast('매물을 체크박스로 선택하세요\n선택 후 우측 하단 버튼을 눌러주세요');
 }
-
 function proposeToCurrentBuyer(){
-  // 플로팅 버튼 클릭 → 선택 매물을 상담 등록폼에 주입하고 구입자 뷰로 복귀
   if(_selected.size===0){showToast('매물을 선택해 주세요');return;}
   var today=new Date();
   var ymd=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
   _buyerListings=[];
   Array.from(_selected).sort(function(a,b){return a-b;}).forEach(function(i){
     var r=FD[i];
-    _buyerListings.push({
-      text: (r['건물명']||'')+' '+(r['유형']||'')+' '+(r['동']||'')+'동 '+(r['호']||'')+'호',
-      date:ymd
-    });
+    _buyerListings.push({text:(r['건물명']||'')+' '+(r['유형']||'')+' '+(r['동']||'')+'동 '+(r['호']||'')+'호'});
   });
   renderBuyerListings();
-  _proposalMode=false;
-  clearSelection();
-  // 탭을 등록으로
+  _proposalMode=false;clearSelection();
   document.querySelectorAll('.buyer-tab-btn').forEach(function(b){b.classList.remove('active');});
   document.querySelectorAll('.buyer-tab-content').forEach(function(c){c.classList.remove('active');});
   document.getElementById('btab-register').classList.add('active');
   document.getElementById('btab-btn-register').classList.add('active');
   switchView('buyer');
-  showToast('✅ '+_buyerListings.length+'건 제안 매물이 입력되었습니다');
+  showToast('✅ '+_buyerListings.length+'건 제안 매물 입력 완료');
 }
 
-// 선택 변경될 때마다 플로팅 버튼 업데이트
+// selectBar 업데이트 시 FAB도 갱신
+var _origUpdateSelectBar=updateSelectBar;
 function updateSelectBar(){
   var bar=document.getElementById('SELECT_BAR');
   if(!bar)return;
-  if(_selected.size>0){
-    bar.style.display='flex';
-    document.getElementById('SELECT_COUNT').textContent=_selected.size+'건 선택됨';
-  } else {
-    bar.style.display='none';
-  }
-}
-var _origUpdateSelectBar=updateSelectBar;
-updateSelectBar=function(){
-  _origUpdateSelectBar();
+  if(_selected.size>0){bar.style.display='flex';document.getElementById('SELECT_COUNT').textContent=_selected.size+'건 선택됨';}
+  else{bar.style.display='none';}
   updateProposeFab();
-};
+}
 
 // ══════════════════════════════════════════════════
 // 제안 매물 렌더
 // ══════════════════════════════════════════════════
 var _buyerListings=[];
 function renderBuyerListings(){
-  var box=document.getElementById('buyer-listing-box');
-  if(!box)return;
+  var box=document.getElementById('buyer-listing-box');if(!box)return;
   if(_buyerListings.length===0){
     box.className='listing-preview-box';
     box.innerHTML='<div class="listing-preview-empty">매물 화면에서 체크박스 선택 후<br>「📦 이 매물로 제안하기」 버튼을 누르세요</div>';
   } else {
     box.className='listing-preview-box has-data';
-    var today=new Date();
-    var ymd=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+    var ymd=new Date().toISOString().slice(0,10);
     box.textContent=_buyerListings.map(function(it){return ymd+' / '+it.text;}).join('\n');
   }
 }
 function buyerClearListings(){_buyerListings=[];renderBuyerListings();showToast('제안 매물 초기화');}
 
 // ══════════════════════════════════════════════════
-// 최근통화 가져오기 (모바일 tel: 딥링크 활용)
+// 최근통화 버튼
 // ══════════════════════════════════════════════════
 function importLastCall(){
-  // 브라우저 보안상 통화기록 직접 접근 불가 → tel: 스킴으로 전화앱 열기 안내
-  if(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)){
-    showToast('📱 전화 앱에서 최근 통화 번호를\n직접 복사 후 붙여넣기 해주세요');
-    // 입력창에 포커스
-    setTimeout(function(){document.getElementById('b-namephone').focus();},300);
-  } else {
-    showToast('💻 PC에서는 직접 입력해 주세요');
-    document.getElementById('b-namephone').focus();
-  }
+  showToast('📱 전화 앱에서 최근 통화 번호를\n복사 후 붙여넣기 해주세요');
+  setTimeout(function(){var el=document.getElementById('b-namephone');if(el)el.focus();},300);
 }
 
 // ══════════════════════════════════════════════════
-// 구입자 상담 저장 (이력 누적)
+// 구입자 저장 (이력 누적)
 // ══════════════════════════════════════════════════
 var BUYER_SHEET='구입자';
 async function saveBuyerRecord(){
   var namephone=document.getElementById('b-namephone').value.trim();
   if(!namephone){showToast('⚠️ 고객명(전화번호)은 필수입니다');return;}
-  var today=new Date();
-  var ymd=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  var ymd=new Date().toISOString().slice(0,10);
   var listingText=_buyerListings.map(function(it){return ymd+' / '+it.text;}).join('\n');
   var vals={
-    '상담일':ymd,
-    '고객명(전화번호)':namephone,
+    '상담일':ymd,'고객명(전화번호)':namephone,
     '예산':document.getElementById('b-budget').value.trim(),
     '거래유형':document.getElementById('b-type').value,
     '진행상태':document.getElementById('b-status').value,
@@ -1622,9 +1527,9 @@ async function saveBuyerRecord(){
 }
 
 // ══════════════════════════════════════════════════
-// 구입자 목록 + 검색
+// 구입자 목록
 // ══════════════════════════════════════════════════
-var _buyerList=[], _buyerListFiltered=[];
+var _buyerList=[],_buyerListFiltered=[];
 async function loadBuyerList(){
   var wrap=document.getElementById('buyer-list-wrap');
   wrap.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3);font-size:13px;">불러오는 중...</div>';
@@ -1633,7 +1538,7 @@ async function loadBuyerList(){
     var res=await fetch(url);var json=await res.json();
     if(json.error)throw new Error(json.error.message);
     if(!json.values||json.values.length<2){
-      wrap.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><p>등록된 상담 기록이 없습니다</p></div>';
+      wrap.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><p>등록된 상담 기록이 없습니다</p><p style="font-size:12px;margin-top:8px;color:var(--text3);">구글 시트에 「구입자」 탭이 있어야 합니다</p></div>';
       document.getElementById('buyer-count').textContent='0건';return;
     }
     var headers=json.values[0].map(function(h){return h.trim();});
@@ -1642,23 +1547,20 @@ async function loadBuyerList(){
     }).reverse();
     applyBuyerSearch();
   }catch(e){
-    wrap.innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><p style="color:#b91c1c;">불러오기 실패</p><p style="font-size:12px;margin-top:6px;color:var(--text3);">구글 시트에 「구입자」 탭을 확인하세요<br><small>'+e.message+'</small></p></div>';
+    wrap.innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><p style="color:#b91c1c;">불러오기 실패</p><p style="font-size:12px;margin-top:6px;color:var(--text3);">구글 시트 「구입자」 탭을 확인하세요<br><small>'+esc(e.message)+'</small></p></div>';
   }
 }
 function applyBuyerSearch(){
-  var sq=(document.getElementById('buyer-search')||{value:''}).value.toLowerCase().trim();
+  var si=document.getElementById('buyer-search');
+  var sq=si?si.value.toLowerCase().trim():'';
   _buyerListFiltered=sq?_buyerList.filter(function(r){
     return [(r['고객명(전화번호)']||''),(r['찾는매물']||''),(r['상담내용']||''),(r['제안매물']||'')].join(' ').toLowerCase().indexOf(sq)!==-1;
   }):_buyerList.slice();
-  document.getElementById('buyer-count').textContent=_buyerListFiltered.length+'건';
+  var cnt=document.getElementById('buyer-count');if(cnt)cnt.textContent=_buyerListFiltered.length+'건';
   renderBuyerList();
 }
-document.addEventListener('DOMContentLoaded',function(){
-  var bsi=document.getElementById('buyer-search');
-  if(bsi)bsi.addEventListener('input',applyBuyerSearch);
-});
 function renderBuyerList(){
-  var wrap=document.getElementById('buyer-list-wrap');
+  var wrap=document.getElementById('buyer-list-wrap');if(!wrap)return;
   if(!_buyerListFiltered.length){
     wrap.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>검색 결과가 없습니다</p></div>';return;
   }
@@ -1684,35 +1586,22 @@ function renderBuyerList(){
 // ══════════════════════════════════════════════════
 // 구입자 상세 패널
 // ══════════════════════════════════════════════════
-var _curBuyerIdx=-1;
 function openBuyerDet(i){
-  _curBuyerIdx=i;
   var r=_buyerListFiltered[i];
   document.getElementById('buyer-det-title').textContent=r['고객명(전화번호)']||'-';
-  document.getElementById('buyer-det-sub').textContent=(r['거래유형']||'')+' · '+(r['진행상태']||'')+' · '+r['상담일'];
+  document.getElementById('buyer-det-sub').textContent=(r['거래유형']||'')+' · '+(r['진행상태']||'')+' · '+(r['상담일']||'');
   var h='';
-  // 전화 링크 추출
-  var rawPhone=(r['고객명(전화번호)']||'');
-  var phones=xph([rawPhone]);
+  var phones=xph([r['고객명(전화번호)']||'']);
   if(phones.length){
     h+='<div style="margin-bottom:14px;display:flex;flex-wrap:wrap;gap:8px;">';
-    phones.forEach(function(p){
-      h+='<a href="tel:'+p+'" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:11px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);border-radius:8px;color:#047857;font-size:14px;font-weight:600;text-decoration:none;min-width:160px;">📞 '+fph(p)+'</a>';
-    });
+    phones.forEach(function(p){h+='<a href="tel:'+p+'" style="flex:1;min-width:150px;display:flex;align-items:center;justify-content:center;gap:6px;padding:11px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);border-radius:8px;color:#047857;font-size:14px;font-weight:600;text-decoration:none;">📞 '+fph(p)+'</a>';});
     h+='</div>';
   }
-  // 기본정보 그리드
   var fields=[['예산',r['예산']],['거래유형',r['거래유형']],['찾는매물',r['찾는매물']],['진행상태',r['진행상태']]];
-  var filt=fields.filter(function(f){return f[1];});
-  if(filt.length){
-    h+='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:14px;">';
-    filt.forEach(function(f){h+='<div><div class="di-label">'+esc(f[0])+'</div><div class="di-value">'+esc(f[1])+'</div></div>';});
-    h+='</div>';
-  }
-  // 상담 이력 타임라인 (제안매물 + 상담내용)
+  var ff=fields.filter(function(f){return f[1];});
+  if(ff.length){h+='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:14px;">';ff.forEach(function(f){h+='<div><div class="di-label">'+esc(f[0])+'</div><div class="di-value">'+esc(f[1])+'</div></div>';});h+='</div>';}
   if(r['제안매물']||r['상담내용']){
-    h+='<div class="detail-section"><div class="detail-section-title">📅 '+esc(r['상담일']||'')+' 상담 기록</div>'+
-       '<div class="timeline-item"><div class="timeline-dot"></div>';
+    h+='<div class="detail-section"><div class="detail-section-title">📅 '+esc(r['상담일']||'')+' 상담 기록</div><div class="timeline-item"><div class="timeline-dot"></div>';
     if(r['제안매물'])h+='<div class="timeline-listings">'+esc(r['제안매물'])+'</div>';
     if(r['상담내용'])h+='<div class="timeline-memo">'+esc(r['상담내용'])+'</div>';
     h+='</div></div>';
@@ -1723,68 +1612,61 @@ function openBuyerDet(i){
 }
 function closeBuyerDet(){document.getElementById('buyer-DO').classList.remove('open');document.body.style.overflow='';}
 
+// 구입자 탭 목록 열릴 때 검색 이벤트 연결
+document.addEventListener('click',function(e){
+  if(e.target&&e.target.id==='btab-btn-list'){
+    setTimeout(function(){
+      var si=document.getElementById('buyer-search');
+      if(si&&!si._bound){si.addEventListener('input',applyBuyerSearch);si._bound=true;}
+    },100);
+  }
+});
 
 </script>
 
-<!-- ══════════════════ 구입자 페이지 뷰 ══════════════════ -->
+<!-- ══════════════════ 구입자 페이지 ══════════════════ -->
 <div id="buyer-view">
   <div class="buyer-tabs">
-    <button class="buyer-tab-btn active" id="btab-btn-register" onclick="switchBuyerTab('register',this)">✏️ 상담 등록</button>
-    <button class="buyer-tab-btn" id="btab-btn-list" onclick="switchBuyerTab('list',this)">📋 구입자 목록</button>
+    <button class="buyer-tab-btn active" id="btab-btn-register" onclick="buyerSwitchTab('register',this)">✏️ 상담 등록</button>
+    <button class="buyer-tab-btn" id="btab-btn-list" onclick="buyerSwitchTab('list',this)">📋 구입자 목록</button>
   </div>
-
   <!-- 탭1: 상담 등록 -->
   <div class="buyer-tab-content active" id="btab-register">
-    <!-- 제안 매물 -->
     <div style="margin-bottom:14px;">
       <div class="buyer-sec-title">📦 제안 매물</div>
-      <div id="buyer-listing-box" class="listing-preview-box">
-        <div class="listing-preview-empty">매물 화면에서 체크박스 선택 후<br>「📦 이 매물로 제안하기」 버튼을 누르세요</div>
-      </div>
+      <div id="buyer-listing-box" class="listing-preview-box"><div class="listing-preview-empty">매물 화면에서 체크박스 선택 후<br>「📦 이 매물로 제안하기」 버튼을 누르세요</div></div>
       <button onclick="buyerClearListings()" style="margin-top:6px;background:none;border:1px solid var(--border);border-radius:6px;color:var(--text3);font-size:12px;padding:5px 12px;cursor:pointer;">✕ 제안 매물 초기화</button>
     </div>
-
-    <!-- 구입자 정보 -->
     <div class="buyer-sec-title">👤 구입자 정보</div>
     <div class="buyer-form-grid">
       <div class="ef-group" style="grid-column:span 2;">
-        <label class="ef-label">고객명(전화번호) * — 예) 홍길동 010-1234-5678</label>
+        <label class="ef-label">고객명(전화번호) *  예) 홍길동 010-1234-5678</label>
         <div style="display:flex;gap:6px;">
           <input id="b-namephone" class="ef-input" type="text" placeholder="홍길동 010-1234-5678" style="flex:1;">
           <button onclick="importLastCall()" style="flex-shrink:0;padding:8px 10px;background:#e0f2fe;border:1px solid #7dd3fc;border-radius:6px;color:#0369a1;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">📱 최근통화</button>
         </div>
       </div>
-      <div class="ef-group"><label class="ef-label">예산</label><input id="b-budget" class="ef-input" type="text" placeholder="예) 10억, 5천만"></div>
+      <div class="ef-group"><label class="ef-label">예산</label><input id="b-budget" class="ef-input" type="text" placeholder="예) 10억"></div>
       <div class="ef-group"><label class="ef-label">거래유형</label>
-        <select id="b-type" class="ef-select">
-          <option value="">선택 안함</option>
-          <option>매매</option><option>전세</option><option>월세</option>
-        </select>
+        <select id="b-type" class="ef-select"><option value="">선택 안함</option><option>매매</option><option>전세</option><option>월세</option></select>
       </div>
       <div class="ef-group"><label class="ef-label">진행상태</label>
-        <select id="b-status" class="ef-select">
-          <option value="">선택 안함</option>
-          <option>초기상담</option><option>매물제안</option><option>현장방문</option>
-          <option>계약검토</option><option>계약완료</option><option>보류</option>
-        </select>
+        <select id="b-status" class="ef-select"><option value="">선택 안함</option><option>초기상담</option><option>매물제안</option><option>현장방문</option><option>계약검토</option><option>계약완료</option><option>보류</option></select>
       </div>
-      <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">찾는 매물 (단지명·조건 등)</label>
+      <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">찾는 매물</label>
         <input id="b-want" class="ef-input" type="text" placeholder="예) 아이 전세 34평, 더샵 매매">
       </div>
     </div>
-    <div class="ef-group" style="margin-bottom:12px;">
-      <label class="ef-label">상담 내용</label>
+    <div class="ef-group" style="margin-bottom:12px;"><label class="ef-label">상담 내용</label>
       <textarea id="b-memo" class="ef-textarea" rows="3" placeholder="상담 내용, 특이사항..."></textarea>
     </div>
-    <button id="buyer-save-btn" onclick="saveBuyerRecord()" style="width:100%;padding:12px;background:#b45309;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">💾 구글 시트에 저장</button>
+    <button id="buyer-save-btn" onclick="saveBuyerRecord()" style="width:100%;padding:12px;background:#b45309;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">💾 구글 시트에 저장</button>
   </div>
-
   <!-- 탭2: 구입자 목록 -->
   <div class="buyer-tab-content" id="btab-list">
     <div class="buyer-search-wrap">
       <span class="buyer-search-icon">🔍</span>
-      <input class="buyer-search-input" id="buyer-search" type="text"
-        placeholder="이름·전화번호·찾는매물·상담내용 검색  예) 5294-7813 아이">
+      <input class="buyer-search-input" id="buyer-search" type="text" placeholder="이름·전화번호·찾는매물·상담내용 검색">
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
       <span id="buyer-count" style="font-size:12px;color:var(--text3);"></span>
