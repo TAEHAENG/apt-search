@@ -139,6 +139,7 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
 /* 카드 새 레이아웃 */
 .card-check{position:absolute;top:10px;left:10px;width:20px;height:20px;cursor:pointer;accent-color:#1d4ed8;z-index:2;}
 .card{padding-left:36px!important;}
+.col-check{width:36px;text-align:center;padding:4px 0!important;}
 .card-row1{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-bottom:3px;}
 .card-dong-ho{font-size:16px;font-weight:700;}
 .card-building-name{font-size:12px;color:var(--text3);}
@@ -349,6 +350,7 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
 <div class="table-wrap">
   <table>
     <thead><tr>
+      <th class="col-check"><input type="checkbox" id="chk-all" onclick="toggleAllSelect(this)" style="width:15px;height:15px;cursor:pointer;accent-color:#1d4ed8;"></th>
       <th class="col-date"     onclick="srt('실행일',this)">실행일 ↕</th>
       <th class="col-type"     onclick="srt('유형',this)">유형 ↕</th>
       <th class="col-building" onclick="srt('건물명',this)">건물명 ↕</th>
@@ -914,7 +916,9 @@ function makeCard(r,i){
   '</div>';
 }
 function makeRow(r,i){
+  var checked=_selected.has(i)?'checked':'';
   return '<tr onclick="det('+i+')">'+
+    '<td class="col-check" onclick="event.stopPropagation()"><input type="checkbox" '+checked+' onclick="toggleSelect('+i+',this)" style="width:15px;height:15px;cursor:pointer;accent-color:#1d4ed8;"></td>'+
     '<td class="col-date">'+esc(r['실행일']||'-')+'</td>'+
     '<td class="col-type"><span class="badge '+gtc(r['유형']||'')+'">'+esc(r['유형']||'-')+'</span></td>'+
     '<td class="col-building">'+esc(r['건물명']||'-')+'</td>'+
@@ -1004,7 +1008,7 @@ function det(idx){
   if(r['비고'])h+='<div class="detail-section"><div class="detail-section-title">비고</div><div class="memo-box">'+esc(r['비고'])+'</div></div>';
 
   // 4. 소유자 정보
-  var f4=[['소유자',r['소유자']],['소유자2',r['소유자2']],['이름',r['이름']],['임차인',r['임차인']],['손님구분',r['거주자명']],['현재점유형태',r['현재점유형태']],['소유형태',r['소유형태']],['이실장소유자',r['이실장소유자명']]].filter(function(x){return x[1];});
+  var f4=[['소유자',r['소유자']],['소유자2',r['소유자2']],['이름',r['이름']],['임차인',r['임차인']],['손님구분',r['손님구분']],['현재점유형태',r['현재점유형태']],['소유형태',r['소유형태']],['이실장소유자',r['이실장소유자명']]].filter(function(x){return x[1];});
   if(f4.length){h+='<div class="detail-section"><div class="detail-section-title">소유자 정보</div><div class="detail-grid">'+f4.map(function(x){return'<div class="detail-item"><span class="di-label">'+x[0]+'</span><span class="di-value">'+esc(x[1])+'</span></div>';}).join('')+'</div></div>';}
 
   // 5. 연락처 버튼 (소유자 정보 아래)
@@ -1098,7 +1102,7 @@ function fillEditForm(r){
   document.getElementById('e-owner2').value=r['소유자2']||'';
   document.getElementById('e-ownername').value=r['이름']||'';
   document.getElementById('e-tenant').value=r['임차인']||'';
-  document.getElementById('e-resident').value=r['거주자명']||'';
+  document.getElementById('e-resident').value=r['손님구분']||'';
   document.getElementById('e-occupancy').value=r['현재점유형태']||'';
   // 계약
   document.getElementById('e-expire').value=r['만기일']||'';
@@ -1159,34 +1163,17 @@ function toggleSelect(idx, cb){
   else _selected.delete(idx);
   updateSelectBar();
 }
-function updateSelectBar(){
-  var bar = document.getElementById('SELECT_BAR');
-  if(!bar) return;
-  if(_selected.size > 0){
-    bar.style.display = 'flex';
-    document.getElementById('SELECT_COUNT').textContent = _selected.size + '건 선택됨';
-  } else {
-    bar.style.display = 'none';
-  }
-}
-function clearSelection(){
-  _selected.clear();
-  updateSelectBar();
-  // 체크박스 해제
-  document.querySelectorAll('.card input[type=checkbox]').forEach(function(cb){cb.checked=false;});
-}
 function copySelectedText(){
   var today = new Date();
   var ymd = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
   var lines = [];
   Array.from(_selected).sort(function(a,b){return a-b;}).forEach(function(i){
-    var r = FD[i];
-    lines.push(ymd+' / '+(r['건물명']||'')+' '+(r['동']||'')+'동 '+(r['호']||'')+'호');
+    var r=FD[i];if(!r)return;
+    lines.push(ymd+' / '+(r['건물명']||'')+' '+(r['유형']||'')+' '+(r['동']||'')+'동 '+(r['호']||'')+'호');
   });
-  var text = lines.join('\n');
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(function(){ showToast('📋 '+_selected.size+'건 복사 완료!\n구입자 페이지에 붙여넣기 하세요'); });
-  }
+  if(!lines.length){showToast('선택된 매물이 없습니다');return;}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(lines.join('\n')).then(function(){showToast('📋 '+lines.length+'건 복사 완료!');});}
+  else{var ta=document.createElement('textarea');ta.value=lines.join('\n');document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('📋 '+lines.length+'건 복사 완료!');}
 }
 
 function closeDet(){document.getElementById('DO').classList.remove('open');document.body.style.overflow='';cancelEdit();}
@@ -1254,7 +1241,7 @@ async function saveEdit(){
   vals['소유자2']=document.getElementById('e-owner2').value;
   vals['이름']=document.getElementById('e-ownername').value;
   vals['임차인']=document.getElementById('e-tenant').value;
-  vals['거주자명']=document.getElementById('e-resident').value;
+  vals['손님구분']=document.getElementById('e-resident').value;
   vals['현재점유형태']=document.getElementById('e-occupancy').value;
   // 계약
   vals['주요특징']=_editTags.map(function(t){return'#'+t;}).join(', ');
@@ -1462,6 +1449,8 @@ function updateSelectBar(){
   var bar=document.getElementById('SELECT_BAR');if(!bar)return;
   if(_selected.size>0){bar.style.display='flex';document.getElementById('SELECT_COUNT').textContent=_selected.size+'건 선택됨';}
   else{bar.style.display='none';}
+  var fab=document.getElementById('propose-fab');
+  if(fab)fab.classList.toggle('show',_curView==='search'&&_proposalMode&&_selected.size>0);
 }
 function clearSelection(){
   _selected.clear();updateSelectBar();
