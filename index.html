@@ -44,6 +44,7 @@ header h1{font-size:15px;font-weight:700;color:#f1f5f9;white-space:nowrap;}
 .sel-btn.proc-all.active{background:#334155;border-color:#334155;color:#ffffff;}
 .sel-btn.proc-propose.active{background:#c2410c;border-color:#c2410c;color:#ffffff;}
 .sel-btn.proc-latent.active{background:#6d28d9;border-color:#6d28d9;color:#ffffff;}
+.sel-btn.proc-item.active{background:#0369a1;border-color:#0369a1;color:#ffffff;}
 .filter-divider{height:1px;background:var(--border);}
 .bld-divider{width:100%;height:1px;background:var(--border);margin:2px 0;}
 .search-row{display:flex;gap:8px;align-items:center;}
@@ -314,8 +315,26 @@ tbody td{padding:8px 11px;border-right:1px solid rgba(42,49,71,0.5);white-space:
     <div class="filter-row-label">③ 프로세스</div>
     <div class="btn-group">
       <button class="sel-btn proc-all"     id="proc-all"     onclick="selProc('A')">전체</button>
-      <button class="sel-btn proc-propose" id="proc-propose" onclick="selProc('P')">제안가능 (등록·미등록·타부동산)</button>
-      <button class="sel-btn proc-latent"  id="proc-latent"  onclick="selProc('L')">잠재매물 (그 외 전체)</button>
+      <button class="sel-btn proc-propose" id="proc-propose" onclick="selProc('P')">제안가능</button>
+      <button class="sel-btn proc-latent"  id="proc-latent"  onclick="selProc('L')">잠재매물</button>
+      <button class="bld-expand-btn" id="procExpandBtn" onclick="toggleProcExpand()">＋ 전체 보기</button>
+    </div>
+    <div class="bld-extra" id="procExtra">
+      <button class="sel-btn proc-item" onclick="selProcItem('제안가능(물건등록)',this)">제안가능(등록)</button>
+      <button class="sel-btn proc-item" onclick="selProcItem('제안가능(미등록)',this)">제안가능(미등록)</button>
+      <button class="sel-btn proc-item" onclick="selProcItem('타부동산',this)">타부동산</button>
+      <button class="sel-btn proc-item" onclick="selProcItem('계약',this)">계약</button>
+      <div class="bld-divider"></div>
+      <button class="sel-btn proc-item" onclick="selProcItem('대기',this)">대기</button>
+      <button class="sel-btn proc-item" onclick="selProcItem('보류',this)">보류</button>
+      <button class="sel-btn proc-item" onclick="selProcItem('매물 확보',this)">매물 확보</button>
+      <button class="sel-btn proc-item" onclick="selProcItem('잔금',this)">잔금</button>
+      <button class="sel-btn proc-item" onclick="selProcItem('잔금정산',this)">잔금정산</button>
+      <button class="sel-btn proc-item" onclick="selProcItem('재계약',this)">재계약</button>
+      <button class="sel-btn proc-item" onclick="selProcItem('재계약확인',this)">재계약확인</button>
+      <button class="sel-btn proc-item" onclick="selProcItem('완료',this)">완료</button>
+      <button class="sel-btn proc-item" onclick="selProcItem('매매완료',this)">매매완료</button>
+      <button class="sel-btn proc-item" onclick="selProcItem('통오더',this)">통오더</button>
     </div>
   </div>
   <div class="filter-divider"></div>
@@ -612,7 +631,7 @@ var CACHE_TIME_KEY = 'apt_cache_time_v1';
 
 // ── 상태 ─────────────────────────────────────────
 var RAW=[],FD=[],SC='실행일',SD=-1,SCROLL_END=50;
-var fTypes=new Set(),fBlds=new Set(),fP=null,fS='';
+var fTypes=new Set(),fBlds=new Set(),fP=null,fProcs=new Set(),fS='';
 var CUR_IDX=-1,_editMsgIdx=-1,_curMsgBody='';
 var _sheetName='';
 
@@ -770,39 +789,60 @@ function selBld(b){
   applyAll();
 }
 function selProc(p){
+  fProcs.clear();
+  document.querySelectorAll('.sel-btn.proc-item').forEach(function(b){b.classList.remove('active');});
   fP=(fP===p)?null:p;
   document.querySelectorAll('.sel-btn[id^="proc-"]').forEach(function(b){b.classList.remove('active');});
   if(fP){var m={'P':'proc-propose','L':'proc-latent','A':'proc-all'};document.getElementById(m[fP]).classList.add('active');}
   applyAll();
 }
+function selProcItem(val,btn){
+  fP=null;
+  document.querySelectorAll('.sel-btn[id^="proc-"]').forEach(function(b){b.classList.remove('active');});
+  if(fProcs.has(val)){fProcs.delete(val);btn.classList.remove('active');}
+  else{fProcs.add(val);btn.classList.add('active');}
+  applyAll();
+}
+function toggleProcExpand(){
+  var ex=document.getElementById('procExtra'),btn=document.getElementById('procExpandBtn');
+  var open=ex.classList.toggle('open');
+  btn.textContent=open?'－ 접기':'＋ 전체 보기';
+}
 function resetAll(){
-  fTypes.clear();fBlds.clear();fP=null;fS='';
+  fTypes.clear();fBlds.clear();fP=null;fProcs.clear();fS='';
   document.getElementById('SI2').value='';
   document.querySelectorAll('.sel-btn').forEach(function(b){b.classList.remove('active');});
+  var ex=document.getElementById('procExtra');if(ex)ex.classList.remove('open');
+  var pb=document.getElementById('procExpandBtn');if(pb)pb.textContent='＋ 전체 보기';
   FD=RAW.slice();asr();
 }
 
-// 검색어 파싱: "아이702호","더샵 1205","힐스101동302호"
+// 검색어 파싱: "아이702호","더샵 1205","힐스101동302호","아이 102"(동 검색)
 function parseSearch(sq){
-  // 건물명 매칭 - 긴 이름 먼저 (호반써밋2 vs 호반써밋 충돌 방지)
   var sorted = ALL_BLDS.slice().sort(function(a,b){return b.length-a.length;});
   for(var i=0;i<sorted.length;i++){
     var b=sorted[i].toLowerCase();
     if(sq.startsWith(b)){
       var rest=sq.slice(b.length).trim();
-      if(!rest) return null;
+      if(!rest) return {bld:b, dong:null, ho:null};  // 건물명만 → 해당 건물 전체
       var dm=rest.match(/([0-9]+)\s*동/);
       var hm=rest.match(/([0-9]+)\s*호/);
-      var num=rest.replace(/[^0-9]/g,'');
+      var num=rest.replace(/[^0-9\s]/g,'').trim();
+      var parts=num.split(/\s+/).filter(Boolean);
       var dong=null, ho=null;
       if(dm) dong=dm[1];
       if(hm) ho=hm[1];
-      // 동/호 명시 없이 숫자만 있을 때: 4자리 이상이면 동번호로 처리
-      if(!dong&&!ho&&num){
-        if(num.length>=3) dong=num;
-        else ho=num;
+      if(!dong&&!ho){
+        if(parts.length>=2){
+          // "아이 102 404" → 동:102, 호:404
+          dong=parts[0]; ho=parts[1];
+        } else if(parts.length===1){
+          var n=parts[0];
+          // 2~3자리: 동으로 처리 ("아이 102" → 102동 전체)
+          if(n.length<=3) dong=n;
+          else ho=n;
+        }
       }
-      if(!dong&&!ho) return null;
       return {bld:b, dong:dong, ho:ho};
     }
   }
@@ -812,21 +852,7 @@ function parseSearch(sq){
 function applyAll(){
   var sq=fS.toLowerCase().trim();
   FD=RAW.filter(function(r){
-    if(sq){
-      var p=parseSearch(sq);
-      if(p){
-        var bm=!p.bld||(r['건물명']||'').toLowerCase().indexOf(p.bld)!==-1;
-        // 동/호는 완전일치 (7108이 71080에 매칭되는 것 방지)
-        var rDong=(r['동']||'').replace(/[^0-9]/g,'');
-        var rHo=(r['호']||'').replace(/[^0-9]/g,'');
-        var dm=!p.dong||(rDong===p.dong);
-        var hm=!p.ho||(rHo===p.ho);
-        return bm&&hm&&dm;
-      }
-      var pri=[(r['동']||''),(r['호']||''),(r['소유자']||''),(r['소유자2']||''),(r['이름']||'')].join(' ').toLowerCase();
-      var sec=[(r['건물명']||''),(r['금액']||''),(r['상담 내용']||''),(r['임차인']||'')].join(' ').toLowerCase();
-      return pri.indexOf(sq)!==-1||sec.indexOf(sq)!==-1;
-    }
+    // 필터 항상 먼저
     if(fTypes.size>0){
       var allowed=new Set();
       fTypes.forEach(function(t){TM[t].forEach(function(v){allowed.add(v);});});
@@ -834,6 +860,24 @@ function applyAll(){
     }
     if(fBlds.size>0&&!fBlds.has(r['건물명'])) return false;
     if(fP&&fP!=='A'){var ip=PP.indexOf(r['프로세스'])!==-1;if(fP==='P'&&!ip)return false;if(fP==='L'&&ip)return false;}
+    if(typeof fProcs!=='undefined'&&fProcs.size>0&&!fProcs.has(r['프로세스'])) return false;
+    // 검색어
+    if(sq){
+      var p=parseSearch(sq);
+      if(p){
+        var bm=!p.bld||(r['건물명']||'').toLowerCase().indexOf(p.bld)!==-1;
+        var rDong=(r['동']||'').replace(/[^0-9]/g,'');
+        var rHo=(r['호']||'').replace(/[^0-9]/g,'');
+        var dm=!p.dong||(rDong===p.dong);
+        var hm=!p.ho||(rHo===p.ho);
+        // 건물명만 입력한 경우 (dong/ho 모두 null) → 해당 건물 전체
+        if(!p.dong&&!p.ho) return bm;
+        return bm&&dm&&hm;
+      }
+      var pri=[(r['동']||''),(r['호']||''),(r['소유자']||''),(r['소유자2']||''),(r['이름']||'')].join(' ').toLowerCase();
+      var sec=[(r['건물명']||''),(r['금액']||''),(r['상담 내용']||''),(r['임차인']||'')].join(' ').toLowerCase();
+      return pri.indexOf(sq)!==-1||sec.indexOf(sq)!==-1;
+    }
     return true;
   });
   asr();
@@ -1596,9 +1640,41 @@ async function loadBuyerList(){
 }
 function applyBuyerSearch(){
   var sq=(document.getElementById('buyer-search')||{value:''}).value.toLowerCase().trim();
-  _buyerListFiltered=sq?_buyerList.filter(function(r){return[(r['고객명(전화번호)']||''),(r['찾는 매물']||''),(r['상담 내용']||''),(r['제안 매물']||'')].join(' ').toLowerCase().indexOf(sq)!==-1;}):_buyerList.slice();
+  var bfYear=(document.getElementById('bf-year')||{value:''}).value.trim();
+  var bfMonth=(document.getElementById('bf-month')||{value:''}).value.trim();
+  var bfBudget=(document.getElementById('bf-budget')||{value:''}).value.trim();
+  _buyerListFiltered=_buyerList.filter(function(r){
+    // 텍스트 검색
+    if(sq&&[(r['고객명(전화번호)']||''),(r['찾는 매물']||''),(r['상담 내용']||''),(r['제안 매물']||'')].join(' ').toLowerCase().indexOf(sq)===-1) return false;
+    // 입주희망일 필터
+    if(bfYear||bfMonth){
+      var mi=(r['입주일']||'').replace(/[년년]/g,'-').replace(/[월달]/g,'').replace(/\s/g,'');
+      var myear=mi.match(/(\d{4})/);var mmonth=mi.match(/[-.](\d{1,2})/);
+      myear=myear?myear[1]:''; mmonth=mmonth?String(parseInt(mmonth[1])):'';
+      if(bfYear&&myear!==bfYear) return false;
+      if(bfMonth&&mmonth!==bfMonth) return false;
+    }
+    // 예산 필터 (N만원 이상)
+    if(bfBudget){
+      var braw=(r['예산']||'').replace(/[,\s]/g,'');
+      // 억 단위 변환: '13억' → 130000, '13.7억' → 137000, '13000' → 13000
+      var bval=0;
+      var eok=braw.match(/([0-9.]+)억/);
+      var man=braw.match(/([0-9]+)만/);
+      if(eok) bval=Math.round(parseFloat(eok[1])*10000);
+      else if(man) bval=parseInt(man[1]);
+      else bval=parseInt(braw)||0;
+      if(bval<parseInt(bfBudget)) return false;
+    }
+    return true;
+  });
   var cnt=document.getElementById('buyer-count');if(cnt)cnt.textContent=_buyerListFiltered.length+'건';
   renderBuyerTable();
+}
+function resetBuyerFilter(){
+  var els=['buyer-search','bf-year','bf-month','bf-budget'];
+  els.forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  applyBuyerSearch();
 }
 function renderBuyerTable(){
   var tbody=document.getElementById('buyer-tbody');if(!tbody)return;
@@ -1695,9 +1771,30 @@ async function saveBuyerEdit(){
     <button id="buyer-save-btn" onclick="saveBuyerRecord()" style="width:100%;padding:12px;background:#b45309;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">💾 구글 시트에 저장</button>
   </div>
   <div class="buyer-tab-content" id="btab-list">
-    <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+    <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
       <div style="position:relative;flex:1;"><span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;">🔍</span><input id="buyer-search" class="ef-input" style="padding-left:32px;" type="text" placeholder="이름·전화·찾는매물·상담내용"></div>
       <button onclick="loadBuyerList()" style="flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:12px;padding:8px 12px;cursor:pointer;">🔄</button>
+    </div>
+    <!-- 입주희망일·예산 필터 -->
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+        <span style="font-size:11px;color:var(--text3);white-space:nowrap;">입주일</span>
+        <select id="bf-year" class="ef-select" style="padding:5px 6px;font-size:12px;width:72px;" onchange="applyBuyerSearch()">
+          <option value="">년도</option>
+          <option>2025</option><option>2026</option><option>2027</option><option>2028</option>
+        </select>
+        <select id="bf-month" class="ef-select" style="padding:5px 6px;font-size:12px;width:58px;" onchange="applyBuyerSearch()">
+          <option value="">월</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+          <option>5</option><option>6</option><option>7</option><option>8</option>
+          <option>9</option><option>10</option><option>11</option><option>12</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <span style="font-size:11px;color:var(--text3);white-space:nowrap;">예산이상</span>
+        <input id="bf-budget" class="ef-input" type="number" placeholder="만원" style="width:90px;padding:5px 8px;font-size:12px;" oninput="applyBuyerSearch()">
+      </div>
+      <button onclick="resetBuyerFilter()" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--text3);font-size:11px;padding:5px 10px;cursor:pointer;">초기화</button>
     </div>
     <div style="font-size:12px;color:var(--text3);margin-bottom:8px;"><span id="buyer-count"></span></div>
     <div class="buyer-table-wrap">
