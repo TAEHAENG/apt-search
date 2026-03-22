@@ -694,7 +694,7 @@ async function syncSheets(){
       hd.forEach(function(h,j){
         if(row[j]&&row[j].trim()){
           // 상담내용, 비고는 줄바꿈 보존
-          var keepNl=(h==='상담 내용'||h==='비고');
+          var keepNl=(h==='상담 내용'||h==='비고'||h==='주요특징');
           o[h]=keepNl ? row[j].trim() : row[j].replace(/\n/g,' ').trim();
         }
       });
@@ -1034,7 +1034,8 @@ async function fetchLatestRow(rowIndex){
     var rowData = json.valueRanges[1].values ? json.valueRanges[1].values[0] : [];
     var obj = {'__row__': rowIndex};
     headers.forEach(function(h,i){
-      obj[h] = (rowData[i]||'').replace(/\n/g,' ').trim();
+      var keepRaw=(h==='상담 내용'||h==='비고'||h==='주요특징');
+      obj[h] = keepRaw ? (rowData[i]||'').trim() : (rowData[i]||'').replace(/\n/g,' ').trim();
     });
     return obj;
   }catch(ex){
