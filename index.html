@@ -694,7 +694,7 @@ async function syncSheets(){
       hd.forEach(function(h,j){
         if(row[j]&&row[j].trim()){
           // 상담내용, 비고는 줄바꿈 보존
-          var keepNl=(h==='상담 내용'||h==='비고'||h==='주요특징');
+          var keepNl=(h==='상담 내용'||h==='비고');
           o[h]=keepNl ? row[j].trim() : row[j].replace(/\n/g,' ').trim();
         }
       });
@@ -773,11 +773,19 @@ function parseSearch(sq){
 function applyAll(){
   var sq=fS.toLowerCase().trim();
   FD=RAW.filter(function(r){
+    // 필터 항상 먼저 적용 (검색어 있어도 무관)
+    if(fTypes.size>0){
+      var allowed=new Set();
+      fTypes.forEach(function(t){TM[t].forEach(function(v){allowed.add(v);});});
+      if(!allowed.has(r['유형'])) return false;
+    }
+    if(fBlds.size>0&&!fBlds.has(r['건물명'])) return false;
+    if(fP&&fP!=='A'){var ip=PP.indexOf(r['프로세스'])!==-1;if(fP==='P'&&!ip)return false;if(fP==='L'&&ip)return false;}
+    // 검색어 적용
     if(sq){
       var p=parseSearch(sq);
       if(p){
         var bm=!p.bld||(r['건물명']||'').toLowerCase().indexOf(p.bld)!==-1;
-        // 동/호는 완전일치 (7108이 71080에 매칭되는 것 방지)
         var rDong=(r['동']||'').replace(/[^0-9]/g,'');
         var rHo=(r['호']||'').replace(/[^0-9]/g,'');
         var dm=!p.dong||(rDong===p.dong);
@@ -788,13 +796,6 @@ function applyAll(){
       var sec=[(r['건물명']||''),(r['금액']||''),(r['상담 내용']||''),(r['임차인']||'')].join(' ').toLowerCase();
       return pri.indexOf(sq)!==-1||sec.indexOf(sq)!==-1;
     }
-    if(fTypes.size>0){
-      var allowed=new Set();
-      fTypes.forEach(function(t){TM[t].forEach(function(v){allowed.add(v);});});
-      if(!allowed.has(r['유형'])) return false;
-    }
-    if(fBlds.size>0&&!fBlds.has(r['건물명'])) return false;
-    if(fP&&fP!=='A'){var ip=PP.indexOf(r['프로세스'])!==-1;if(fP==='P'&&!ip)return false;if(fP==='L'&&ip)return false;}
     return true;
   });
   asr();
@@ -967,7 +968,7 @@ function det(idx){
   if(r['비고'])h+='<div class="detail-section"><div class="detail-section-title">비고</div><div class="memo-box">'+esc(r['비고'])+'</div></div>';
 
   // 4. 소유자 정보
-  var f4=[['소유자',r['소유자']],['소유자2',r['소유자2']],['이름',r['이름']],['임차인',r['임차인']],['손님구분',r['거주자명']],['현재점유형태',r['현재점유형태']],['소유형태',r['소유형태']],['이실장소유자',r['이실장소유자명']]].filter(function(x){return x[1];});
+  var f4=[['소유자',r['소유자']],['소유자2',r['소유자2']],['이름',r['이름']],['임차인',r['임차인']],['손님구분',r['손님구분']],['현재점유형태',r['현재점유형태']],['소유형태',r['소유형태']],['이실장소유자',r['이실장소유자명']]].filter(function(x){return x[1];});
   if(f4.length){h+='<div class="detail-section"><div class="detail-section-title">소유자 정보</div><div class="detail-grid">'+f4.map(function(x){return'<div class="detail-item"><span class="di-label">'+x[0]+'</span><span class="di-value">'+esc(x[1])+'</span></div>';}).join('')+'</div></div>';}
 
   // 5. 연락처 버튼 (소유자 정보 아래)
@@ -1034,8 +1035,7 @@ async function fetchLatestRow(rowIndex){
     var rowData = json.valueRanges[1].values ? json.valueRanges[1].values[0] : [];
     var obj = {'__row__': rowIndex};
     headers.forEach(function(h,i){
-      var keepRaw=(h==='상담 내용'||h==='비고'||h==='주요특징');
-      obj[h] = keepRaw ? (rowData[i]||'').trim() : (rowData[i]||'').replace(/\n/g,' ').trim();
+      obj[h] = (rowData[i]||'').replace(/\n/g,' ').trim();
     });
     return obj;
   }catch(ex){
@@ -1062,7 +1062,7 @@ function fillEditForm(r){
   document.getElementById('e-owner2').value=r['소유자2']||'';
   document.getElementById('e-ownername').value=r['이름']||'';
   document.getElementById('e-tenant').value=r['임차인']||'';
-  document.getElementById('e-resident').value=r['거주자명']||'';
+  document.getElementById('e-resident').value=r['손님구분']||'';
   document.getElementById('e-occupancy').value=r['현재점유형태']||'';
   // 계약
   document.getElementById('e-expire').value=r['만기일']||'';
@@ -1218,7 +1218,7 @@ async function saveEdit(){
   vals['소유자2']=document.getElementById('e-owner2').value;
   vals['이름']=document.getElementById('e-ownername').value;
   vals['임차인']=document.getElementById('e-tenant').value;
-  vals['거주자명']=document.getElementById('e-resident').value;
+  vals['손님구분']=document.getElementById('e-resident').value;
   vals['현재점유형태']=document.getElementById('e-occupancy').value;
   // 계약
   vals['주요특징']=_editTags.map(function(t){return'#'+t;}).join(', ');
