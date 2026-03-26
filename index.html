@@ -1702,7 +1702,7 @@
           <th class="col-ho">호</th>
           <th class="col-typev">타입</th>
           <th class="col-owner">소유자</th>
-          <th class="col-price" onclick="srt('금액',this)">금액 ↕</th>
+          <th class="col-price" onclick="srt('가격',this)">가격 ↕</th>
           <th class="col-process" onclick="srt('프로세스',this)">프로세스 ↕</th>
           <th class="col-room">방</th>
           <th class="col-contract">계약일</th>
@@ -1776,7 +1776,7 @@
               <option>매매완료</option>
             </select>
           </div>
-          <div class="ef-group"><label class="ef-label">금액</label><input id="e-price" class="ef-input" type="text"
+          <div class="ef-group"><label class="ef-label">가격</label><input id="e-price" class="ef-input" type="text"
               placeholder="예) 13.7억"></div>
           <div class="ef-group"><label class="ef-label">실행일</label><input id="e-date" class="ef-input" type="text">
           </div>
@@ -1798,6 +1798,14 @@
               class="ef-input" type="text"></div>
           <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매수·임차</label><input id="e-rev2"
               class="ef-input" type="text"></div>
+        </div>
+        <div class="ef-group" style="grid-column:span 2;margin-bottom:8px;">
+          <label class="ef-label">주요특징</label>
+          <div id="edit-tags-display" style="display:flex;flex-wrap:wrap;gap:4px;min-height:22px;margin-bottom:6px;"></div>
+          <div style="display:flex;gap:6px;">
+            <input id="edit-tag-input" class="ef-input" type="text" placeholder="#태그 입력 후 Enter" style="flex:1;">
+            <button type="button" onclick="addEditTag()" style="padding:0 14px;background:rgba(79,156,249,0.15);border:1px solid rgba(79,156,249,0.4);border-radius:7px;color:#4f9cf9;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">추가</button>
+          </div>
         </div>
         <div class="ef-group" style="margin-bottom:12px;"><label class="ef-label">상담 내용</label><textarea id="e-memo"
             class="ef-textarea" rows="4"></textarea></div>
@@ -1880,7 +1888,7 @@
               placeholder="예) 101"></div>
           <div class="ef-group"><label class="ef-label">호 *</label><input id="n-ho" class="ef-input" type="text"
               placeholder="예) 201"></div>
-          <div class="ef-group"><label class="ef-label">금액</label><input id="n-price" class="ef-input" type="text"
+          <div class="ef-group"><label class="ef-label">가격</label><input id="n-price" class="ef-input" type="text"
               placeholder="예) 13.7억"></div>
           <div class="ef-group"><label class="ef-label">프로세스</label>
             <select id="n-proc" class="ef-select">
@@ -2255,7 +2263,7 @@
             return bm && dm && hm;
           }
           var pri = [(r['동'] || ''), (r['호'] || ''), (r['소유자'] || ''), (r['소유자2'] || ''), (r['이름'] || '')].join(' ').toLowerCase();
-          var sec = [(r['건물명'] || ''), (r['금액'] || ''), (r['상담 내용'] || ''), (r['임차인'] || '')].join(' ').toLowerCase();
+          var sec = [(r['건물명'] || ''), (r['가격'] || ''), (r['상담 내용'] || ''), (r['임차인'] || '')].join(' ').toLowerCase();
           return pri.indexOf(sq) !== -1 || sec.indexOf(sq) !== -1;
         }
         return true;
@@ -2305,7 +2313,7 @@
         '<input type="checkbox" class="card-check" ' + checked + ' onclick="event.stopPropagation();toggleSelect(' + i + ',this)">' +
         '<div class="card-top"><div><div class="card-address">' + esc(r['동'] || '-') + '동 ' + esc(r['호'] || '-') + '호</div><div class="card-building">' + esc(r['건물명'] || '-') + '</div></div>' +
         '<div class="card-badges"><span class="badge ' + gtc(r['유형'] || '') + '">' + esc(r['유형'] || '-') + '</span><span class="badge ' + gpc(r['프로세스'] || '') + '">' + esc(r['프로세스'] || '-') + '</span></div></div>' +
-        '<div class="card-mid"><span class="card-price">' + esc(r['금액'] || '-') + '</span><span class="card-meta">' + esc(r['타입 (전용)'] || r['타입 (공용)'] || '') + (r['방'] ? ' · 방' + r['방'] : '') + (r['전용면적(㎡)'] ? ' · ' + r['전용면적(㎡)'] + '㎡' : '') + '</span></div>' +
+        '<div class="card-mid"><span class="card-price">' + esc(r['가격'] || '-') + '</span><span class="card-meta">' + esc(r['타입 (전용)'] || r['타입 (공용)'] || '') + (r['방'] ? ' · 방' + r['방'] : '') + (r['전용면적(㎡)'] ? ' · ' + r['전용면적(㎡)'] + '㎡' : '') + '</span></div>' +
         (phHtml ? '<div class="card-phones">' + phHtml + '</div>' : '') +
         featHtml +
         (r['상담 내용'] ? '<div class="card-memo">' + esc(r['상담 내용']) + '</div>' : '') +
@@ -2322,7 +2330,7 @@
         '<td class="col-ho">' + esc(r['호'] || '-') + '</td>' +
         '<td class="col-typev">' + esc(r['타입 (전용)'] || r['타입 (공용)'] || '-') + '</td>' +
         '<td class="col-owner">' + esc(r['소유자'] || '-') + '</td>' +
-        '<td class="col-price" style="color:#4f9cf9;font-family:monospace">' + esc(r['금액'] || '-') + '</td>' +
+        '<td class="col-price" style="color:#4f9cf9;font-family:monospace">' + esc(r['가격'] || '-') + '</td>' +
         '<td class="col-process"><span class="badge ' + gpc(r['프로세스'] || '') + '">' + esc(r['프로세스'] || '-') + '</span></td>' +
         '<td class="col-room" style="text-align:center">' + esc(r['방'] || '-') + '</td>' +
         '<td class="col-contract">' + esc(r['계약일'] || '-') + '</td>' +
@@ -2398,7 +2406,7 @@
       }
       // 섹션
       var ss = [
-        { t: '기본 정보', d: [['건물명', r['건물명']], ['동', r['동']], ['호', r['호']], ['유형', r['유형']], ['타입(공용)', r['타입 (공용)']], ['타입(전용)', r['타입 (전용)']], ['금액', r['금액'], 1], ['프로세스', r['프로세스']], ['방', r['방']], ['에어컨', r['에']], ['융자', r['융자']], ['층공개', r['층공개']], ['독점', r['독점']], ['토허제', r['토허제']], ['광고주기', r['광고주기']], ['입주형태', r['입주형태']]] },
+        { t: '기본 정보', d: [['건물명', r['건물명']], ['동', r['동']], ['호', r['호']], ['유형', r['유형']], ['타입(공용)', r['타입 (공용)']], ['타입(전용)', r['타입 (전용)']], ['가격', r['가격'], 1], ['프로세스', r['프로세스']], ['방', r['방']], ['에어컨', r['에']], ['융자', r['융자']], ['층공개', r['층공개']], ['독점', r['독점']], ['토허제', r['토허제']], ['광고주기', r['광고주기']], ['입주형태', r['입주형태']]] },
         { t: '소유자 정보', d: [['소유자', r['소유자']], ['소유자2', r['소유자2']], ['이름', r['이름']], ['임차인', r['임차인']], ['손님구분', r['손님구분']], ['현재점유형태', r['현재점유형태']], ['소유형태', r['소유형태']], ['이실장소유자', r['이실장소유자명']]] },
         { t: '계약 정보', d: [['계약금중일부', r['계약금중일부']], ['약정일', r['약정일']], ['토허제접수', r['토허제']], ['계약일', r['계약일']], ['중도금', r['중도금']], ['잔금일', r['잔금일']], ['만기일', r['만기일']]] },
         { t: '면적', d: [['공급면적(㎡)', r['공급  면적(㎡)']], ['전용면적(㎡)', r['전용면적(㎡)']], ['평', r['평']]] },
@@ -2410,6 +2418,7 @@
           f.map(function (x) { return '<div class="detail-item"><span class="di-label">' + x[0] + '</span><span class="di-value' + (x[2] ? ' hl' : '') + '">' + esc(x[1] || '-') + '</span></div>'; }).join('') +
           '</div></div>';
       });
+      if (r['주요특징']) { var dtags = (r['주요특징']).split(/[,，\n]/).map(function(t){ return t.trim().replace(/^#/,''); }).filter(Boolean); if (dtags.length) h += '<div class="detail-section"><div class="detail-section-title">주요특징</div><div style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0;">' + dtags.map(function(t){ return '<span class="feat-tag-display">#' + esc(t) + '</span>'; }).join('') + '</div></div>'; }
       if (r['상담 내용']) h += '<div class="detail-section"><div class="detail-section-title">상담 내용</div><div class="memo-box">' + esc(r['상담 내용']) + '</div></div>';
       if (r['비고']) h += '<div class="detail-section"><div class="detail-section-title">비고</div><div class="memo-box">' + esc(r['비고']) + '</div></div>';
       // 캘린더 등록 버튼 추가
@@ -2512,7 +2521,7 @@
     function fillEditForm(r) {
       document.getElementById('e-type').value = r['유형'] || '';
       document.getElementById('e-proc').value = r['프로세스'] || '';
-      document.getElementById('e-price').value = r['금액'] || '';
+      document.getElementById('e-price').value = r['가격'] || '';
       document.getElementById('e-date').value = r['실행일'] || '';
       document.getElementById('e-expire').value = r['만기일'] || '';
       document.getElementById('e-contract').value = r['계약일'] || '';
@@ -2536,7 +2545,7 @@
       if (!r) return;
 
       // 제목: 건물명 동호 유형 금액
-      var title = (r['건물명'] || '') + ' ' + (r['동'] || '') + '동 ' + (r['호'] || '') + '호 ' + (r['유형'] || '') + ' ' + (r['금액'] || '');
+      var title = (r['건물명'] || '') + ' ' + (r['동'] || '') + '동 ' + (r['호'] || '') + '호 ' + (r['유형'] || '') + ' ' + (r['가격'] || '');
 
       // 내용: 주요 정보
       var details = [];
@@ -2643,7 +2652,7 @@
       var v;
       v = document.getElementById('e-type').value; if (v) vals['유형'] = v;
       v = document.getElementById('e-proc').value; if (v) vals['프로세스'] = v;
-      v = document.getElementById('e-price').value; if (v) vals['금액'] = v;
+      v = document.getElementById('e-price').value; if (v) vals['가격'] = v;
       v = document.getElementById('e-date').value; if (v) vals['실행일'] = v;
       // 소유자 (폼 요소가 있을 때만 저장 — 없는 요소를 ''로 전송하면 시트 데이터가 지워짐)
       var _el;
@@ -2698,7 +2707,7 @@
       var dng = document.getElementById('n-dong').value.trim();
       var ho = document.getElementById('n-ho').value.trim();
       if (!bld || !typ || !dng || !ho) { showToast('⚠️ 건물명, 유형, 동, 호는 필수'); return; }
-      var vals = { '건물명': bld, '유형': typ, '동': dng, '호': ho, '금액': document.getElementById('n-price').value, '프로세스': document.getElementById('n-proc').value, '소유자': document.getElementById('n-owner').value, '실행일': document.getElementById('n-date').value, '만기일': document.getElementById('n-expire2').value, '상담 내용': document.getElementById('n-memo').value };
+      var vals = { '건물명': bld, '유형': typ, '동': dng, '호': ho, '가격': document.getElementById('n-price').value, '프로세스': document.getElementById('n-proc').value, '소유자': document.getElementById('n-owner').value, '실행일': document.getElementById('n-date').value, '만기일': document.getElementById('n-expire2').value, '상담 내용': document.getElementById('n-memo').value };
       var btn = document.getElementById('addSaveBtn'); btn.textContent = '추가 중...'; btn.disabled = true; showToast('⏳ 추가 중...');
       try {
         var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'append', values: vals }) });
