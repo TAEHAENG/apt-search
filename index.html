@@ -1563,6 +1563,7 @@
         href="https://docs.google.com/spreadsheets/d/1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw/edit#gid=505657259"
         target="_blank">📋 매물장</a>
       <button class="hdr-btn hdr-btn-add" onclick="openAddNew()">＋ 새 매물</button>
+      <button class="hdr-btn" id="safetyCheckBtn" onclick="runSafetyCheck(false)" style="background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24;">🔍 안전검사</button>
       <button class="sync-btn" id="SB" onclick="syncSheets()"><span id="SI">🔄</span></button>
       <div class="total-badge">총 <span id="TC">-</span>건</div>
     </div>
@@ -2437,6 +2438,40 @@
 
 
 
+    // ── 안전검사 (기준점 vs 현재 시트 비교) ────────────────
+    var COMPARE_SHEET_LINK = 'https://docs.google.com/spreadsheets/d/1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw/edit';
+    async function runSafetyCheck(silent) {
+      var btn = document.getElementById('safetyCheckBtn');
+      if (btn) { btn.textContent = '⏳ 검사 중...'; btn.disabled = true; }
+      try {
+        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'compare' }) });
+        var json = JSON.parse(await res.text());
+        if (!json.success) {
+          if (!silent) showToast('⚠️ 안전검사 실패: ' + (json.message || ''));
+          return;
+        }
+        var sum = json.columnSummary || {};
+        var diffCount = json.diffCount || 0;
+        if (diffCount === 0) {
+          if (!silent) showToast('✅ 안전검사: 기준점과 차이 없음');
+        } else {
+          var lines = ['⚠️ 안전검사: ' + diffCount + '건 변경 감지'];
+          if (sum['소유자']) lines.push('• 소유자 변경 O');
+          if (sum['상담 내용']) lines.push('• 상담내용 변경 O');
+          lines.push('→ 비교결과 시트 확인');
+          showToast(lines.join('\n'));
+        }
+        if (btn) btn.style.background = diffCount > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)';
+        if (btn) btn.style.borderColor = diffCount > 0 ? 'rgba(239,68,68,0.5)' : 'rgba(52,211,153,0.4)';
+        if (btn) btn.style.color = diffCount > 0 ? '#f87171' : '#34d399';
+        if (btn) btn.textContent = diffCount > 0 ? '⚠️ ' + diffCount + '건 변경' : '✅ 정상';
+      } catch (e) {
+        if (!silent) showToast('❌ 안전검사 오류: ' + e.message);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
     function showSyncPrompt() {
       document.getElementById('SYNC_PROMPT').style.display = 'flex';
     }
@@ -2489,6 +2524,9 @@
       document.getElementById('e-rev1').value = r['발생수익  매도,임대(VAT포함)'] || '';
       document.getElementById('e-rev2').value = r['발생수익-매수,임차  (VAT포함)'] || '';
       document.getElementById('e-memo').value = r['상담 내용'] || '';
+      // 주요특징 태그 — 행 데이터로 복원 (저장 시 기존 태그가 지워지지 않도록)
+      _editTags = (r['주요특징'] || '').split(/[,，]/).map(function (t) { return t.trim().replace(/^#/, ''); }).filter(Boolean);
+      renderEditTags();
     }
 
 
@@ -2607,20 +2645,21 @@
       v = document.getElementById('e-proc').value; if (v) vals['프로세스'] = v;
       v = document.getElementById('e-price').value; if (v) vals['금액'] = v;
       v = document.getElementById('e-date').value; if (v) vals['실행일'] = v;
-      // 소유자 (빈값도 저장)
-      vals['소유자'] = document.getElementById('e-owner1') ? document.getElementById('e-owner1').value : '';
-      vals['소유자2'] = document.getElementById('e-owner2') ? document.getElementById('e-owner2').value : '';
-      vals['이름'] = document.getElementById('e-ownername') ? document.getElementById('e-ownername').value : '';
-      vals['임차인'] = document.getElementById('e-tenant') ? document.getElementById('e-tenant').value : '';
-      vals['손님구분'] = document.getElementById('e-resident') ? document.getElementById('e-resident').value : '';
-      vals['현재점유형태'] = document.getElementById('e-occupancy') ? document.getElementById('e-occupancy').value : '';
-      vals['입주형태'] = document.getElementById('e-movetype') ? document.getElementById('e-movetype').value : '';
-      vals['층공개'] = document.getElementById('e-floor') ? document.getElementById('e-floor').value : '';
-      vals['독점'] = document.getElementById('e-exclusive') ? document.getElementById('e-exclusive').value : '';
-      vals['융자'] = document.getElementById('e-loan') ? document.getElementById('e-loan').value : '';
-      vals['토허제'] = document.getElementById('e-toher') ? document.getElementById('e-toher').value : '';
-      vals['광고주기'] = document.getElementById('e-adcycle') ? document.getElementById('e-adcycle').value : '';
-      vals['주요특징'] = _editTags.map(function (t) { return '#' + t; }).join(', ');
+      // 소유자 (폼 요소가 있을 때만 저장 — 없는 요소를 ''로 전송하면 시트 데이터가 지워짐)
+      var _el;
+      _el = document.getElementById('e-owner1'); if (_el) vals['소유자'] = _el.value;
+      _el = document.getElementById('e-owner2'); if (_el) vals['소유자2'] = _el.value;
+      _el = document.getElementById('e-ownername'); if (_el) vals['이름'] = _el.value;
+      _el = document.getElementById('e-tenant'); if (_el) vals['임차인'] = _el.value;
+      _el = document.getElementById('e-resident'); if (_el) vals['손님구분'] = _el.value;
+      _el = document.getElementById('e-occupancy'); if (_el) vals['현재점유형태'] = _el.value;
+      _el = document.getElementById('e-movetype'); if (_el) vals['입주형태'] = _el.value;
+      _el = document.getElementById('e-floor'); if (_el) vals['층공개'] = _el.value;
+      _el = document.getElementById('e-exclusive'); if (_el) vals['독점'] = _el.value;
+      _el = document.getElementById('e-loan'); if (_el) vals['융자'] = _el.value;
+      vals['토허제'] = document.getElementById('e-toher').value;
+      _el = document.getElementById('e-adcycle'); if (_el) vals['광고주기'] = _el.value;
+      if (_editTags.length) vals['주요특징'] = _editTags.map(function (t) { return '#' + t; }).join(', ');
       v = document.getElementById('e-expire').value; if (v) vals['만기일'] = v;
       v = document.getElementById('e-contract').value; if (v) vals['계약일'] = v;
       v = document.getElementById('e-deposit').value; if (v) vals['계약금중일부'] = v;
@@ -2639,8 +2678,8 @@
         if (json.success) {
           Object.keys(vals).forEach(function (k) { r[k] = vals[k]; });
           showToast('✅ 저장 완료!'); cancelEdit();
-          if (r['__row__']) { fetchLatestRow(r['__row__']).then(function (fresh) { if (fresh) { Object.keys(fresh).forEach(function (k) { r[k] = fresh[k]; }); FD[CUR_IDX] = r; saveCache(RAW); } det(CUR_IDX); showSyncPrompt(); }); }
-          else { det(CUR_IDX); showSyncPrompt(); }
+          if (r['__row__']) { fetchLatestRow(r['__row__']).then(function (fresh) { if (fresh) { Object.keys(fresh).forEach(function (k) { r[k] = fresh[k]; }); FD[CUR_IDX] = r; saveCache(RAW); } det(CUR_IDX); showSyncPrompt(); runSafetyCheck(true); }); }
+          else { det(CUR_IDX); showSyncPrompt(); runSafetyCheck(true); }
         } else { showToast('❌ 실패: ' + json.message); }
       } catch (e) { showToast('❌ 오류: ' + e.message); }
       finally { btn.textContent = '💾 저장'; btn.disabled = false; }
