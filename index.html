@@ -476,10 +476,10 @@
     }
 
     table {
-      width: 100%;
+      width: auto;
+      min-width: 100%;
       border-collapse: collapse;
       font-size: 12.5px;
-      table-layout: fixed;
     }
 
     thead {
@@ -572,9 +572,44 @@
       width: 64px
     }
 
-    .col-memo {
-      width: 200px
-    }
+    .col-memo    { width: 160px }
+    .col-expire  { width: 80px }
+    .col-e       { width: 36px }
+    .col-loan    { width: 60px }
+    .col-adcycle { width: 65px }
+    .col-guest   { width: 70px }
+    .col-feat    { width: 130px }
+
+    /* 확장 컬럼 (스크롤 영역) */
+    .col-ext-first { border-left: 3px solid var(--border) !important; }
+    .col-ext { background: rgba(120,120,120,0.04); }
+    .col-floor    { width: 40px }
+    .col-earnest  { width: 90px }
+    .col-agree    { width: 80px }
+    .col-tohe     { width: 50px }
+    .col-contract { width: 80px }
+    .col-midpay   { width: 80px }
+    .col-balance  { width: 80px }
+    .col-excl     { width: 50px }
+    .col-revsell  { width: 110px }
+    .col-revbuy   { width: 110px }
+    .col-renew    { width: 75px }
+    .col-tenant   { width: 90px }
+    .col-note     { width: 110px }
+    .col-name     { width: 80px }
+    .col-owner2   { width: 90px }
+    .col-movin    { width: 70px }
+    .col-ls-bld   { width: 100px }
+    .col-ls-dong  { width: 50px }
+    .col-ls-ho    { width: 50px }
+    .col-supply   { width: 75px }
+    .col-ownership{ width: 70px }
+    .col-ls-owner { width: 95px }
+    .col-resident { width: 80px }
+    .col-occ      { width: 80px }
+    .col-tradeprice{ width: 90px }
+    .col-ls-ct    { width: 90px }
+    .col-regdate  { width: 120px }
 
     /* 뱃지 */
     .badge {
@@ -1721,11 +1756,44 @@
           <th class="col-typev">타입</th>
           <th class="col-owner">소유자</th>
           <th class="col-price" onclick="srt('가격',this)">가격 ↕</th>
-          <th class="col-process" onclick="srt('프로세스',this)">프로세스 ↕</th>
-          <th class="col-room">방</th>
-          <th class="col-contract">계약일</th>
-          <th class="col-area">전용(㎡)</th>
           <th class="col-memo">상담내용</th>
+          <th class="col-expire">만기일</th>
+          <th class="col-e">에</th>
+          <th class="col-room">방</th>
+          <th class="col-loan">융자</th>
+          <th class="col-adcycle">광고주기</th>
+          <th class="col-process" onclick="srt('프로세스',this)">프로세스 ↕</th>
+          <th class="col-guest">손님구분</th>
+          <th class="col-feat">주요특징</th>
+          <!-- 확장 컬럼 (가로 스크롤) -->
+          <th class="col-floor col-ext col-ext-first">층</th>
+          <th class="col-earnest col-ext">계약금중일부</th>
+          <th class="col-agree col-ext">약정일</th>
+          <th class="col-tohe col-ext">토허제</th>
+          <th class="col-contract col-ext">계약일</th>
+          <th class="col-midpay col-ext">중도금</th>
+          <th class="col-balance col-ext">잔금일</th>
+          <th class="col-excl col-ext">독점</th>
+          <th class="col-revsell col-ext">발생수익-매도,임대</th>
+          <th class="col-revbuy col-ext">발생수익-매수,임차</th>
+          <th class="col-renew col-ext">갱신청구권</th>
+          <th class="col-tenant col-ext">임차인</th>
+          <th class="col-note col-ext">비고</th>
+          <th class="col-name col-ext">이름</th>
+          <th class="col-owner2 col-ext">소유자2</th>
+          <th class="col-movin col-ext">입주형태</th>
+          <th class="col-ls-bld col-ext">이실장단지명</th>
+          <th class="col-ls-dong col-ext">이실장동</th>
+          <th class="col-ls-ho col-ext">이실장호</th>
+          <th class="col-supply col-ext">공급(㎡)</th>
+          <th class="col-area col-ext">전용(㎡)</th>
+          <th class="col-ownership col-ext">소유형태</th>
+          <th class="col-ls-owner col-ext">이실장소유자</th>
+          <th class="col-resident col-ext">거주자명</th>
+          <th class="col-occ col-ext">현재점유형태</th>
+          <th class="col-tradeprice col-ext">거래가(만원)</th>
+          <th class="col-ls-ct col-ext">이실장계약일</th>
+          <th class="col-regdate col-ext">등기열람일시</th>
         </tr>
       </thead>
       <tbody id="TB"></tbody>
@@ -2371,11 +2439,44 @@
         '<td class="col-typev">' + esc(r['타입(전용)'] || r['타입(공용)'] || '-') + '</td>' +
         '<td class="col-owner">' + esc(r['소유자'] || '-') + '</td>' +
         '<td class="col-price" style="color:#4f9cf9;font-family:monospace">' + esc(r['가격'] || '-') + '</td>' +
-        '<td class="col-process"><span class="badge ' + gpc(r['프로세스'] || '') + '">' + esc(r['프로세스'] || '-') + '</span></td>' +
+        '<td class="col-memo">' + esc(r['상담 내용'] || '-') + '</td>' +
+        '<td class="col-expire">' + esc(r['만기일'] || '-') + '</td>' +
+        '<td class="col-e" style="text-align:center">' + esc(r['에'] || '-') + '</td>' +
         '<td class="col-room" style="text-align:center">' + esc(r['방'] || '-') + '</td>' +
-        '<td class="col-contract">' + esc(r['계약일'] || '-') + '</td>' +
-        '<td class="col-area" style="font-family:monospace">' + esc(r['전용면적(㎡)'] || '-') + '</td>' +
-        '<td class="col-memo">' + esc(r['상담 내용'] || '-') + '</td></tr>';
+        '<td class="col-loan" style="font-family:monospace">' + esc(r['융자'] || '-') + '</td>' +
+        '<td class="col-adcycle">' + esc(r['광고주기'] || '-') + '</td>' +
+        '<td class="col-process"><span class="badge ' + gpc(r['프로세스'] || '') + '">' + esc(r['프로세스'] || '-') + '</span></td>' +
+        '<td class="col-guest">' + esc(r['손님구분'] || '-') + '</td>' +
+        '<td class="col-feat" style="font-size:11px;">' + esc(r['주요특징'] || '-') + '</td>' +
+        '<td class="col-floor col-ext col-ext-first" style="text-align:center">' + esc(r['층'] || '-') + '</td>' +
+        '<td class="col-earnest col-ext">' + esc(r['계약금중일부'] || '-') + '</td>' +
+        '<td class="col-agree col-ext">' + esc(r['약정일'] || '-') + '</td>' +
+        '<td class="col-tohe col-ext" style="text-align:center">' + esc(r['토허제'] || '-') + '</td>' +
+        '<td class="col-contract col-ext">' + esc(r['계약일'] || '-') + '</td>' +
+        '<td class="col-midpay col-ext">' + esc(r['중도금'] || '-') + '</td>' +
+        '<td class="col-balance col-ext">' + esc(r['잔금일'] || '-') + '</td>' +
+        '<td class="col-excl col-ext" style="text-align:center">' + esc(r['독점'] || '-') + '</td>' +
+        '<td class="col-revsell col-ext" style="font-family:monospace">' + esc(r['발생수익-매도,임대(VAT포함)'] || '-') + '</td>' +
+        '<td class="col-revbuy col-ext" style="font-family:monospace">' + esc(r['발생수익-매수,임차(VAT포함)'] || '-') + '</td>' +
+        '<td class="col-renew col-ext">' + esc(r['갱신청구권'] || '-') + '</td>' +
+        '<td class="col-tenant col-ext">' + esc(r['임차인'] || '-') + '</td>' +
+        '<td class="col-note col-ext">' + esc(r['비고'] || '-') + '</td>' +
+        '<td class="col-name col-ext">' + esc(r['이름'] || '-') + '</td>' +
+        '<td class="col-owner2 col-ext">' + esc(r['소유자2'] || '-') + '</td>' +
+        '<td class="col-movin col-ext">' + esc(r['입주형태'] || '-') + '</td>' +
+        '<td class="col-ls-bld col-ext">' + esc(r['이실장 단지명'] || '-') + '</td>' +
+        '<td class="col-ls-dong col-ext">' + esc(r['이실장 동'] || '-') + '</td>' +
+        '<td class="col-ls-ho col-ext">' + esc(r['이실장 호'] || '-') + '</td>' +
+        '<td class="col-supply col-ext" style="font-family:monospace">' + esc(r['공급면적(㎡)'] || '-') + '</td>' +
+        '<td class="col-area col-ext" style="font-family:monospace">' + esc(r['전용면적(㎡)'] || '-') + '</td>' +
+        '<td class="col-ownership col-ext">' + esc(r['소유형태'] || '-') + '</td>' +
+        '<td class="col-ls-owner col-ext">' + esc(r['이실장소유자명'] || '-') + '</td>' +
+        '<td class="col-resident col-ext">' + esc(r['거주자명'] || '-') + '</td>' +
+        '<td class="col-occ col-ext">' + esc(r['현재점유형태'] || '-') + '</td>' +
+        '<td class="col-tradeprice col-ext" style="font-family:monospace">' + esc(r['거래가(만원)'] || '-') + '</td>' +
+        '<td class="col-ls-ct col-ext">' + esc(r['이실장계약일'] || '-') + '</td>' +
+        '<td class="col-regdate col-ext">' + esc(r['등기열람일시'] || '-') + '</td>' +
+        '</tr>';
     }
 
     // ── 렌더 ──────────────────────────────────────────
@@ -2990,19 +3091,27 @@
     }
     function renderDbTable() {
       var tbody = document.getElementById('db-tbody'); if (!tbody) return;
-      if (!_dbListFiltered.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text3);">검색 결과가 없습니다</td></tr>'; return; }
+      if (!_dbListFiltered.length) { tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;padding:24px;color:var(--text3);">검색 결과가 없습니다</td></tr>'; return; }
       // DB탭에서도 openBuyerDet이 동작하도록 _buyerListFiltered를 동기화
       _buyerListFiltered = _dbListFiltered.slice();
       tbody.innerHTML = _dbListFiltered.map(function(r, i) {
         var listing = (r['제안 매물'] || '').split('\n')[0] || '';
+        var memo = (r['상담 내용'] || '').split('\n')[0] || '';
         return '<tr onclick="openBuyerDet(' + i + ')">' +
           '<td>' + esc(r['기입일'] || '-') + '</td>' +
           '<td style="font-weight:600;">' + esc(fmtBuyerName(r['고객명(전화번호)'])) + '</td>' +
           '<td>' + esc(r['부동산유형'] || r['부동산 유형'] || '-') + '</td>' +
           '<td>' + esc(r['거래유형'] || '-') + '</td>' +
-          '<td>' + (r['프로세스'] ? '<span class="badge proc-prop" style="font-size:10px;">' + esc(r['프로세스']) + '</span>' : '-') + '</td>' +
+          '<td style="color:var(--text2);font-size:11px;">' + esc(r['매매가(예산)'] || '-') + '</td>' +
+          '<td style="color:var(--text2);font-size:11px;">' + esc(r['보증금(예산)'] || '-') + '</td>' +
+          '<td style="color:var(--text2);font-size:11px;">' + esc(r['월세(예산)'] || '-') + '</td>' +
+          '<td style="font-size:11px;">' + esc(r['입주일'] || '-') + '</td>' +
+          '<td style="font-size:11px;">' + esc(r['실거주여부'] || '-') + '</td>' +
           '<td>' + esc(r['찾는 매물'] || '-') + '</td>' +
           '<td style="color:var(--text2);font-size:11px;">' + esc(listing || '-') + '</td>' +
+          '<td style="color:var(--text2);font-size:11px;">' + esc(memo || '-') + '</td>' +
+          '<td>' + (r['프로세스'] ? '<span class="badge proc-prop" style="font-size:10px;">' + esc(r['프로세스']) + '</span>' : '-') + '</td>' +
+          '<td style="font-size:11px;">' + esc(r['주요특징'] || '-') + '</td>' +
           '</tr>';
       }).join('');
     }
@@ -3514,12 +3623,18 @@
       if (!ef.style.display || ef.style.display === 'none') {
         var r = _buyerListFiltered[_curBuyerIdx]; if (!r) return;
         document.getElementById('be-namephone').value = r['고객명(전화번호)'] || '';
-        document.getElementById('be-movein').value = r['입주일'] || '';
-        document.getElementById('be-budget').value = r['예산'] || '';
+        document.getElementById('be-proptype').value = r['부동산유형'] || r['부동산 유형'] || '';
         document.getElementById('be-type').value = r['거래유형'] || '';
-        document.getElementById('be-status').value = r['프로세스'] || '';
+        document.getElementById('be-price-budget').value = r['매매가(예산)'] || '';
+        document.getElementById('be-deposit-budget').value = r['보증금(예산)'] || '';
+        document.getElementById('be-monthly-budget').value = r['월세(예산)'] || '';
+        document.getElementById('be-movein').value = r['입주일'] || '';
+        document.getElementById('be-selfuse').value = r['실거주여부'] || '';
         document.getElementById('be-want').value = r['찾는 매물'] || '';
-        document.getElementById('be-memo').value = r['상담 내용'] || ''; // ★ 띄어쓰기
+        document.getElementById('be-propose').value = r['제안 매물'] || '';
+        document.getElementById('be-status').value = r['프로세스'] || '';
+        document.getElementById('be-feature').value = r['주요특징'] || '';
+        document.getElementById('be-memo').value = r['상담 내용'] || '';
         ef.style.display = 'block'; document.getElementById('buyer-edit-toggle-btn').textContent = '▲ 닫기';
         setTimeout(function () { ef.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 80);
       } else { cancelBuyerEdit(); }
@@ -3529,11 +3644,17 @@
       var r = _buyerListFiltered[_curBuyerIdx]; if (!r || !r['__row__']) { showToast('⚠️ 행 번호 없음'); return; }
       var vals = {
         '고객명(전화번호)': document.getElementById('be-namephone').value,
-        '입주일': document.getElementById('be-movein').value,
-        '예산': document.getElementById('be-budget').value,
+        '부동산유형': document.getElementById('be-proptype').value,
         '거래유형': document.getElementById('be-type').value,
-        '프로세스': document.getElementById('be-status').value,
+        '매매가(예산)': document.getElementById('be-price-budget').value,
+        '보증금(예산)': document.getElementById('be-deposit-budget').value,
+        '월세(예산)': document.getElementById('be-monthly-budget').value,
+        '입주일': document.getElementById('be-movein').value,
+        '실거주여부': document.getElementById('be-selfuse').value,
         '찾는 매물': document.getElementById('be-want').value,
+        '제안 매물': document.getElementById('be-propose').value,
+        '프로세스': document.getElementById('be-status').value,
+        '주요특징': document.getElementById('be-feature').value,
         '상담 내용': document.getElementById('be-memo').value
       };
       var btn = document.getElementById('buyer-save-edit-btn'); btn.textContent = '저장 중...'; btn.disabled = true; showToast('⏳ 저장 중...');
@@ -3616,13 +3737,20 @@
         <table class="buyer-table">
           <thead>
             <tr>
-              <th style="width:90px;">기입일</th>
-              <th style="width:160px;">고객명(전화번호)</th>
-              <th style="width:70px;">유형</th>
-              <th style="width:70px;">거래유형</th>
-              <th style="width:80px;">프로세스</th>
-              <th style="width:120px;">찾는매물</th>
-              <th style="min-width:180px;">제안매물</th>
+              <th style="width:80px;">기입일</th>
+              <th style="width:140px;">고객명(전화번호)</th>
+              <th style="width:65px;">부동산유형</th>
+              <th style="width:65px;">거래유형</th>
+              <th style="width:80px;">매매가(예산)</th>
+              <th style="width:80px;">보증금(예산)</th>
+              <th style="width:70px;">월세(예산)</th>
+              <th style="width:80px;">입주일</th>
+              <th style="width:60px;">실거주</th>
+              <th style="width:120px;">찾는 매물</th>
+              <th style="min-width:150px;">제안 매물</th>
+              <th style="min-width:150px;">상담 내용</th>
+              <th style="width:75px;">프로세스</th>
+              <th style="width:100px;">주요특징</th>
             </tr>
           </thead>
           <tbody id="db-tbody"></tbody>
@@ -3723,16 +3851,25 @@
         <div class="buyer-form-grid">
           <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">고객명(전화번호)</label><input
               id="be-namephone" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">입주 희망일</label><input id="be-movein" class="ef-input"
-              type="text"></div>
-          <div class="ef-group"><label class="ef-label">예산</label><input id="be-budget" class="ef-input" type="text">
-          </div>
+          <div class="ef-group"><label class="ef-label">부동산유형</label><select id="be-proptype" class="ef-select">
+              <option value="">선택</option>
+              <option>아파트</option><option>상가</option><option>토지</option>
+            </select></div>
           <div class="ef-group"><label class="ef-label">거래유형</label><select id="be-type" class="ef-select">
               <option value="">선택</option>
-              <option>매매</option>
-              <option>전세</option>
-              <option>월세</option>
+              <option>매매</option><option>전세</option><option>월세</option>
+              <option>매전세</option><option>매월세</option><option>전월세</option><option>매전월</option>
             </select></div>
+          <div class="ef-group"><label class="ef-label">매매가(예산)</label><input id="be-price-budget" class="ef-input" type="text" placeholder="만원 단위 숫자"></div>
+          <div class="ef-group"><label class="ef-label">보증금(예산)</label><input id="be-deposit-budget" class="ef-input" type="text" placeholder="만원 단위 숫자"></div>
+          <div class="ef-group"><label class="ef-label">월세(예산)</label><input id="be-monthly-budget" class="ef-input" type="text" placeholder="만원 단위 숫자"></div>
+          <div class="ef-group"><label class="ef-label">입주일</label><input id="be-movein" class="ef-input" type="text" placeholder="예) 2025-06, 즉시"></div>
+          <div class="ef-group"><label class="ef-label">실거주여부</label><select id="be-selfuse" class="ef-select">
+              <option value="">선택</option>
+              <option>실거주</option><option>투자</option>
+            </select></div>
+          <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">찾는 매물</label><input id="be-want"
+              class="ef-input" type="text"></div>
           <div class="ef-group"><label class="ef-label">프로세스</label><select id="be-status" class="ef-select">
               <option value="">선택</option>
               <option>예비고객</option>
@@ -3742,9 +3879,9 @@
               <option>계약</option>
               <option>종료</option>
             </select></div>
-          <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">찾는 매물</label><input id="be-want"
-              class="ef-input" type="text"></div>
+          <div class="ef-group"><label class="ef-label">주요특징</label><input id="be-feature" class="ef-input" type="text" placeholder="예) #급매 #역세권"></div>
         </div>
+        <div class="ef-group" style="margin-bottom:8px;"><label class="ef-label">제안 매물</label><textarea id="be-propose" class="ef-textarea" rows="3"></textarea></div>
         <div class="ef-group" style="margin-bottom:12px;"><label class="ef-label">상담 내용</label><textarea id="be-memo"
             class="ef-textarea" rows="3"></textarea></div>
         <div class="ef-actions"><button class="ef-save" id="buyer-save-edit-btn" onclick="saveBuyerEdit()">💾
