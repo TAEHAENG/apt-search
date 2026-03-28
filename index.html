@@ -1753,19 +1753,19 @@
     <div class="cwp-title">↔ 열너비 슬롯 관리</div>
     <div class="cwp-section">APT 매물</div>
     <div class="cwp-row">
-      <button class="slot-btn slot-active" id="aptS1btn" onclick="setActiveSlot('apt',1)">S1</button>
-      <button class="slot-btn" id="aptS2btn" onclick="setActiveSlot('apt',2)">S2</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt')">💾 저장</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt')">⬆ 불러오기</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',1)">💾 S1 저장</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',1)">⬆ S1 불러오기</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',2)">💾 S2 저장</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',2)">⬆ S2 불러오기</button>
     </div>
     <div class="cwp-section">구매자DB</div>
     <div class="cwp-row">
-      <button class="slot-btn slot-active" id="buyerS1btn" onclick="setActiveSlot('buyer',1)">S1</button>
-      <button class="slot-btn" id="buyerS2btn" onclick="setActiveSlot('buyer',2)">S2</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer')">💾 저장</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer')">⬆ 불러오기</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',1)">💾 S1 저장</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',1)">⬆ S1 불러오기</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',2)">💾 S2 저장</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',2)">⬆ S2 불러오기</button>
     </div>
-    <div class="cwp-hint">드래그로 열너비 조정 → 💾 저장 / 다른 환경 시 S1·S2 전환</div>
+    <div class="cwp-hint">드래그로 조정 → 💾 저장 / 모니터 바꿀 때 ⬆ 불러오기</div>
   </div>
 
   <!-- 헤더 -->
@@ -3038,43 +3038,23 @@
     }
 
     // ══════════ 열 너비 조정 (localStorage 저장/복원) ══════════
-    // 슬롯 키: apt_s1, apt_s2, buyer_s1, buyer_s2 (APT/구매자 완전 독립)
+    // 슬롯 키: col_w_apt_s1, col_w_apt_s2, col_w_buyer_s1, col_w_buyer_s2
     var _colResizeModeOn = false;
     var _rTh = null, _rStartX = 0, _rStartW = 0, _rTableKey = '';
-    var _aptSlot = 1, _buyerSlot = 1; // 현재 활성 슬롯 (1 또는 2)
 
     function _slotKey(tableType, slot) {
       return 'col_w_' + tableType + '_s' + slot;
     }
 
-    // 슬롯 활성화 버튼 UI 갱신
-    function setActiveSlot(tableType, slot) {
-      if (tableType === 'apt') {
-        _aptSlot = slot;
-        var b1 = document.getElementById('aptS1btn'), b2 = document.getElementById('aptS2btn');
-        if (b1) { b1.classList.toggle('slot-active', slot === 1); }
-        if (b2) { b2.classList.toggle('slot-active', slot === 2); }
-      } else {
-        _buyerSlot = slot;
-        var b1 = document.getElementById('buyerS1btn'), b2 = document.getElementById('buyerS2btn');
-        if (b1) { b1.classList.toggle('slot-active', slot === 1); }
-        if (b2) { b2.classList.toggle('slot-active', slot === 2); }
-      }
-    }
-
-    // 저장 버튼
-    function saveSlot(tableId, tableType) {
-      var slot = tableType === 'apt' ? _aptSlot : _buyerSlot;
-      var key = _slotKey(tableType, slot);
-      saveColWidths(tableId, key);
+    // 저장 버튼 — 현재 열너비를 해당 슬롯에 저장
+    function saveSlot(tableId, tableType, slot) {
+      saveColWidths(tableId, _slotKey(tableType, slot));
       showToast((tableType === 'apt' ? 'APT 매물' : '구매자DB') + ' S' + slot + ' 저장 완료');
     }
 
-    // 불러오기 버튼
-    function loadSlot(tableId, tableType) {
-      var slot = tableType === 'apt' ? _aptSlot : _buyerSlot;
-      var key = _slotKey(tableType, slot);
-      applyColWidths(tableId, key);
+    // 불러오기 버튼 — 해당 슬롯 너비 즉시 적용
+    function loadSlot(tableId, tableType, slot) {
+      applyColWidths(tableId, _slotKey(tableType, slot));
       showToast((tableType === 'apt' ? 'APT 매물' : '구매자DB') + ' S' + slot + ' 불러오기 완료');
     }
 
@@ -3088,9 +3068,14 @@
         if (!tbl) return;
         tbl.style.tableLayout = 'fixed';
         var ths = tbl.querySelectorAll('thead th');
+        var totalW = 0;
         ths.forEach(function(th, i) {
-          if (widths[i] != null) th.style.width = widths[i] + 'px';
+          if (widths[i] != null) {
+            th.style.width = widths[i] + 'px';
+            totalW += widths[i];
+          }
         });
+        if (totalW > 0) tbl.style.width = totalW + 'px';
       } catch(e) {}
     }
 
@@ -3164,9 +3149,7 @@
       document.body.style.userSelect = '';
       _rTh.querySelector('.col-resize-handle') && _rTh.querySelector('.col-resize-handle').classList.remove('dragging');
       // 드래그한 테이블의 현재 활성 슬롯에 저장
-      var tableType = _rTableKey === 'apt-main-table' ? 'apt' : 'buyer';
-      var slot = tableType === 'apt' ? _aptSlot : _buyerSlot;
-      saveColWidths(_rTableKey, _slotKey(tableType, slot));
+      // 드래그 종료 시 자동저장하지 않음 — 패널에서 명시적으로 저장
       _rTh = null;
     }
 
