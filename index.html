@@ -605,6 +605,28 @@
     table.resize-active thead th {
       border-right: 2px solid rgba(147,197,253,0.5);
     }
+    /* 열너비 슬롯 패널 */
+    #colWidthPanel {
+      position: fixed; top: 48px; right: 8px; z-index: 200;
+      background: #1e293b; border: 1px solid #334155; border-radius: 8px;
+      padding: 10px 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+      min-width: 230px;
+    }
+    .cwp-title { font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 8px; }
+    .cwp-section { font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 5px; }
+    .cwp-row { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+    .slot-btn {
+      font-size: 11px; padding: 3px 8px; border-radius: 4px; cursor: pointer;
+      border: 1px solid rgba(148,163,184,0.35); background: rgba(148,163,184,0.1);
+      color: #94a3b8; font-weight: 600;
+    }
+    .slot-btn:hover { background: rgba(148,163,184,0.2); }
+    .slot-btn.slot-active { background: rgba(147,197,253,0.2); border-color: rgba(147,197,253,0.5); color: #93c5fd; }
+    .slot-btn.slot-save { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.35); color: #34d399; }
+    .slot-btn.slot-save:hover { background: rgba(52,211,153,0.2); }
+    .slot-btn.slot-load { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.35); color: #fbbf24; }
+    .slot-btn.slot-load:hover { background: rgba(251,191,36,0.2); }
+    .cwp-hint { font-size: 10px; color: #475569; margin-top: 8px; padding-top: 8px; border-top: 1px solid #334155; }
 
     /* 소유자/상담내용 셀: 줄바꿈 허용, 2줄 클램프 */
     tbody .col-owner, tbody .col-memo {
@@ -1718,6 +1740,26 @@
     <div class="loading-text" id="LT">데이터 로딩 중...</div>
   </div>
 
+  <!-- 열너비 슬롯 패널 -->
+  <div id="colWidthPanel" style="display:none;">
+    <div class="cwp-title">↔ 열너비 슬롯 관리</div>
+    <div class="cwp-section">APT 매물</div>
+    <div class="cwp-row">
+      <button class="slot-btn slot-active" id="aptS1btn" onclick="setActiveSlot('apt',1)">S1</button>
+      <button class="slot-btn" id="aptS2btn" onclick="setActiveSlot('apt',2)">S2</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt')">💾 저장</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt')">⬆ 불러오기</button>
+    </div>
+    <div class="cwp-section">구매자DB</div>
+    <div class="cwp-row">
+      <button class="slot-btn slot-active" id="buyerS1btn" onclick="setActiveSlot('buyer',1)">S1</button>
+      <button class="slot-btn" id="buyerS2btn" onclick="setActiveSlot('buyer',2)">S2</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer')">💾 저장</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer')">⬆ 불러오기</button>
+    </div>
+    <div class="cwp-hint">드래그로 열너비 조정 → 💾 저장 / 다른 환경 시 S1·S2 전환</div>
+  </div>
+
   <!-- 헤더 -->
   <header>
     <h1>🏢 APT</h1>
@@ -1961,8 +2003,12 @@
           <div class="ef-group"><label class="ef-label">광고주기</label>
             <select id="e-adcycle" class="ef-select">
               <option value="">선택 안함</option>
-              <option>3일</option><option>7일</option><option>10일</option>
-              <option>14일</option><option>21일</option><option>30일</option>
+              <option>노출제외</option>
+              <option>새로고침</option>
+              <option>주1회</option>
+              <option>2주1회</option>
+              <option>유지</option>
+              <option>완료</option>
             </select>
           </div>
           <div class="ef-group"><label class="ef-label">입주형태</label><input id="e-movetype" class="ef-input" type="text"></div>
@@ -2978,10 +3024,45 @@
     }
 
     // ══════════ 열 너비 조정 (localStorage 저장/복원) ══════════
-    var COL_W_APT   = 'col_widths_apt_v1';
-    var COL_W_BUYER = 'col_widths_buyer_v1';
+    // 슬롯 키: apt_s1, apt_s2, buyer_s1, buyer_s2 (APT/구매자 완전 독립)
     var _colResizeModeOn = false;
     var _rTh = null, _rStartX = 0, _rStartW = 0, _rTableKey = '';
+    var _aptSlot = 1, _buyerSlot = 1; // 현재 활성 슬롯 (1 또는 2)
+
+    function _slotKey(tableType, slot) {
+      return 'col_w_' + tableType + '_s' + slot;
+    }
+
+    // 슬롯 활성화 버튼 UI 갱신
+    function setActiveSlot(tableType, slot) {
+      if (tableType === 'apt') {
+        _aptSlot = slot;
+        var b1 = document.getElementById('aptS1btn'), b2 = document.getElementById('aptS2btn');
+        if (b1) { b1.classList.toggle('slot-active', slot === 1); }
+        if (b2) { b2.classList.toggle('slot-active', slot === 2); }
+      } else {
+        _buyerSlot = slot;
+        var b1 = document.getElementById('buyerS1btn'), b2 = document.getElementById('buyerS2btn');
+        if (b1) { b1.classList.toggle('slot-active', slot === 1); }
+        if (b2) { b2.classList.toggle('slot-active', slot === 2); }
+      }
+    }
+
+    // 저장 버튼
+    function saveSlot(tableId, tableType) {
+      var slot = tableType === 'apt' ? _aptSlot : _buyerSlot;
+      var key = _slotKey(tableType, slot);
+      saveColWidths(tableId, key);
+      showToast((tableType === 'apt' ? 'APT 매물' : '구매자DB') + ' S' + slot + ' 저장 완료');
+    }
+
+    // 불러오기 버튼
+    function loadSlot(tableId, tableType) {
+      var slot = tableType === 'apt' ? _aptSlot : _buyerSlot;
+      var key = _slotKey(tableType, slot);
+      applyColWidths(tableId, key);
+      showToast((tableType === 'apt' ? 'APT 매물' : '구매자DB') + ' S' + slot + ' 불러오기 완료');
+    }
 
     // 저장된 너비를 테이블에 적용
     function applyColWidths(tableId, storageKey) {
@@ -2991,7 +3072,6 @@
         var widths = JSON.parse(saved);
         var tbl = document.getElementById(tableId);
         if (!tbl) return;
-        // table-layout:fixed 활성화해야 th width 적용됨
         tbl.style.tableLayout = 'fixed';
         var ths = tbl.querySelectorAll('thead th');
         ths.forEach(function(th, i) {
@@ -3012,34 +3092,21 @@
       } catch(e) {}
     }
 
-    // 저장된 너비 초기화 (CSS 기본값으로 복원)
-    function resetColWidths(tableId, storageKey) {
-      try { localStorage.removeItem(storageKey); } catch(e) {}
+    // 리사이즈 핸들 추가 (숨겨진 테이블은 스킵 — offsetWidth=0이면 열너비 오염 방지)
+    function addResizeHandles(tableId) {
       var tbl = document.getElementById(tableId);
       if (!tbl) return;
-      tbl.style.tableLayout = '';
-      tbl.querySelectorAll('thead th').forEach(function(th) { th.style.width = ''; });
-    }
-
-    // 리사이즈 핸들 추가
-    function addResizeHandles(tableId, storageKey) {
-      var tbl = document.getElementById(tableId);
-      if (!tbl) return;
-      // table-layout:fixed 없으면 offsetWidth 반영 안 됨 → 먼저 현재 너비를 inline으로 고정
+      if (tbl.offsetWidth === 0) return; // 현재 숨겨진 탭은 스킵
       var ths = tbl.querySelectorAll('thead th');
-      ths.forEach(function(th) {
-        th.style.width = th.offsetWidth + 'px'; // 모든 열 너비 고정
-      });
+      ths.forEach(function(th) { th.style.width = th.offsetWidth + 'px'; });
       tbl.style.tableLayout = 'fixed';
-      // 테이블 너비 = 열 너비 합계 (min-width:100% 효과 무력화)
       var totalW = 0;
       ths.forEach(function(th) { totalW += parseInt(th.style.width) || 0; });
       tbl.style.minWidth = '0';
       tbl.style.width = totalW + 'px';
       tbl.classList.add('resize-active');
-
       ths.forEach(function(th) {
-        if (th.querySelector('.col-resize-handle')) return; // 이미 있음
+        if (th.querySelector('.col-resize-handle')) return;
         var handle = document.createElement('div');
         handle.className = 'col-resize-handle';
         handle.addEventListener('mousedown', function(e) {
@@ -3067,7 +3134,6 @@
       if (!_rTh) return;
       var newW = Math.max(28, _rStartW + (e.clientX - _rStartX));
       _rTh.style.width = newW + 'px';
-      // 테이블 너비도 갱신해 다른 열이 재분배되지 않도록
       var tbl = document.getElementById(_rTableKey);
       if (tbl) {
         var totalW = 0;
@@ -3083,33 +3149,36 @@
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
       _rTh.querySelector('.col-resize-handle') && _rTh.querySelector('.col-resize-handle').classList.remove('dragging');
-      // 저장
-      var sk = _rTableKey === 'apt-main-table' ? COL_W_APT : COL_W_BUYER;
-      saveColWidths(_rTableKey, sk);
+      // 드래그한 테이블의 현재 활성 슬롯에 저장
+      var tableType = _rTableKey === 'apt-main-table' ? 'apt' : 'buyer';
+      var slot = tableType === 'apt' ? _aptSlot : _buyerSlot;
+      saveColWidths(_rTableKey, _slotKey(tableType, slot));
       _rTh = null;
     }
 
-    // 버튼 토글
+    // 버튼 토글 — 현재 보이는 테이블만 핸들 추가
     function toggleColResizeMode() {
       _colResizeModeOn = !_colResizeModeOn;
       var btn = document.getElementById('colResizeBtn');
+      var panel = document.getElementById('colWidthPanel');
       if (_colResizeModeOn) {
-        addResizeHandles('apt-main-table',   COL_W_APT);
-        addResizeHandles('buyer-main-table', COL_W_BUYER);
+        addResizeHandles('apt-main-table');
+        addResizeHandles('buyer-main-table');
         if (btn) { btn.textContent = '🔒 고정'; btn.style.background = 'rgba(147,197,253,0.2)'; btn.style.borderColor = 'rgba(147,197,253,0.5)'; btn.style.color = '#93c5fd'; }
+        if (panel) panel.style.display = 'block';
       } else {
         removeResizeHandles('apt-main-table');
         removeResizeHandles('buyer-main-table');
         if (btn) { btn.textContent = '↔ 열너비'; btn.style.background = 'rgba(148,163,184,0.15)'; btn.style.borderColor = 'rgba(148,163,184,0.35)'; btn.style.color = 'var(--text3)'; }
+        if (panel) panel.style.display = 'none';
       }
     }
 
-    // 페이지 로드 시 저장된 너비 복원
+    // 페이지 로드 시 저장된 너비 복원 (각 슬롯 S1 기본)
     (function initColWidths() {
-      // DOM 준비 후 실행
       window.addEventListener('load', function() {
-        applyColWidths('apt-main-table',   COL_W_APT);
-        applyColWidths('buyer-main-table', COL_W_BUYER);
+        applyColWidths('apt-main-table',   _slotKey('apt',   _aptSlot));
+        applyColWidths('buyer-main-table', _slotKey('buyer', _buyerSlot));
       });
     })();
 
@@ -3415,6 +3484,12 @@
       var fab = document.getElementById('propose-fab'); if (fab) fab.classList.toggle('show', isSearch && _proposalMode && _selected.size > 0);
       // 구입자 뷰 전환 시 데이터 자동 로드 (처음 한 번만)
       if (!isSearch && !_dbList.length) loadBuyerDb().then(function() { renderBuyerClassify(); });
+      // 열너비 모드가 켜진 상태에서 탭 전환 시 새로 보이는 테이블에 핸들 추가
+      if (_colResizeModeOn) {
+        setTimeout(function() {
+          addResizeHandles(isSearch ? 'apt-main-table' : 'buyer-main-table');
+        }, 0);
+      }
     }
 
     // ══════════ 고객명 역순 표시 (전화번호를 뒤로) ══════════
