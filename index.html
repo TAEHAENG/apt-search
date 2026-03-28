@@ -610,7 +610,7 @@
       position: fixed; top: 48px; right: 8px; z-index: 200;
       background: #1e293b; border: 1px solid #334155; border-radius: 8px;
       padding: 10px 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-      min-width: 230px;
+      min-width: 240px; max-height: calc(100vh - 60px); overflow-y: auto;
     }
     .cwp-title { font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 8px; }
     .cwp-section { font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 5px; }
@@ -1814,9 +1814,18 @@
     <div class="loading-text" id="LT">데이터 로딩 중...</div>
   </div>
 
-  <!-- 열너비 슬롯 패널 -->
+  <!-- 설정 패널 -->
   <div id="colWidthPanel" style="display:none;">
-    <div class="cwp-title">↔ 열너비 슬롯 관리</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div class="cwp-title" style="margin-bottom:0;">⚙ 설정</div>
+      <button onclick="toggleSettings()" style="background:none;border:none;color:#64748b;font-size:14px;cursor:pointer;padding:2px 4px;">✕</button>
+    </div>
+
+    <!-- 열너비 조정 -->
+    <div class="cwp-section" style="margin-bottom:6px;">↔ 열너비 조정</div>
+    <div class="cwp-row" style="margin-bottom:6px;">
+      <button id="colResizeBtn" onclick="toggleColResizeMode()" style="font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid rgba(148,163,184,0.5);background:rgba(148,163,184,0.1);color:#94a3b8;font-weight:600;">↔ 드래그 조정 켜기</button>
+    </div>
     <div class="cwp-section">APT 매물</div>
     <div class="cwp-row">
       <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',1)">💾 S1 저장</button>
@@ -1824,19 +1833,40 @@
       <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',2)">💾 S2 저장</button>
       <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',2)">⬆ S2 불러오기</button>
     </div>
-    <div class="cwp-section">구매자DB</div>
+    <div class="cwp-section">상가 매물</div>
+    <div class="cwp-row">
+      <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',1)">💾 S1 저장</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',1)">⬆ S1 불러오기</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',2)">💾 S2 저장</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',2)">⬆ S2 불러오기</button>
+    </div>
+    <div class="cwp-section">구입자 DB</div>
     <div class="cwp-row">
       <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',1)">💾 S1 저장</button>
       <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',1)">⬆ S1 불러오기</button>
       <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',2)">💾 S2 저장</button>
       <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',2)">⬆ S2 불러오기</button>
     </div>
-    <div class="cwp-hint">드래그로 조정 → 💾 저장 / 모니터 바꿀 때 ⬆ 불러오기</div>
+    <div class="cwp-hint">드래그로 조정 후 💾 저장 / 모니터 변경 시 ⬆ 불러오기</div>
+
+    <!-- 보안 설정 -->
+    <div class="cwp-section" style="margin-top:10px;padding-top:8px;border-top:1px solid #334155;">🔒 보안 설정</div>
+    <div style="margin-bottom:6px;">
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:#94a3b8;cursor:pointer;">
+        <input type="checkbox" id="settings-auto-login" onchange="updateAutoLogin(this)" style="width:14px;height:14px;accent-color:#1d4ed8;"> 자동 로그인 사용
+      </label>
+    </div>
+    <div style="margin-bottom:8px;">
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:#94a3b8;cursor:pointer;">
+        <input type="checkbox" id="settings-session" onchange="updateSession(this)" style="width:14px;height:14px;accent-color:#1d4ed8;"> 세션 유지 (탭 닫을 때까지)
+      </label>
+    </div>
+    <button onclick="doLogout()" style="width:100%;padding:6px;background:rgba(185,28,28,0.15);border:1px solid rgba(185,28,28,0.4);border-radius:5px;color:#fca5a5;font-size:12px;font-weight:600;cursor:pointer;">🚪 로그아웃 (자동로그인 해제)</button>
   </div>
 
   <!-- 헤더 -->
   <header>
-    <h1>🏢 아이파크</h1>
+    <h1>🏢 아이파크 부동산 검색기</h1>
     <div class="view-toggle">
       <button class="view-toggle-btn active" id="vbtn-search" onclick="switchView('search')">🔍 APT 매물</button>
       <button class="view-toggle-btn" id="vbtn-sangga" onclick="switchView('sangga')">🏪 상가 매물</button>
@@ -1849,7 +1879,7 @@
         href="https://docs.google.com/spreadsheets/d/1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw/edit#gid=505657259"
         target="_blank">📋 매물장</a>
       <button class="hdr-btn hdr-btn-add" id="hdr-apt-add" onclick="openAddNew()">＋ 새 매물</button>
-      <button class="hdr-btn" id="colResizeBtn" onclick="toggleColResizeMode()" style="background:rgba(148,163,184,0.15);border:1.5px solid rgba(148,163,184,0.35);color:var(--text3);">↔ 열너비</button>
+      <button class="hdr-btn" id="settingsBtn" onclick="toggleSettings()" style="background:rgba(148,163,184,0.15);border:1.5px solid rgba(148,163,184,0.35);color:var(--text3);">⚙ 설정</button>
       <button class="hdr-btn" id="safetyCheckBtn" onclick="runSafetyCheck(false)" style="background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24;">🔍 안전검사</button>
       <!-- 상가 전용 버튼 -->
       <a class="hdr-btn hdr-btn-sheet" id="hdr-sg-sheet" style="display:none;"
@@ -1866,6 +1896,7 @@
     <div class="filter-row">
       <div class="filter-row-label">① 유형</div>
       <div class="btn-group" id="type-group-main">
+        <button class="sel-btn bld-all active" id="type-all" onclick="selTypeAll()">전체</button>
         <button class="sel-btn type-mae" id="type-maes" onclick="selTypeGroup('매매s')">매매s</button>
         <button class="sel-btn type-jun" id="type-jeons" onclick="selTypeGroup('전세s')">전세s</button>
         <button class="sel-btn type-wol" id="type-wols" onclick="selTypeGroup('월세s')">월세s</button>
@@ -2573,6 +2604,13 @@
         var btn = document.getElementById(TYPE_GROUP_BTN[g]);
         if(btn) btn.classList.toggle('active', allActive);
       });
+      var allBtn = document.getElementById('type-all');
+      if (allBtn) allBtn.classList.toggle('active', fTypes.size === 0);
+    }
+    function selTypeAll() {
+      fTypes.clear();
+      syncGroupBtns();
+      applyAll();
     }
     function toggleTypeExpand() {
       var ex = document.getElementById('typeExtra'), btn = document.getElementById('typeExpandBtn');
@@ -2617,6 +2655,7 @@
       fTypes.clear(); fBlds.clear(); fP = null; fProcs.clear(); fS = '';
       document.getElementById('SI2').value = '';
       document.querySelectorAll('.sel-btn').forEach(function (b) { b.classList.remove('active'); });
+      var allBtn = document.getElementById('type-all'); if (allBtn) allBtn.classList.add('active');
       FD = RAW.slice(); asr();
     }
 
@@ -3226,28 +3265,58 @@
       _rTh = null;
     }
 
-    // 버튼 토글 — 현재 보이는 테이블만 핸들 추가
+    // 설정 패널 열기/닫기
+    function toggleSettings() {
+      var panel = document.getElementById('colWidthPanel');
+      var sBtn = document.getElementById('settingsBtn');
+      if (panel.style.display === 'none' || !panel.style.display) {
+        panel.style.display = 'block';
+        if (sBtn) { sBtn.style.background = 'rgba(147,197,253,0.2)'; sBtn.style.borderColor = 'rgba(147,197,253,0.5)'; sBtn.style.color = '#93c5fd'; }
+        // 자동로그인 체크박스 상태 동기화
+        var alChk = document.getElementById('settings-auto-login');
+        var ssChk = document.getElementById('settings-session');
+        if (alChk) alChk.checked = localStorage.getItem(AUTO_KEY) === '1';
+        if (ssChk) ssChk.checked = sessionStorage.getItem(AUTO_KEY) === '1';
+      } else {
+        panel.style.display = 'none';
+        if (sBtn) { sBtn.style.background = 'rgba(148,163,184,0.15)'; sBtn.style.borderColor = 'rgba(148,163,184,0.35)'; sBtn.style.color = 'var(--text3)'; }
+      }
+    }
+    // 열너비 드래그 조정 모드 토글
     function toggleColResizeMode() {
       _colResizeModeOn = !_colResizeModeOn;
       var btn = document.getElementById('colResizeBtn');
-      var panel = document.getElementById('colWidthPanel');
       if (_colResizeModeOn) {
         addResizeHandles('apt-main-table');
+        addResizeHandles('sg-main-table');
         addResizeHandles('buyer-main-table');
-        if (btn) { btn.textContent = '🔒 고정'; btn.style.background = 'rgba(147,197,253,0.2)'; btn.style.borderColor = 'rgba(147,197,253,0.5)'; btn.style.color = '#93c5fd'; }
-        if (panel) panel.style.display = 'block';
+        if (btn) { btn.textContent = '🔒 드래그 조정 끄기'; btn.style.background = 'rgba(147,197,253,0.2)'; btn.style.borderColor = 'rgba(147,197,253,0.5)'; btn.style.color = '#93c5fd'; }
       } else {
         removeResizeHandles('apt-main-table');
+        removeResizeHandles('sg-main-table');
         removeResizeHandles('buyer-main-table');
-        if (btn) { btn.textContent = '↔ 열너비'; btn.style.background = 'rgba(148,163,184,0.15)'; btn.style.borderColor = 'rgba(148,163,184,0.35)'; btn.style.color = 'var(--text3)'; }
-        if (panel) panel.style.display = 'none';
+        if (btn) { btn.textContent = '↔ 드래그 조정 켜기'; btn.style.background = 'rgba(148,163,184,0.1)'; btn.style.borderColor = 'rgba(148,163,184,0.5)'; btn.style.color = '#94a3b8'; }
       }
+    }
+    function updateAutoLogin(chk) {
+      if (chk.checked) localStorage.setItem(AUTO_KEY, '1');
+      else localStorage.removeItem(AUTO_KEY);
+    }
+    function updateSession(chk) {
+      if (chk.checked) sessionStorage.setItem(AUTO_KEY, '1');
+      else sessionStorage.removeItem(AUTO_KEY);
+    }
+    function doLogout() {
+      localStorage.removeItem(AUTO_KEY);
+      sessionStorage.removeItem(AUTO_KEY);
+      location.reload();
     }
 
     // 페이지 로드 시 저장된 너비 복원 (각 슬롯 S1 기본)
     (function initColWidths() {
       window.addEventListener('load', function() {
         applyColWidths('apt-main-table',   _slotKey('apt',   _aptSlot));
+        applyColWidths('sg-main-table',    _slotKey('sg',    1));
         applyColWidths('buyer-main-table', _slotKey('buyer', _buyerSlot));
       });
     })();
@@ -3568,7 +3637,7 @@
       var bv = document.getElementById('buyer-view'); if (bv) bv.style.display = isBuyer ? 'block' : 'none';
 
       // 헤더 버튼 표시 전환
-      ['hdr-apt-msg','hdr-apt-sheet','hdr-apt-add','colResizeBtn','safetyCheckBtn'].forEach(function(id) {
+      ['hdr-apt-msg','hdr-apt-sheet','hdr-apt-add','safetyCheckBtn'].forEach(function(id) {
         var el = document.getElementById(id); if (el) el.style.display = isSearch ? '' : 'none';
       });
       ['hdr-sg-sheet','hdr-sg-add'].forEach(function(id) {
@@ -3653,25 +3722,204 @@
     // ── 상가 데이터 초기화 ──────────────────────────
     function sgInitData(data) {
       _sgRaw = data;
-      // 건물명 목록 추출 후 필터 버튼 생성
+      // datalist 업데이트
       var blds = [];
       data.forEach(function(r){ if (r['건물명'] && blds.indexOf(r['건물명']) === -1) blds.push(r['건물명']); });
       blds.sort();
-      var grp = document.getElementById('sg-bld-group');
-      // 기존 동적 버튼 제거 후 재생성
-      grp.innerHTML = '<button class="sel-btn bld-all" id="sg-bld-all" onclick="sgSelBld(\'전체\')">전체</button>';
-      blds.forEach(function(b) {
-        var btn = document.createElement('button');
-        btn.className = 'sel-btn bld-one';
-        btn.id = 'sg-bld-' + b;
-        btn.textContent = b;
-        btn.setAttribute('onclick', 'sgSelBld(\'' + b.replace(/'/g,'\\\'') + '\')');
-        grp.appendChild(btn);
-      });
-      // datalist 업데이트
       var dl = document.getElementById('sg-bld-list');
       if (dl) { dl.innerHTML = blds.map(function(b){ return '<option value="' + esc(b) + '">'; }).join(''); }
+      // 그룹 선택 UI 초기화
+      _sg1Select = null; _sg2Select = null;
+      sgRenderBldGroups();
+      // 프로세스 더보기 재초기화
+      var moreEl = document.getElementById('sg-proc-more');
+      if (moreEl) { moreEl._initialized = false; moreEl.innerHTML = ''; }
+      sgApplyAll();
+    }
 
+    // ── 상가 건물 그룹 데이터 ──────────────────────────
+    var SG_BLD_GROUPS_KEY = 'sg_bld_groups_v1';
+    var SG_BLD_GROUPS_DEFAULT = [
+      {key:'트램라인-송파',    buildings:['아이','아이2','더샵','힐스','중푸']},
+      {key:'트램라인-성남',    buildings:['오벨리스크','중앙타워','우성트램','아이에스센트럴','아이플렉스']},
+      {key:'트램라인-좌측외곽',buildings:['송푸','더센트레','꿈에그린']},
+      {key:'트램라인-우측외곽',buildings:['위례센트로엘','신안인스빌']},
+      {key:'트램라인-성남하단',buildings:['보미','우성위례타워','스칸디몰','아트리버1단지','아트리버2단지']},
+      {key:'트램라인-북쪽',    buildings:['아이온스퀘어','SB','대길','성희']},
+      {key:'하남-북위례초입',  buildings:['효성해링턴','지웰']},
+      {key:'성남-항아리',      buildings:['에이플','이너매스','건아','우성메디피아','신성위캐슬']},
+      {key:'성남-남위례',      buildings:['아이페리온','위례성희','우남ipark','힘찬프라자']}
+    ];
+    function sgLoadBldGroups() {
+      try {
+        var d = JSON.parse(localStorage.getItem(SG_BLD_GROUPS_KEY) || 'null');
+        return Array.isArray(d) ? d : SG_BLD_GROUPS_DEFAULT.slice();
+      } catch(e) { return SG_BLD_GROUPS_DEFAULT.slice(); }
+    }
+    function sgSaveBldGroups(arr) {
+      try { localStorage.setItem(SG_BLD_GROUPS_KEY, JSON.stringify(arr)); } catch(e) {}
+    }
+    var _sgBldGroups = sgLoadBldGroups();
+    var _sg1Select = null, _sg2Select = null;
+
+    function sgRenderBldGroups() {
+      // 1단계: 고유 prefix (하이픈 앞)
+      var L1set = [], seen1 = {};
+      _sgBldGroups.forEach(function(g){
+        var p = g.key.split('-')[0];
+        if (!seen1[p]) { seen1[p] = 1; L1set.push(p); }
+      });
+      var L1el = document.getElementById('sg-bld-L1');
+      if (!L1el) return;
+      L1el.innerHTML = '<button class="sel-btn bld-all' + (_sg1Select ? '' : ' active') + '" onclick="sgSelL1(null)">전체</button>';
+      L1set.forEach(function(p){
+        var active = _sg1Select === p;
+        var btn = document.createElement('button');
+        btn.className = 'sel-btn bld-one' + (active ? ' active' : '');
+        btn.textContent = p;
+        btn.setAttribute('onclick','sgSelL1(' + JSON.stringify(p) + ')');
+        L1el.appendChild(btn);
+      });
+      // 2단계
+      var L2el = document.getElementById('sg-bld-L2');
+      if (!L2el) return;
+      if (!_sg1Select) { L2el.style.display = 'none'; L2el.innerHTML = ''; }
+      else {
+        var subs = _sgBldGroups.filter(function(g){ return g.key.split('-')[0] === _sg1Select; });
+        L2el.innerHTML = '';
+        subs.forEach(function(g){
+          var sub = g.key.split('-').slice(1).join('-');
+          var active = _sg2Select === g.key;
+          var btn = document.createElement('button');
+          btn.className = 'sel-btn bld-one' + (active ? ' active' : '');
+          btn.textContent = sub;
+          btn.setAttribute('onclick','sgSelL2(' + JSON.stringify(g.key) + ')');
+          L2el.appendChild(btn);
+        });
+        L2el.style.display = 'flex';
+      }
+      // 개별 건물 버튼
+      sgRenderBldItems();
+    }
+    function sgRenderBldItems() {
+      var itemsEl = document.getElementById('sg-bld-items');
+      if (!itemsEl) return;
+      // 어떤 그룹의 건물을 보여줄지 결정
+      var visibleBlds = [];
+      if (_sg2Select) {
+        var g = _sgBldGroups.find(function(x){ return x.key === _sg2Select; });
+        if (g) visibleBlds = g.buildings.slice();
+      } else if (_sg1Select) {
+        _sgBldGroups.filter(function(g){ return g.key.split('-')[0] === _sg1Select; })
+          .forEach(function(g){ g.buildings.forEach(function(b){ if (visibleBlds.indexOf(b)===-1) visibleBlds.push(b); }); });
+      } else {
+        // 전체: 시트에서 나온 건물 + 그룹에 정의된 건물
+        var allDefined = [];
+        _sgBldGroups.forEach(function(g){ g.buildings.forEach(function(b){ if (allDefined.indexOf(b)===-1) allDefined.push(b); }); });
+        var fromData = [];
+        _sgRaw.forEach(function(r){ if (r['건물명'] && fromData.indexOf(r['건물명'])===-1) fromData.push(r['건물명']); });
+        visibleBlds = allDefined.slice();
+        fromData.forEach(function(b){ if (visibleBlds.indexOf(b)===-1) visibleBlds.push(b); });
+        visibleBlds.sort();
+      }
+      itemsEl.innerHTML = '';
+      visibleBlds.forEach(function(b){
+        var btn = document.createElement('button');
+        btn.className = 'sel-btn bld-one' + (_sgBlds.has(b) ? ' active' : '');
+        btn.textContent = b;
+        btn.setAttribute('onclick','sgSelBldItem(' + JSON.stringify(b) + ')');
+        itemsEl.appendChild(btn);
+      });
+    }
+    function sgSelL1(p) {
+      _sg1Select = p; _sg2Select = null;
+      if (p === null) { _sgBlds.clear(); }
+      else {
+        // 해당 1단계의 모든 건물 선택
+        _sgBlds.clear();
+        _sgBldGroups.filter(function(g){ return g.key.split('-')[0] === p; })
+          .forEach(function(g){ g.buildings.forEach(function(b){ _sgBlds.add(b); }); });
+      }
+      sgRenderBldGroups(); sgApplyAll();
+    }
+    function sgSelL2(key) {
+      if (_sg2Select === key) { _sg2Select = null; _sgBlds.clear(); }
+      else {
+        _sg2Select = key;
+        _sgBlds.clear();
+        var g = _sgBldGroups.find(function(x){ return x.key === key; });
+        if (g) g.buildings.forEach(function(b){ _sgBlds.add(b); });
+      }
+      sgRenderBldGroups(); sgApplyAll();
+    }
+    function sgSelBldItem(b) {
+      if (_sgBlds.has(b)) _sgBlds.delete(b); else _sgBlds.add(b);
+      sgRenderBldItems(); sgApplyAll();
+    }
+    function openBldGroupEdit() {
+      var modal = document.getElementById('sg-bld-edit-modal');
+      if (!modal) return;
+      var ta = document.getElementById('sg-bld-edit-ta');
+      if (ta) ta.value = _sgBldGroups.map(function(g){ return g.key + ' : ' + g.buildings.join(','); }).join('\n');
+      modal.style.display = 'flex';
+    }
+    function closeBldGroupEdit() {
+      var modal = document.getElementById('sg-bld-edit-modal');
+      if (modal) modal.style.display = 'none';
+    }
+    function saveBldGroupEdit() {
+      var ta = document.getElementById('sg-bld-edit-ta');
+      if (!ta) return;
+      var lines = ta.value.split('\n').filter(function(l){ return l.trim(); });
+      var parsed = [];
+      lines.forEach(function(line){
+        var parts = line.split(':');
+        if (parts.length < 2) return;
+        var key = parts[0].trim();
+        var blds = parts.slice(1).join(':').split(',').map(function(b){ return b.trim(); }).filter(Boolean);
+        if (key && blds.length) parsed.push({key: key, buildings: blds});
+      });
+      if (!parsed.length) { showToast('올바른 형식으로 입력하세요'); return; }
+      _sgBldGroups = parsed;
+      sgSaveBldGroups(parsed);
+      closeBldGroupEdit();
+      _sg1Select = null; _sg2Select = null; _sgBlds.clear();
+      sgRenderBldGroups(); sgApplyAll();
+      showToast('건물 그룹 저장 완료');
+    }
+
+    // ── 상가 프로세스/평형 필터 상태 ───────────────────
+    var _sgProcs = new Set();
+    var _sgSizeMin = null, _sgSizeMax = null;
+    var SG_PROC_MAIN = ['연락처확보','제안가능(등록)','제안가능(미등록)','타부동산(독점)','타부동산(공동)','임대','분쟁'];
+    function sgSelProc(v) {
+      _sgProcs.clear();
+      document.querySelectorAll('.sg-proc-btn').forEach(function(b){ b.classList.remove('active'); });
+      var all = document.getElementById('sg-proc-all'); if (all) all.classList.add('active');
+      sgApplyAll();
+    }
+    function sgSelProcItem(v, btn) {
+      var allBtn = document.getElementById('sg-proc-all'); if (allBtn) allBtn.classList.remove('active');
+      if (_sgProcs.has(v)) { _sgProcs.delete(v); if(btn) btn.classList.remove('active'); }
+      else { _sgProcs.add(v); if(btn) btn.classList.add('active'); }
+      if (_sgProcs.size === 0) { if (allBtn) allBtn.classList.add('active'); }
+      sgApplyAll();
+    }
+    function sgToggleProcMore() {
+      var ex = document.getElementById('sg-proc-more'), btn = document.getElementById('sg-proc-more-btn');
+      if (!ex) return;
+      var open = ex.classList.toggle('open');
+      if (btn) btn.textContent = open ? '－ 접기' : '＋ 더보기';
+    }
+    function sgApplySizeFilter() {
+      var minEl = document.getElementById('sg-size-min'), maxEl = document.getElementById('sg-size-max');
+      _sgSizeMin = minEl && minEl.value !== '' ? parseFloat(minEl.value) : null;
+      _sgSizeMax = maxEl && maxEl.value !== '' ? parseFloat(maxEl.value) : null;
+      var hint = '';
+      if (_sgSizeMin !== null && _sgSizeMax !== null) hint = _sgSizeMin + '평 이상 ~ ' + _sgSizeMax + '평 미만';
+      else if (_sgSizeMin !== null) hint = _sgSizeMin + '평 이상';
+      else if (_sgSizeMax !== null) hint = _sgSizeMax + '평 미만';
+      var hintEl = document.getElementById('sg-size-hint'); if (hintEl) hintEl.textContent = hint;
       sgApplyAll();
     }
 
@@ -3686,6 +3934,13 @@
       _sgFD = _sgRaw.filter(function(r) {
         if (_sgTypes.size > 0 && !_sgTypes.has(r['유형'])) return false;
         if (_sgBlds.size > 0 && !_sgBlds.has(r['건물명'])) return false;
+        if (_sgProcs.size > 0 && !_sgProcs.has(r['프로세스'])) return false;
+        if (_sgSizeMin !== null || _sgSizeMax !== null) {
+          var py = parseFloat(r['전용(평)'] || '');
+          if (isNaN(py)) return false;
+          if (_sgSizeMin !== null && py < _sgSizeMin) return false;
+          if (_sgSizeMax !== null && py >= _sgSizeMax) return false;
+        }
         if (_sgSearch) {
           var q = _sgSearch.toLowerCase();
           var s = [r['건물명'],r['동'],r['호'],r['현재상호'],r['과거입점상호'],r['소유자'],r['임차인'],r['상담 내용'],r['주요특징']].join(' ').toLowerCase();
@@ -3693,6 +3948,21 @@
         }
         return true;
       });
+      // 기타 프로세스 값을 '더보기' 영역에 동적 추가
+      var moreEl = document.getElementById('sg-proc-more');
+      if (moreEl && !moreEl._initialized) {
+        moreEl._initialized = true;
+        var allProcs = [];
+        _sgRaw.forEach(function(r){ if (r['프로세스'] && allProcs.indexOf(r['프로세스'])===-1) allProcs.push(r['프로세스']); });
+        var extras = allProcs.filter(function(p){ return SG_PROC_MAIN.indexOf(p) === -1; });
+        extras.forEach(function(p){
+          var btn = document.createElement('button');
+          btn.className = 'sel-btn sg-proc-btn';
+          btn.textContent = p;
+          btn.setAttribute('onclick','sgSelProcItem(' + JSON.stringify(p) + ',this)');
+          moreEl.appendChild(btn);
+        });
+      }
       sgRender();
     }
 
@@ -3702,7 +3972,7 @@
       document.getElementById('sg-RC').textContent = _sgFD.length + '건';
       if (!_sgFD.length) {
         if (cl) cl.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text3);">매물이 없습니다</div>';
-        if (tb) tb.innerHTML = '<tr><td colspan="14" style="text-align:center;padding:30px;color:var(--text3);">매물이 없습니다</td></tr>';
+        if (tb) tb.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:30px;color:var(--text3);">매물이 없습니다</td></tr>';
         return;
       }
       if (cl) cl.innerHTML = _sgFD.map(function(r, i){ return sgMakeCard(r, i); }).join('');
@@ -3727,10 +3997,11 @@
         '<td>' + esc(r['호']||'-') + '</td>' +
         '<td>' + esc(r['현재상호']||'-') + '</td>' +
         '<td style="text-align:right;">' + esc(r['전용(평)']||'-') + '</td>' +
-        '<td style="color:var(--accent);font-weight:700;">' + esc(r['매매가'] ? sgFmtPrice(r['매매가']) : '-') + '</td>' +
-        '<td style="color:var(--accent);font-weight:700;">' + esc(r['보증금'] ? sgFmtPrice(r['보증금']) : '-') + '</td>' +
-        '<td style="color:var(--accent);font-weight:700;">' + esc(r['월세'] ? sgFmtPrice(r['월세']) : '-') + '</td>' +
+        '<td style="color:var(--accent);font-weight:700;text-align:right;">' + esc(r['매매가'] ? sgFmtPriceNum(r['매매가']) : '-') + '</td>' +
+        '<td style="color:var(--accent);font-weight:700;text-align:right;">' + esc(r['보증금'] ? sgFmtPriceNum(r['보증금']) : '-') + '</td>' +
+        '<td style="color:var(--accent);font-weight:700;text-align:right;">' + esc(r['월세'] ? sgFmtPriceNum(r['월세']) : '-') + '</td>' +
         '<td class="td-wrap"><div class="cell-clamp">' + esc(ownerFmt) + '</div></td>' +
+        '<td>' + esc(r['입주구분']||'-') + '</td>' +
         '<td>' + esc(r['프로세스']||'-') + '</td>' +
         '<td class="td-wrap"><div class="cell-clamp">' + esc(r['상담 내용']||'-') + '</div></td>' +
         '</tr>';
@@ -3760,12 +4031,27 @@
         '</div>';
     }
 
-    // 만원 단위 숫자 → "X천만원" / "X억X천만원" 변환
+    // 만원 단위 숫자 → 한글 금액 (상세페이지용)
     function sgFmtPrice(val) {
       if (!val) return '';
       var n = parseFloat(val);
       if (isNaN(n)) return val;
       return manToKorean(n * 10000) || val;
+    }
+    // 만원 단위 숫자 → 숫자 표기 (테이블용): 15000→15억, 5000→5천, 15500→15.5억
+    function sgFmtPriceNum(val) {
+      if (!val) return '';
+      var n = parseFloat(val);
+      if (isNaN(n) || n <= 0) return val;
+      if (n >= 10000) {
+        var uk = n / 10000;
+        return (uk === Math.floor(uk) ? uk : uk.toFixed(1)) + '억';
+      }
+      if (n >= 1000) {
+        var chun = n / 1000;
+        return (chun === Math.floor(chun) ? chun : chun.toFixed(1)) + '천';
+      }
+      return n.toLocaleString();
     }
 
     // ── 상가 상세 ────────────────────────────────────
@@ -3810,7 +4096,7 @@
       // 가격
       h += detSec('가격', [sgPriceRow('매매가', r['매매가']), sgPriceRow('보증금', r['보증금']), sgPriceRow('월세', r['월세'])]);
       // 소유자
-      h += detSec('소유자 정보', [['소유자', r['소유자']], ['임차인', r['임차인']], ['손님구분', r['손님구분']]]);
+      h += detSec('소유자 정보', [['소유자', r['소유자']], ['임차인', r['임차인']], ['손님구분', r['손님구분']], ['입주구분', r['입주구분']]]);
       // 주요특징
       if (r['주요특징']) h += '<div class="detail-section"><div class="detail-section-title">주요특징</div><div class="memo-box">' + esc(r['주요특징']) + '</div></div>';
       // 상담 내용
@@ -3870,7 +4156,7 @@
         var el = document.getElementById(id);
         if (el) showAmountHint(el, id + '-hint');
       });
-      set('sge-owner', r['소유자']); set('sge-tenant', r['임차인']); set('sge-guest', r['손님구분']);
+      set('sge-owner', r['소유자']); set('sge-tenant', r['임차인']); set('sge-guest', r['손님구분']); set('sge-occupancy', r['입주구분']);
       set('sge-earnest', r['계약금중일부']); set('sge-contract-date', r['계약일']);
       set('sge-middle', r['중도금']); set('sge-balance-date', r['잔금일']);
       set('sge-exclusive', r['독점']); set('sge-renewal', r['갱신청구권']);
@@ -3904,7 +4190,7 @@
         ['현재상호','sge-current-name'],['과거입점상호','sge-past-name'],
         ['전용(㎡)','sge-excl-sqm'],['전용(평)','sge-excl-py'],['분양(㎡)','sge-sale-sqm'],['분양(평)','sge-sale-py'],
         ['매매가','sge-price'],['보증금','sge-deposit'],['월세','sge-monthly'],
-        ['소유자','sge-owner'],['임차인','sge-tenant'],['손님구분','sge-guest'],
+        ['소유자','sge-owner'],['임차인','sge-tenant'],['손님구분','sge-guest'],['입주구분','sge-occupancy'],
         ['계약금중일부','sge-earnest'],['계약일','sge-contract-date'],['중도금','sge-middle'],
         ['잔금일','sge-balance-date'],['독점','sge-exclusive'],['갱신청구권','sge-renewal'],
         ['발생수익-매도,임대(VAT포함)','sge-rev1'],['발생수익-매수,임차(VAT포함)','sge-rev2'],
@@ -3956,7 +4242,7 @@
         '동': g('sgn-dong'), '호': g('sgn-ho'), '현재상호': g('sgn-current-name'),
         '전용(평)': g('sgn-excl-py'), '분양(평)': g('sgn-sale-py'),
         '매매가': g('sgn-price'), '보증금': g('sgn-deposit'), '월세': g('sgn-monthly'),
-        '소유자': g('sgn-owner'), '프로세스': g('sgn-proc'),
+        '소유자': g('sgn-owner'), '입주구분': g('sgn-occupancy'), '프로세스': g('sgn-proc'),
         '실행일': g('sgn-exec-date'), '상담 내용': g('sgn-memo')
       };
       try {
@@ -3970,10 +4256,15 @@
     }
 
     // ── 상가 필터 함수 ────────────────────────────────
+    function sgSelTypeAll() {
+      _sgTypes.clear();
+      sgUpdateTypeUI(); sgApplyAll();
+    }
     function sgSelTypeGroup(g) {
       var map = SG_TYPE_GROUP_MAP[g];
       if (!map) return;
-      map.forEach(function(t){ _sgTypes.add(t); });
+      var allActive = map.every(function(t){ return _sgTypes.has(t); });
+      map.forEach(function(t){ allActive ? _sgTypes.delete(t) : _sgTypes.add(t); });
       sgUpdateTypeUI(); sgApplyAll();
     }
     function sgSelTypeSingle(t) {
@@ -3991,6 +4282,8 @@
         var el = document.getElementById(gMap[g]);
         if (el) el.classList.toggle('active', SG_TYPE_GROUP_MAP[g].every(function(t){ return _sgTypes.has(t); }));
       });
+      var allBtn = document.getElementById('sg-type-all');
+      if (allBtn) allBtn.classList.toggle('active', _sgTypes.size === 0);
     }
     function sgToggleTypeExpand() {
       var ex = document.getElementById('sgTypeExtra'), btn = document.getElementById('sgTypeExpandBtn');
@@ -4012,9 +4305,15 @@
     }
     function sgResetAll() {
       _sgTypes.clear(); _sgBlds.clear(); _sgSearch = '';
+      _sgProcs.clear(); _sgSizeMin = null; _sgSizeMax = null;
+      _sg1Select = null; _sg2Select = null;
       var si = document.getElementById('sg-SI2'); if (si) si.value = '';
+      var szMin = document.getElementById('sg-size-min'); if (szMin) szMin.value = '';
+      var szMax = document.getElementById('sg-size-max'); if (szMax) szMax.value = '';
       sgUpdateTypeUI();
-      var allBtn = document.getElementById('sg-bld-all'); if (allBtn) allBtn.classList.add('active');
+      sgRenderBldGroups();
+      document.querySelectorAll('.sg-proc-btn').forEach(function(b){ b.classList.remove('active'); });
+      var pAllBtn = document.getElementById('sg-proc-all'); if (pAllBtn) pAllBtn.classList.add('active');
       sgApplyAll();
     }
 
@@ -4708,6 +5007,7 @@
       <div class="filter-row">
         <div class="filter-row-label">① 유형</div>
         <div class="btn-group">
+          <button class="sel-btn bld-all active" id="sg-type-all" onclick="sgSelTypeAll()">전체</button>
           <button class="sel-btn type-mae" id="sg-type-maes" onclick="sgSelTypeGroup('매매s')">매매s</button>
           <button class="sel-btn type-jun" id="sg-type-jeons" onclick="sgSelTypeGroup('전세s')">전세s</button>
           <button class="sel-btn type-wol" id="sg-type-wols" onclick="sgSelTypeGroup('월세s')">월세s</button>
@@ -4725,10 +5025,51 @@
       </div>
       <div class="filter-divider"></div>
       <div class="filter-row">
-        <div class="filter-row-label">② 건물명</div>
-        <div class="btn-group" id="sg-bld-group">
-          <button class="sel-btn bld-all" id="sg-bld-all" onclick="sgSelBld('전체')">전체</button>
-          <!-- 동적으로 건물명 버튼 생성됨 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="filter-row-label" style="margin-bottom:0;">② 건물명</div>
+          <button onclick="openBldGroupEdit()" style="font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);cursor:pointer;">✏️ 편집</button>
+        </div>
+        <!-- 1단계 그룹 -->
+        <div class="btn-group" id="sg-bld-L1">
+          <!-- 동적 생성 -->
+        </div>
+        <!-- 2단계 서브그룹 -->
+        <div class="btn-group" id="sg-bld-L2" style="display:none;margin-top:4px;">
+          <!-- 동적 생성 -->
+        </div>
+        <!-- 개별 건물 -->
+        <div class="btn-group" id="sg-bld-items" style="margin-top:4px;">
+          <!-- 동적 생성 -->
+        </div>
+      </div>
+      <div class="filter-divider"></div>
+      <!-- ③ 프로세스 -->
+      <div class="filter-row">
+        <div class="filter-row-label">③ 프로세스</div>
+        <div class="btn-group" id="sg-proc-group">
+          <button class="sel-btn proc-all active sg-proc-btn" id="sg-proc-all" onclick="sgSelProc('전체')">전체</button>
+          <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('연락처확보',this)">연락처확보</button>
+          <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('제안가능(등록)',this)">제안가능(등록)</button>
+          <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('제안가능(미등록)',this)">제안가능(미등록)</button>
+          <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('타부동산(독점)',this)">타부동산(독점)</button>
+          <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('타부동산(공동)',this)">타부동산(공동)</button>
+          <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('임대',this)">임대</button>
+          <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('분쟁',this)">분쟁</button>
+          <button class="bld-expand-btn" id="sg-proc-more-btn" onclick="sgToggleProcMore()">＋ 더보기</button>
+        </div>
+        <div class="bld-extra" id="sg-proc-more">
+          <!-- 기타 프로세스 값: sgApplyAll에서 동적으로 추가 -->
+        </div>
+      </div>
+      <div class="filter-divider"></div>
+      <!-- ④ 평형 -->
+      <div class="filter-row">
+        <div class="filter-row-label">④ 평형 (전용(평) 기준)</div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <input id="sg-size-min" class="search-input" type="number" placeholder="N평 이상" style="width:90px;padding:6px 8px;" oninput="sgApplySizeFilter()">
+          <span style="color:var(--text3);font-size:13px;">~</span>
+          <input id="sg-size-max" class="search-input" type="number" placeholder="N평 미만" style="width:90px;padding:6px 8px;" oninput="sgApplySizeFilter()">
+          <span id="sg-size-hint" style="font-size:11px;color:var(--text2);"></span>
         </div>
       </div>
       <div class="filter-divider"></div>
@@ -4738,6 +5079,22 @@
           <input class="search-input" id="sg-SI2" type="text" placeholder="동 · 호 · 상호 · 소유자 (전체 검색)">
         </div>
         <button class="reset-btn" onclick="sgResetAll()">초기화</button>
+      </div>
+    </div>
+
+    <!-- 건물 그룹 편집 모달 -->
+    <div id="sg-bld-edit-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;" onclick="if(event.target===this)closeBldGroupEdit()">
+      <div style="background:#1e293b;border-radius:12px;padding:20px;width:min(95vw,480px);max-height:80vh;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div style="font-size:13px;font-weight:700;color:#f1f5f9;">건물 그룹 편집</div>
+          <button onclick="closeBldGroupEdit()" style="background:none;border:none;color:#64748b;font-size:16px;cursor:pointer;">✕</button>
+        </div>
+        <div style="font-size:11px;color:#64748b;margin-bottom:8px;">형식: 그룹명-서브그룹명 : 건물1,건물2,건물3 (한 줄에 하나)</div>
+        <textarea id="sg-bld-edit-ta" style="width:100%;height:280px;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#e2e8f0;font-size:12px;font-family:monospace;padding:10px;resize:vertical;"></textarea>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button onclick="saveBldGroupEdit()" style="flex:1;padding:10px;background:#1d4ed8;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">💾 저장</button>
+          <button onclick="closeBldGroupEdit()" style="flex:1;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:13px;cursor:pointer;">취소</button>
+        </div>
       </div>
     </div>
 
@@ -4766,9 +5123,10 @@
             <th style="width:75px;">매매가</th>
             <th style="width:75px;">보증금</th>
             <th style="width:60px;">월세</th>
-            <th style="width:110px;">소유자</th>
+            <th style="width:100px;">소유자</th>
+            <th style="width:58px;">입주구분</th>
             <th style="width:70px;">프로세스</th>
-            <th style="width:150px;">상담 내용</th>
+            <th style="width:140px;">상담 내용</th>
           </tr>
         </thead>
         <tbody id="sg-TB"></tbody>
@@ -4844,6 +5202,12 @@
             <div class="ef-group"><label class="ef-label">소유자 (전화)</label><textarea id="sge-owner" class="ef-input ef-ta" placeholder="010-XXXX-XXXX,이름" oninput="taResize(this)"></textarea></div>
             <div class="ef-group"><label class="ef-label">임차인</label><textarea id="sge-tenant" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
             <div class="ef-group"><label class="ef-label">손님구분</label><textarea id="sge-guest" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">입주구분</label>
+              <select id="sge-occupancy" class="ef-select">
+                <option value="">선택 안함</option>
+                <option>주인</option><option>임차</option><option>공실</option>
+              </select>
+            </div>
           </div>
 
           <!-- 계약 정보 -->
@@ -4953,6 +5317,12 @@
             </div>
             <div class="ef-group"><label class="ef-label">월세 (만원)</label>
               <div class="amount-wrap"><input id="sgn-monthly" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sgn-monthly-hint')"><span id="sgn-monthly-hint" class="amount-hint" style="font-weight:700;"></span></div>
+            </div>
+            <div class="ef-group"><label class="ef-label">입주구분</label>
+              <select id="sgn-occupancy" class="ef-select">
+                <option value="">선택</option>
+                <option>주인</option><option>임차</option><option>공실</option>
+              </select>
             </div>
             <div class="ef-group"><label class="ef-label">프로세스</label>
               <select id="sgn-proc" class="ef-select">
