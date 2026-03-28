@@ -443,6 +443,7 @@
       font-size: 12px;
       color: var(--text3);
       line-height: 1.5;
+      white-space: pre-line;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
@@ -518,10 +519,9 @@
     tbody td {
       padding: 8px 11px;
       border-right: 1px solid rgba(42, 49, 71, 0.5);
-      white-space: nowrap;
+      white-space: pre-line;
       overflow: hidden;
-      text-overflow: ellipsis;
-      vertical-align: middle;
+      vertical-align: top;
     }
 
     .col-date {
@@ -630,7 +630,7 @@
 
     /* 소유자/상담내용 셀: 줄바꿈 허용, 2줄 클램프 */
     tbody .col-owner, tbody .col-memo {
-      white-space: normal;
+      white-space: pre-line;
       vertical-align: top;
     }
     tbody .col-owner .cell-clamp, tbody .col-memo .cell-clamp {
@@ -910,6 +910,7 @@
       font-size: 13px;
       color: var(--text);
       word-break: break-all;
+      white-space: pre-wrap;
     }
 
     .di-value.hl {
@@ -1409,6 +1410,7 @@
     .buyer-db-card-price { font-size: 13px; font-weight: 700; color: #b45309; font-family: 'DM Mono', monospace; }
     .buyer-db-card-memo {
       font-size: 11px; color: var(--text3); line-height: 1.4;
+      white-space: pre-line;
       display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2;
       -webkit-box-orient: vertical; overflow: hidden;
       margin-top: 5px;
@@ -1457,13 +1459,12 @@
     .buyer-table tbody td {
       padding: 8px 10px;
       border-right: 1px solid rgba(200, 205, 216, .4);
-      white-space: nowrap;
+      white-space: pre-line;
       overflow: hidden;
-      text-overflow: ellipsis;
       vertical-align: top;
     }
     .buyer-table tbody td.td-wrap {
-      white-space: normal;
+      white-space: pre-line;
     }
     .buyer-table tbody td.td-wrap .cell-clamp {
       display: -webkit-box;
@@ -2436,8 +2437,7 @@
           var o = { '__row__': i + 2 };
           hd.forEach(function (h, j) {
             if (row[j] && row[j].trim()) {
-              var keepNl = (h === '상담 내용' || h === '비고');
-              o[h] = keepNl ? row[j].trim() : row[j].replace(/\n/g, ' ').trim();
+              o[h] = row[j].trim(); // \n 그대로 보존
             }
           });
           return o;
@@ -2697,7 +2697,7 @@
         '<td class="col-expire">' + esc(r['만기일'] || '-') + '</td>' +
         '<td class="col-e" style="text-align:center">' + esc(r['에'] || '-') + '</td>' +
         '<td class="col-room" style="text-align:center">' + esc(r['방'] || '-') + '</td>' +
-        '<td class="col-loan" style="font-family:monospace">' + esc(r['융자'] || '-') + '</td>' +
+        '<td class="col-loan">' + esc(r['융자'] || '-') + '</td>' +
         '<td class="col-adcycle">' + esc(r['광고주기'] || '-') + '</td>' +
         '<td class="col-process"><span class="badge ' + gpc(r['프로세스'] || '') + '">' + esc(r['프로세스'] || '-') + '</span></td>' +
         '<td class="col-guest">' + esc(r['손님구분'] || '-') + '</td>' +
@@ -2889,7 +2889,7 @@
         var rowData = json.valueRanges[1].values ? json.valueRanges[1].values[0] : [];
         var obj = { '__row__': rowIndex };
         headers.forEach(function (h, i) {
-          obj[h] = (rowData[i] || '').replace(/\n/g, ' ').trim();
+          obj[h] = (rowData[i] || '').trim(); // \n 그대로 보존
         });
         return obj;
       } catch (ex) {
@@ -2925,8 +2925,9 @@
       document.getElementById('e-tenant').value = r['임차인'] || '';
       document.getElementById('e-resident').value = r['손님구분'] || '';
       document.getElementById('e-occupancy').value = r['현재점유형태'] || '';
-      // 주요특징 태그
-      _editTags = (r['주요특징'] || '').split(/[,，]/).map(function (t) { return t.trim().replace(/^#/, ''); }).filter(Boolean);
+      // 주요특징 태그 (시트 헤더 줄바꿈 정규화 여부에 따라 키 이름 다를 수 있음)
+      var _featKey = r.hasOwnProperty('주요특징') ? '주요특징' : '주요 특징';
+      _editTags = (r[_featKey] || '').split(/[,，]/).map(function (t) { return t.trim().replace(/^#/, ''); }).filter(Boolean);
       renderEditTags();
       // 상담 내용
       document.getElementById('e-memo').value = r['상담 내용'] || '';
@@ -3258,8 +3259,9 @@
       _el = document.getElementById('e-tenant');     if (_el) vals['임차인'] = _el.value;
       _el = document.getElementById('e-resident');   if (_el) vals['손님구분'] = _el.value;
       _el = document.getElementById('e-occupancy');  if (_el) vals['현재점유형태'] = _el.value;
-      // 주요특징
-      vals['주요특징'] = _editTags.map(function (t) { return '#' + t; }).join(', ');
+      // 주요특징 (r에서 실제 키 이름으로 저장 — 시트 헤더와 일치)
+      var _featKey = r.hasOwnProperty('주요특징') ? '주요특징' : '주요 특징';
+      vals[_featKey] = _editTags.map(function (t) { return '#' + t; }).join(', ');
       // 상담 내용
       vals['상담 내용'] = document.getElementById('e-memo').value;
       // 계약 정보
