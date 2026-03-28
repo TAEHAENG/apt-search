@@ -989,6 +989,13 @@
       resize: vertical;
       line-height: 1.6;
     }
+    /* 자동 높이 확장 textarea (단일행 입력처럼 보이다가 줄바꿈 시 확장) */
+    .ef-ta {
+      resize: none;
+      overflow: hidden;
+      min-height: 34px;
+      line-height: 1.5;
+    }
 
     .ef-actions {
       display: flex;
@@ -1974,7 +1981,7 @@
         <!-- ── 기본 정보 ── -->
         <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:0 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);">기본 정보</div>
         <div class="edit-grid">
-          <div class="ef-group"><label class="ef-label">건물명</label><input id="e-building" class="ef-input" type="text"></div>
+          <div class="ef-group"><label class="ef-label">건물명</label><textarea id="e-building" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
           <div class="ef-group"><label class="ef-label">유형</label>
             <select id="e-type" class="ef-select">
               <option value="">선택 안함</option>
@@ -1982,11 +1989,11 @@
               <option>매전세</option><option>매월세</option><option>전월세</option><option>매전월</option>
             </select>
           </div>
-          <div class="ef-group"><label class="ef-label">동</label><input id="e-dong" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">호</label><input id="e-ho" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">타입(공용)</label><input id="e-type-common" class="ef-input" type="text" placeholder="예) 84A"></div>
-          <div class="ef-group"><label class="ef-label">타입(전용)</label><input id="e-type-excl" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">가격</label><input id="e-price" class="ef-input" type="text" placeholder="예) 13.7억"></div>
+          <div class="ef-group"><label class="ef-label">동</label><textarea id="e-dong" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">호</label><textarea id="e-ho" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">타입(공용)</label><textarea id="e-type-common" class="ef-input ef-ta" placeholder="예) 84A" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">타입(전용)</label><textarea id="e-type-excl" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">가격</label><textarea id="e-price" class="ef-input ef-ta" placeholder="예) 13.7억" oninput="taResize(this)"></textarea></div>
           <div class="ef-group"><label class="ef-label">프로세스</label>
             <select id="e-proc" class="ef-select">
               <option value="">선택 안함</option>
@@ -1996,11 +2003,11 @@
               <option>재계약</option><option>재계약확인</option><option>완료</option><option>매매완료</option>
             </select>
           </div>
-          <div class="ef-group"><label class="ef-label">방</label><input id="e-room" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">에어컨</label><input id="e-ac" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">융자</label><input id="e-loan" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">층공개</label><input id="e-floor" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">독점</label><input id="e-exclusive" class="ef-input" type="text"></div>
+          <div class="ef-group"><label class="ef-label">방</label><textarea id="e-room" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">에어컨</label><textarea id="e-ac" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">융자</label><textarea id="e-loan" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">층공개</label><textarea id="e-floor" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">독점</label><textarea id="e-exclusive" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
           <div class="ef-group"><label class="ef-label">광고주기</label>
             <select id="e-adcycle" class="ef-select">
               <option value="">선택 안함</option>
@@ -2012,20 +2019,20 @@
               <option>완료</option>
             </select>
           </div>
-          <div class="ef-group"><label class="ef-label">입주형태</label><input id="e-movetype" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">실행일</label><input id="e-date" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">만기일</label><input id="e-expire" class="ef-input" type="text"></div>
+          <div class="ef-group"><label class="ef-label">입주형태</label><textarea id="e-movetype" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">실행일</label><textarea id="e-date" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">만기일</label><textarea id="e-expire" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
         </div>
 
         <!-- ── 소유자 정보 ── -->
         <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);">소유자 정보</div>
         <div class="edit-grid">
-          <div class="ef-group"><label class="ef-label">소유자 (전화)</label><input id="e-owner1" class="ef-input" type="text" placeholder="010-XXXX-XXXX,이름"></div>
-          <div class="ef-group"><label class="ef-label">소유자2 (전화)</label><input id="e-owner2" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">이름</label><input id="e-ownername" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">임차인</label><input id="e-tenant" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">손님구분</label><input id="e-resident" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">현재점유형태</label><input id="e-occupancy" class="ef-input" type="text"></div>
+          <div class="ef-group"><label class="ef-label">소유자 (전화)</label><textarea id="e-owner1" class="ef-input ef-ta" placeholder="010-XXXX-XXXX,이름" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">소유자2 (전화)</label><textarea id="e-owner2" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">이름</label><textarea id="e-ownername" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">임차인</label><textarea id="e-tenant" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">손님구분</label><textarea id="e-resident" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">현재점유형태</label><textarea id="e-occupancy" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
         </div>
 
         <!-- ── 주요 특징 ── -->
@@ -2045,32 +2052,32 @@
         <!-- ── 계약 정보 ── -->
         <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:0 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);">계약 정보</div>
         <div class="edit-grid">
-          <div class="ef-group"><label class="ef-label">계약금중일부</label><input id="e-deposit" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">약정일</label><input id="e-agree" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">토허제접수</label><input id="e-toher" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">계약일</label><input id="e-contract" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">중도금</label><input id="e-middle" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">잔금일</label><input id="e-balance" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">갱신청구권</label><input id="e-renewal" class="ef-input" type="text"></div>
+          <div class="ef-group"><label class="ef-label">계약금중일부</label><textarea id="e-deposit" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">약정일</label><textarea id="e-agree" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">토허제접수</label><textarea id="e-toher" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">계약일</label><textarea id="e-contract" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">중도금</label><textarea id="e-middle" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">잔금일</label><textarea id="e-balance" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">갱신청구권</label><textarea id="e-renewal" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
           <div class="ef-group"></div>
-          <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매도·임대</label><input id="e-rev1" class="ef-input" type="text"></div>
-          <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매수·임차</label><input id="e-rev2" class="ef-input" type="text"></div>
+          <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매도·임대</label><textarea id="e-rev1" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매수·임차</label><textarea id="e-rev2" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
         </div>
 
         <!-- ── 이실장 정보 ── -->
         <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);">이실장 정보</div>
         <div class="edit-grid">
-          <div class="ef-group"><label class="ef-label">이실장 단지명</label><input id="e-ls-bld" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">이실장 동</label><input id="e-ls-dong" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">이실장 호</label><input id="e-ls-ho" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">공급면적(㎡)</label><input id="e-ls-supply" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">전용면적(㎡)</label><input id="e-ls-priv" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">소유형태</label><input id="e-ls-own-type" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">이실장소유자명</label><input id="e-ls-owner" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">거주자명</label><input id="e-ls-resident" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">거래가(만원)</label><input id="e-ls-price" class="ef-input" type="text"></div>
-          <div class="ef-group"><label class="ef-label">이실장계약일</label><input id="e-ls-contract" class="ef-input" type="text"></div>
-          <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">등기열람일시</label><input id="e-ls-regdate" class="ef-input" type="text"></div>
+          <div class="ef-group"><label class="ef-label">이실장 단지명</label><textarea id="e-ls-bld" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">이실장 동</label><textarea id="e-ls-dong" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">이실장 호</label><textarea id="e-ls-ho" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">공급면적(㎡)</label><textarea id="e-ls-supply" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">전용면적(㎡)</label><textarea id="e-ls-priv" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">소유형태</label><textarea id="e-ls-own-type" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">이실장소유자명</label><textarea id="e-ls-owner" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">거주자명</label><textarea id="e-ls-resident" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">거래가(만원)</label><textarea id="e-ls-price" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">이실장계약일</label><textarea id="e-ls-contract" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">등기열람일시</label><textarea id="e-ls-regdate" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
         </div>
 
         <div class="ef-actions" style="margin-top:16px;">
@@ -2899,6 +2906,10 @@
     }
 
     // 폼에 데이터 채우기
+    // 자동 높이 확장 (textarea.ef-ta용)
+    function taResize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+    function taResizeAll() { document.querySelectorAll('#EF .ef-ta').forEach(taResize); }
+
     function fillEditForm(r) {
       // 기본 정보
       document.getElementById('e-building').value = r['건물명'] || '';
@@ -2953,6 +2964,8 @@
       document.getElementById('e-ls-price').value = r['거래가(만원)'] || '';
       document.getElementById('e-ls-contract').value = r['이실장계약일'] || '';
       document.getElementById('e-ls-regdate').value = r['등기열람일시'] || '';
+      // 값 채운 후 ef-ta 높이 자동 조정
+      taResizeAll();
     }
 
 
