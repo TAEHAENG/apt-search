@@ -13,9 +13,9 @@
   <meta name="theme-color" content="#1d4ed8">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="APT검색기">
+  <meta name="apple-mobile-web-app-title" content="아이파크검색기">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>APT 검색기</title>
+  <title>아이파크 부동산 검색기</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
 
@@ -1718,6 +1718,72 @@
       margin-top: 10px;
       min-height: 20px;
     }
+
+    /* ── 상가 매물 탭 ─────────────────────────────────── */
+    #sangga-view { display: none; }
+
+    /* 상가 테이블 (APT table-wrap 미러) */
+    .sg-table-wrap {
+      display: none;
+      overflow: auto;
+    }
+    @media(min-width:900px) {
+      #sg-CL { display: none; }
+      .sg-table-wrap {
+        display: block;
+        height: calc(100vh - 340px);
+      }
+    }
+    .sg-table {
+      width: auto; min-width: 100%;
+      border-collapse: collapse; font-size: 12px;
+    }
+    .sg-table thead tr { background: #1e293b; position: sticky; top: 0; z-index: 2; }
+    .sg-table thead th {
+      color: #cbd5e1; font-weight: 600; font-size: 11px; letter-spacing: .3px;
+      padding: 9px 10px; text-align: left; white-space: nowrap;
+      border-bottom: 2px solid #0f172a; border-right: 1px solid #334155;
+    }
+    .sg-table tbody tr { border-bottom: 1px solid var(--border); cursor: pointer; transition: background .1s; }
+    .sg-table tbody tr:hover { background: var(--accent-light); }
+    .sg-table tbody td { padding: 7px 10px; vertical-align: middle; white-space: nowrap; font-size: 12px; }
+    .sg-table tbody td.td-wrap { white-space: normal; }
+    .sg-table tbody td.td-wrap .cell-clamp {
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden; max-width: 150px;
+    }
+
+    /* 상가 카드 */
+    .sg-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin: 0 12px 8px;
+      cursor: pointer;
+      transition: box-shadow .15s;
+    }
+    .sg-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.10); }
+    .sg-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+    .sg-card-addr { font-size: 15px; font-weight: 700; color: var(--text); }
+    .sg-card-bld  { font-size: 12px; color: var(--text3); margin-top: 2px; }
+    .sg-card-badges { display: flex; gap: 5px; flex-shrink: 0; }
+    .sg-card-prices { display: flex; gap: 10px; flex-wrap: wrap; margin: 5px 0; }
+    .sg-price-item { font-size: 12px; }
+    .sg-price-label { color: var(--text3); margin-right: 3px; }
+    .sg-price-val { font-weight: 700; color: var(--accent); font-family: 'DM Mono', monospace; }
+    .sg-card-memo { font-size: 11px; color: var(--text2); white-space: pre-line;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden; margin-top: 4px; }
+    .sg-card-date { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; margin-top: 5px; }
+
+    /* 상가 필터 패널 */
+    #sangga-filter { display: none; }
+
+    /* 상가 금액 입력 */
+    .sg-amount-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .sg-amount-wrap { display: flex; align-items: center; gap: 6px; }
+    .sg-amount-hint { font-size: 12px; font-weight: 700; color: var(--accent); white-space: nowrap; }
   </style>
 </head>
 
@@ -1729,7 +1795,7 @@
   <div class="pw-overlay" id="pwOverlay">
     <div class="pw-box">
       <div class="pw-logo">🏢</div>
-      <div class="pw-title">APT 검색기</div>
+      <div class="pw-title">아이파크 부동산 검색기</div>
       <div class="pw-sub">비밀번호를 입력하세요</div>
       <input class="pw-input" id="pwInput" type="password" placeholder="••••••" maxlength="20"
         onkeydown="if(event.key==='Enter')checkPw()">
@@ -1770,19 +1836,26 @@
 
   <!-- 헤더 -->
   <header>
-    <h1>🏢 APT</h1>
+    <h1>🏢 아이파크</h1>
     <div class="view-toggle">
       <button class="view-toggle-btn active" id="vbtn-search" onclick="switchView('search')">🔍 APT 매물</button>
+      <button class="view-toggle-btn" id="vbtn-sangga" onclick="switchView('sangga')">🏪 상가 매물</button>
       <button class="view-toggle-btn" id="vbtn-buyer" onclick="switchView('buyer')">👤 구입자</button>
     </div>
     <div class="header-right">
-      <button class="hdr-btn hdr-btn-msg" onclick="openMsgModal()">💬 안내문구</button>
-      <a class="hdr-btn hdr-btn-sheet"
+      <!-- APT 전용 버튼 -->
+      <button class="hdr-btn hdr-btn-msg" id="hdr-apt-msg" onclick="openMsgModal()">💬 안내문구</button>
+      <a class="hdr-btn hdr-btn-sheet" id="hdr-apt-sheet"
         href="https://docs.google.com/spreadsheets/d/1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw/edit#gid=505657259"
         target="_blank">📋 매물장</a>
-      <button class="hdr-btn hdr-btn-add" onclick="openAddNew()">＋ 새 매물</button>
+      <button class="hdr-btn hdr-btn-add" id="hdr-apt-add" onclick="openAddNew()">＋ 새 매물</button>
       <button class="hdr-btn" id="colResizeBtn" onclick="toggleColResizeMode()" style="background:rgba(148,163,184,0.15);border:1.5px solid rgba(148,163,184,0.35);color:var(--text3);">↔ 열너비</button>
       <button class="hdr-btn" id="safetyCheckBtn" onclick="runSafetyCheck(false)" style="background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24;">🔍 안전검사</button>
+      <!-- 상가 전용 버튼 -->
+      <a class="hdr-btn hdr-btn-sheet" id="hdr-sg-sheet" style="display:none;"
+        href="https://docs.google.com/spreadsheets/d/19KWBXPiK-qXycopkNRHNMddmux2cKohtm7fLLyfiZGw/edit"
+        target="_blank">📋 상가매물장</a>
+      <button class="hdr-btn hdr-btn-add" id="hdr-sg-add" style="display:none;" onclick="sgOpenAddNew()">＋ 새 상가매물</button>
       <button class="sync-btn" id="SB" onclick="syncSheets()"><span id="SI">🔄</span></button>
       <div class="total-badge">총 <span id="TC">-</span>건</div>
     </div>
@@ -3473,20 +3546,47 @@
     // ══════════ 뷰 전환 ══════════
     var _curView = 'search', _proposalMode = false, _proposalBuyerIdx = -1;
     function switchView(v) {
-      _curView = v; var isSearch = (v === 'search');
-      ['.filter-panel', '.result-bar', '#CL', '.table-wrap', '#PAGER', '#ES'].forEach(function (sel) { var el = document.querySelector(sel); if (el) el.style.display = isSearch ? '' : 'none'; });
-      var sb = document.getElementById('SELECT_BAR'); if (sb) sb.style.display = (isSearch && _selected.size > 0) ? 'flex' : 'none';
-      var bv = document.getElementById('buyer-view'); if (bv) bv.style.display = isSearch ? 'none' : 'block';
+      _curView = v;
+      var isSearch = (v === 'search');
+      var isSangga = (v === 'sangga');
+      var isBuyer  = (v === 'buyer');
+
+      // APT 매물 요소
+      ['.filter-panel', '.result-bar', '#CL', '.table-wrap', '#PAGER', '#ES'].forEach(function(sel) {
+        var el = document.querySelector(sel); if (el) el.style.display = isSearch ? '' : 'none';
+      });
+      var sb = document.getElementById('SELECT_BAR');
+      if (sb) sb.style.display = (isSearch && _selected.size > 0) ? 'flex' : 'none';
+      var fab = document.getElementById('propose-fab');
+      if (fab) fab.classList.toggle('show', isSearch && _proposalMode && _selected.size > 0);
+
+      // 상가 매물 요소
+      var sgv = document.getElementById('sangga-view'); if (sgv) sgv.style.display = isSangga ? 'block' : 'none';
+      var sgf = document.getElementById('sangga-filter'); if (sgf) sgf.style.display = isSangga ? 'block' : 'none';
+
+      // 구입자 뷰
+      var bv = document.getElementById('buyer-view'); if (bv) bv.style.display = isBuyer ? 'block' : 'none';
+
+      // 헤더 버튼 표시 전환
+      ['hdr-apt-msg','hdr-apt-sheet','hdr-apt-add','colResizeBtn','safetyCheckBtn'].forEach(function(id) {
+        var el = document.getElementById(id); if (el) el.style.display = isSearch ? '' : 'none';
+      });
+      ['hdr-sg-sheet','hdr-sg-add'].forEach(function(id) {
+        var el = document.getElementById(id); if (el) el.style.display = isSangga ? '' : 'none';
+      });
+
+      // 탭 활성화
       document.getElementById('vbtn-search').classList.toggle('active', isSearch);
-      document.getElementById('vbtn-buyer').classList.toggle('active', !isSearch);
-      var fab = document.getElementById('propose-fab'); if (fab) fab.classList.toggle('show', isSearch && _proposalMode && _selected.size > 0);
+      document.getElementById('vbtn-sangga').classList.toggle('active', isSangga);
+      document.getElementById('vbtn-buyer').classList.toggle('active', isBuyer);
+
+      // 상가 탭 최초 진입 시 데이터 자동 로드
+      if (isSangga && !_sgRaw.length) sgSyncSheets();
       // 구입자 뷰 전환 시 데이터 자동 로드 (처음 한 번만)
-      if (!isSearch && !_dbList.length) loadBuyerDb().then(function() { renderBuyerClassify(); });
-      // 열너비 모드가 켜진 상태에서 탭 전환 시 새로 보이는 테이블에 핸들 추가
-      if (_colResizeModeOn) {
-        setTimeout(function() {
-          addResizeHandles(isSearch ? 'apt-main-table' : 'buyer-main-table');
-        }, 0);
+      if (isBuyer && !_dbList.length) loadBuyerDb().then(function() { renderBuyerClassify(); });
+      // 열너비 모드가 켜진 상태에서 APT 탭 전환 시
+      if (_colResizeModeOn && isSearch) {
+        setTimeout(function() { addResizeHandles('apt-main-table'); }, 0);
       }
     }
 
@@ -3499,6 +3599,435 @@
       if (!phones.length) return raw;
       return (text + ' ' + phones.join(' ')).trim();
     }
+
+    // ══════════════════════════════════════════════════
+    // 상가 매물 탭
+    // ══════════════════════════════════════════════════
+
+    // ── 상가 설정 ────────────────────────────────────
+    var SG_SSID = '19KWBXPiK-qXycopkNRHNMddmux2cKohtm7fLLyfiZGw';
+    var SG_SHEET_NAME = '상가DB';
+    // 상가매물장 Apps Script URL (배포 후 아래에 입력)
+    var SG_ASURL = 'https://script.google.com/macros/s/AKfycbwhN39cKReMGEaS1LFwWUH2lnDV3IVCtIYQxTnr5htg8BmcF7hfryAWgJEusQ2RQiw0/exec';
+
+    // ── 상가 상태 ─────────────────────────────────────
+    var _sgRaw = [], _sgFD = [];
+    var _sgTypes = new Set(), _sgBlds = new Set(), _sgSearch = '';
+    var _sgCurIdx = -1;
+    var SG_CACHE_KEY = 'sangga_cache_v1';
+
+    // ── 상가 캐시 ─────────────────────────────────────
+    function sgSaveCache(d) { try { localStorage.setItem(SG_CACHE_KEY, JSON.stringify(d)); } catch(e){} }
+    function sgLoadCache() { try { var d = JSON.parse(localStorage.getItem(SG_CACHE_KEY)||'null'); return Array.isArray(d) ? d : []; } catch(e){ return []; } }
+
+    // ── 상가 동기화 ───────────────────────────────────
+    async function sgSyncSheets() {
+      var sb = document.getElementById('SB'), si = document.getElementById('SI');
+      var lo = document.getElementById('LO'), lt = document.getElementById('LT');
+      sb.classList.add('loading'); si.textContent = '↻'; si.className = 'spin';
+      lo.classList.add('show'); lt.textContent = '상가DB 로드 중...';
+      try {
+        var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SG_SSID + '/values/' + encodeURIComponent(SG_SHEET_NAME) + '?key=' + AKEY;
+        var resp = await fetch(url);
+        var json = await resp.json();
+        if (!json.values || json.values.length < 2) throw new Error('상가DB 데이터 없음');
+        var hd = json.values[0].map(function(h){ return h.replace(/\n/g,' ').trim(); });
+        var nd = json.values.slice(1).map(function(row, i) {
+          var o = { '__row__': i + 2 };
+          hd.forEach(function(h, j){ if (row[j] && row[j].trim()) o[h] = row[j].trim(); });
+          return o;
+        });
+        sgSaveCache(nd);
+        sgInitData(nd);
+        document.getElementById('sg-LS').textContent = '✓ ' + new Date().toLocaleTimeString('ko-KR');
+      } catch(e) {
+        // 캐시 있으면 캐시 사용
+        var cached = sgLoadCache();
+        if (cached.length) { sgInitData(cached); showToast('상가 오프라인 모드 (캐시 사용)'); }
+        else { document.getElementById('sg-RC').textContent = '동기화 실패: ' + e.message; }
+      } finally {
+        lo.classList.remove('show'); sb.classList.remove('loading'); si.textContent = '🔄'; si.className = '';
+      }
+    }
+
+    // ── 상가 데이터 초기화 ──────────────────────────
+    function sgInitData(data) {
+      _sgRaw = data;
+      // 건물명 목록 추출 후 필터 버튼 생성
+      var blds = [];
+      data.forEach(function(r){ if (r['건물명'] && blds.indexOf(r['건물명']) === -1) blds.push(r['건물명']); });
+      blds.sort();
+      var grp = document.getElementById('sg-bld-group');
+      // 기존 동적 버튼 제거 후 재생성
+      grp.innerHTML = '<button class="sel-btn bld-all" id="sg-bld-all" onclick="sgSelBld(\'전체\')">전체</button>';
+      blds.forEach(function(b) {
+        var btn = document.createElement('button');
+        btn.className = 'sel-btn bld-one';
+        btn.id = 'sg-bld-' + b;
+        btn.textContent = b;
+        btn.setAttribute('onclick', 'sgSelBld(\'' + b.replace(/'/g,'\\\'') + '\')');
+        grp.appendChild(btn);
+      });
+      // datalist 업데이트
+      var dl = document.getElementById('sg-bld-list');
+      if (dl) { dl.innerHTML = blds.map(function(b){ return '<option value="' + esc(b) + '">'; }).join(''); }
+
+      sgApplyAll();
+    }
+
+    // ── 상가 필터 적용 ──────────────────────────────
+    var SG_TYPE_GROUP_MAP = {
+      '매매s': ['매매','매월세','매전세','매전월'],
+      '전세s': ['전세','매전세','전월세','매전월'],
+      '월세s': ['월세','매월세','전월세','매전월']
+    };
+
+    function sgApplyAll() {
+      _sgFD = _sgRaw.filter(function(r) {
+        if (_sgTypes.size > 0 && !_sgTypes.has(r['유형'])) return false;
+        if (_sgBlds.size > 0 && !_sgBlds.has(r['건물명'])) return false;
+        if (_sgSearch) {
+          var q = _sgSearch.toLowerCase();
+          var s = [r['건물명'],r['동'],r['호'],r['현재상호'],r['과거입점상호'],r['소유자'],r['임차인'],r['상담 내용'],r['주요특징']].join(' ').toLowerCase();
+          if (s.indexOf(q) === -1) return false;
+        }
+        return true;
+      });
+      sgRender();
+    }
+
+    function sgRender() {
+      var cl = document.getElementById('sg-CL');
+      var tb = document.getElementById('sg-TB');
+      document.getElementById('sg-RC').textContent = _sgFD.length + '건';
+      if (!_sgFD.length) {
+        if (cl) cl.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text3);">매물이 없습니다</div>';
+        if (tb) tb.innerHTML = '<tr><td colspan="14" style="text-align:center;padding:30px;color:var(--text3);">매물이 없습니다</td></tr>';
+        return;
+      }
+      if (cl) cl.innerHTML = _sgFD.map(function(r, i){ return sgMakeCard(r, i); }).join('');
+      if (tb) tb.innerHTML = _sgFD.map(function(r, i){ return sgMakeRow(r, i); }).join('');
+      // search event
+      var si = document.getElementById('sg-SI2');
+      if (si && !si._sgBound) {
+        si._sgBound = true;
+        si.addEventListener('input', function(){ _sgSearch = this.value.trim(); sgApplyAll(); });
+      }
+    }
+
+    function sgMakeRow(r, i) {
+      var typeClass = gtc(r['유형']||'');
+      var ownerFmt = fmtBuyerName(r['소유자']||'') || '-';
+      return '<tr onclick="sgDet(' + i + ')">' +
+        '<td>' + esc(r['실행일']||'-') + '</td>' +
+        '<td><span class="badge ' + typeClass + '">' + esc(r['유형']||'-') + '</span></td>' +
+        '<td>' + esc(r['건물명']||'-') + '</td>' +
+        '<td>' + esc(r['측']||'-') + '</td>' +
+        '<td>' + esc(r['동']||'-') + '</td>' +
+        '<td>' + esc(r['호']||'-') + '</td>' +
+        '<td>' + esc(r['현재상호']||'-') + '</td>' +
+        '<td style="text-align:right;">' + esc(r['전용(평)']||'-') + '</td>' +
+        '<td style="color:var(--accent);font-weight:700;">' + esc(r['매매가'] ? sgFmtPrice(r['매매가']) : '-') + '</td>' +
+        '<td style="color:var(--accent);font-weight:700;">' + esc(r['보증금'] ? sgFmtPrice(r['보증금']) : '-') + '</td>' +
+        '<td style="color:var(--accent);font-weight:700;">' + esc(r['월세'] ? sgFmtPrice(r['월세']) : '-') + '</td>' +
+        '<td class="td-wrap"><div class="cell-clamp">' + esc(ownerFmt) + '</div></td>' +
+        '<td>' + esc(r['프로세스']||'-') + '</td>' +
+        '<td class="td-wrap"><div class="cell-clamp">' + esc(r['상담 내용']||'-') + '</div></td>' +
+        '</tr>';
+    }
+
+    function sgMakeCard(r, i) {
+      var ph = xph([(r['소유자']||''), (r['임차인']||'')].join(' '));
+      var phHtml = ph.map(function(p){ return '<a class="phone-link" href="tel:' + p + '" onclick="event.stopPropagation()">📞 ' + fph(p) + '</a>'; }).join('');
+      var prices = [];
+      if (r['매매가']) prices.push('<span class="sg-price-label">매매</span><span class="sg-price-val">' + esc(sgFmtPrice(r['매매가'])) + '</span>');
+      if (r['보증금']) prices.push('<span class="sg-price-label">보증금</span><span class="sg-price-val">' + esc(sgFmtPrice(r['보증금'])) + '</span>');
+      if (r['월세'])   prices.push('<span class="sg-price-label">월세</span><span class="sg-price-val">' + esc(sgFmtPrice(r['월세'])) + '</span>');
+      var priceHtml = prices.length ? '<div class="sg-card-prices">' + prices.map(function(p){ return '<span class="sg-price-item">' + p + '</span>'; }).join('') + '</div>' : '';
+      var side = r['측'] ? r['측'] + ' ' : '';
+      var typeClass = gtc(r['유형']||'');
+      return '<div class="sg-card" onclick="sgDet(' + i + ')">' +
+        '<div class="sg-card-top">' +
+          '<div><div class="sg-card-addr">' + side + esc(r['동']||'-') + ' ' + esc(r['호']||'-') + '</div>' +
+          '<div class="sg-card-bld">' + esc(r['건물명']||'-') + (r['현재상호'] ? ' · ' + esc(r['현재상호']) : '') + '</div></div>' +
+          '<div class="sg-card-badges"><span class="badge ' + typeClass + '">' + esc(r['유형']||'-') + '</span></div>' +
+        '</div>' +
+        priceHtml +
+        (phHtml ? '<div class="card-phones">' + phHtml + '</div>' : '') +
+        (r['주요특징'] ? '<div class="sg-card-memo">' + esc(r['주요특징']) + '</div>' : '') +
+        (r['상담 내용'] ? '<div class="sg-card-memo">' + esc(r['상담 내용']) + '</div>' : '') +
+        '<div class="sg-card-date">' + esc(r['실행일']||'') + (r['프로세스'] ? ' · ' + esc(r['프로세스']) : '') + '</div>' +
+        '</div>';
+    }
+
+    // 만원 단위 숫자 → "X천만원" / "X억X천만원" 변환
+    function sgFmtPrice(val) {
+      if (!val) return '';
+      var n = parseFloat(val);
+      if (isNaN(n)) return val;
+      return manToKorean(n * 10000) || val;
+    }
+
+    // ── 상가 상세 ────────────────────────────────────
+    function sgDet(idx) {
+      _sgCurIdx = idx; sgCancelEdit();
+      var r = _sgFD[idx];
+      var side = r['측'] ? r['측'] + ' ' : '';
+      document.getElementById('sg-DT').textContent = (r['건물명']||'') + ' ' + side + (r['동']||'') + ' ' + (r['호']||'');
+      document.getElementById('sg-DS').textContent = (r['유형']||'') + (r['프로세스'] ? ' · ' + r['프로세스'] : '') + (r['실행일'] ? ' · ' + r['실행일'] : '') + (r['손님구분'] ? ' · ' + r['손님구분'] : '');
+
+      var ph = xph([(r['소유자']||''), (r['임차인']||'')].join(' '));
+      var h = '';
+      if (ph.length) {
+        h = '<div class="detail-phones">' + ph.map(function(p){ return '<a class="phone-link" href="tel:' + p + '">📞 ' + fph(p) + '</a>'; }).join('') + '</div>';
+      }
+
+      function detSec(t, d) {
+        var f = d.filter(function(x){ return x[1] || x[2]==='always'; }); if (!f.length) return '';
+        return '<div class="detail-section"><div class="detail-section-title">' + t + '</div><div class="detail-grid">' +
+          f.map(function(x){ return '<div class="detail-item"><span class="di-label">' + x[0] + '</span><span class="di-value' + (x[2]===1?' hl':'') + '">' + esc(x[1]||'') + '</span></div>'; }).join('') +
+          '</div></div>';
+      }
+      function detSecToggle(id, t, d) {
+        var f = d.filter(function(x){ return x[1] || x[2]==='always'; });
+        var label = t + ' <span style="font-size:11px;opacity:0.6;" id="' + id + '-arr">▶</span>';
+        var content = f.length
+          ? '<div class="detail-grid">' + f.map(function(x){ return '<div class="detail-item"><span class="di-label">' + x[0] + '</span><span class="di-value' + (x[2]===1?' hl':'') + '">' + esc(x[1]||'') + '</span></div>'; }).join('') + '</div>'
+          : '<div style="font-size:12px;color:var(--text3);padding:4px 0;">데이터 없음</div>';
+        return '<div class="detail-section"><div class="detail-section-title" style="cursor:pointer;user-select:none;" onclick="toggleDetSec(\'' + id + '\')">' + label + '</div>' +
+          '<div id="' + id + '" style="display:none;">' + content + '</div></div>';
+      }
+      function sgPriceRow(label, val) {
+        if (!val) return [label, '', 'always'];
+        var hint = sgFmtPrice(val);
+        return [label, val + (hint ? ' (' + hint + ')' : ''), 1];
+      }
+
+      // 기본 정보
+      h += detSec('기본 정보', [['건물명', r['건물명']], ['유형', r['유형']], ['측', r['측']], ['동', r['동']], ['호', r['호']], ['현재상호', r['현재상호']], ['과거입점상호', r['과거입점상호']]]);
+      // 면적
+      h += detSec('면적', [['전용(㎡)', r['전용(㎡)']], ['전용(평)', r['전용(평)']], ['분양(㎡)', r['분양(㎡)']], ['분양(평)', r['분양(평)']]]);
+      // 가격
+      h += detSec('가격', [sgPriceRow('매매가', r['매매가']), sgPriceRow('보증금', r['보증금']), sgPriceRow('월세', r['월세'])]);
+      // 소유자
+      h += detSec('소유자 정보', [['소유자', r['소유자']], ['임차인', r['임차인']], ['손님구분', r['손님구분']]]);
+      // 주요특징
+      if (r['주요특징']) h += '<div class="detail-section"><div class="detail-section-title">주요특징</div><div class="memo-box">' + esc(r['주요특징']) + '</div></div>';
+      // 상담 내용
+      if (r['상담 내용']) h += '<div class="detail-section"><div class="detail-section-title">상담 내용</div><div class="memo-box">' + esc(r['상담 내용']) + '</div></div>';
+      // 계약 정보 (접힘)
+      h += detSecToggle('sgdet-contract', '계약 정보', [['계약금중일부', r['계약금중일부']], ['계약일', r['계약일']], ['중도금', r['중도금']], ['잔금일', r['잔금일']], ['독점', r['독점']], ['갱신청구권', r['갱신청구권']], ['발생수익 매도·임대(VAT포함)', r['발생수익-매도,임대(VAT포함)']], ['발생수익 매수·임차(VAT포함)', r['발생수익-매수,임차(VAT포함)']]]);
+      // 분양 정보 (접힘)
+      h += detSecToggle('sgdet-bunyang', '분양 정보', [['지정업종', r['지정업종']], ['건축물용도', r['건축물용도']], ['부가세', r['부가세']], ['분양가(1차)', r['분양가(1차)']], ['분양가(최종)', r['분양가(최종)']], ['분양평단가', r['분양평단가']], ['평단가', r['평단가']], ['명목수익률', r['명목수익률']], ['매매가대비수익률', r['매매가대비수익률']], ['분양가-부가세', r['분양가-부가세']]]);
+      // 창고 정보 (접힘)
+      h += detSecToggle('sgdet-storage', '창고 정보', [['창고배정호수', r['창고배정호수']], ['창고(평)', r['창고(평)']], ['전용+창고(평)', r['전용+창고(평)']]]);
+      // 캘린더 버튼
+      h += '<div style="padding:14px 18px 6px;">' +
+        '<button onclick="sgOpenCalendar()" style="width:100%;padding:11px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;color:#15803d;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">📅 구글 캘린더에 일정 등록</button></div>';
+
+      document.getElementById('sg-DB').innerHTML = h;
+      document.getElementById('SGDO').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function sgCloseDet() {
+      document.getElementById('SGDO').classList.remove('open');
+      document.body.style.overflow = '';
+      sgCancelEdit();
+    }
+
+    // ── 상가 수정 폼 ─────────────────────────────────
+    function sgToggleEdit() {
+      var ef = document.getElementById('sg-EF');
+      var db = document.getElementById('sg-DB');
+      var btn = document.getElementById('sg-editToggleBtn');
+      var isOpen = ef.style.display !== 'none' && ef.style.display !== '';
+      if (isOpen) { sgCancelEdit(); return; }
+      ef.style.display = 'block'; db.style.display = 'none';
+      btn.textContent = '✕ 닫기';
+      sgFillEditForm(_sgFD[_sgCurIdx]);
+    }
+
+    function sgCancelEdit() {
+      var ef = document.getElementById('sg-EF');
+      var db = document.getElementById('sg-DB');
+      var btn = document.getElementById('sg-editToggleBtn');
+      if (ef) ef.style.display = 'none';
+      if (db) db.style.display = '';
+      if (btn) btn.textContent = '✏️ 수정';
+    }
+
+    function sgFillEditForm(r) {
+      if (!r) return;
+      var set = function(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; };
+      set('sge-building', r['건물명']); set('sge-type', r['유형']); set('sge-side', r['측']);
+      set('sge-dong', r['동']); set('sge-ho', r['호']);
+      set('sge-current-name', r['현재상호']); set('sge-past-name', r['과거입점상호']);
+      set('sge-excl-sqm', r['전용(㎡)']); set('sge-excl-py', r['전용(평)']);
+      set('sge-sale-sqm', r['분양(㎡)']); set('sge-sale-py', r['분양(평)']);
+      set('sge-price', r['매매가']); set('sge-deposit', r['보증금']); set('sge-monthly', r['월세']);
+      ['sge-price','sge-deposit','sge-monthly'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) showAmountHint(el, id + '-hint');
+      });
+      set('sge-owner', r['소유자']); set('sge-tenant', r['임차인']); set('sge-guest', r['손님구분']);
+      set('sge-earnest', r['계약금중일부']); set('sge-contract-date', r['계약일']);
+      set('sge-middle', r['중도금']); set('sge-balance-date', r['잔금일']);
+      set('sge-exclusive', r['독점']); set('sge-renewal', r['갱신청구권']);
+      set('sge-rev1', r['발생수익-매도,임대(VAT포함)']); set('sge-rev2', r['발생수익-매수,임차(VAT포함)']);
+      set('sge-features', r['주요특징']); set('sge-memo', r['상담 내용']);
+      set('sge-exec-date', r['실행일']); set('sge-proc', r['프로세스']);
+      set('sge-designated', r['지정업종']); set('sge-usage', r['건축물용도']);
+      set('sge-vat', r['부가세']); set('sge-sale-price1', r['분양가(1차)']);
+      set('sge-sale-price-final', r['분양가(최종)']); set('sge-sale-per-py', r['분양평단가']);
+      set('sge-per-py', r['평단가']); set('sge-nominal-yield', r['명목수익률']);
+      set('sge-yield-vs-price', r['매매가대비수익률']); set('sge-sale-ex-vat', r['분양가-부가세']);
+      set('sge-storage-ho', r['창고배정호수']); set('sge-storage-py', r['창고(평)']);
+      set('sge-excl-storage-py', r['전용+창고(평)']);
+    }
+
+    function sgToggleSec(id) {
+      var el = document.getElementById(id), arr = document.getElementById(id + '-arr');
+      if (!el) return;
+      var open = el.style.display !== 'none';
+      el.style.display = open ? 'none' : 'block';
+      if (arr) arr.textContent = open ? '▶' : '▼';
+    }
+
+    async function sgSaveEdit() {
+      if (!SG_ASURL) { showToast('상가 Apps Script URL이 설정되지 않았습니다. SG_ASURL을 설정하세요.'); return; }
+      var r = _sgFD[_sgCurIdx];
+      var get = function(id) { var el = document.getElementById(id); return el ? el.value : ''; };
+      var vals = {};
+      var fields = [
+        ['건물명','sge-building'],['유형','sge-type'],['측','sge-side'],['동','sge-dong'],['호','sge-ho'],
+        ['현재상호','sge-current-name'],['과거입점상호','sge-past-name'],
+        ['전용(㎡)','sge-excl-sqm'],['전용(평)','sge-excl-py'],['분양(㎡)','sge-sale-sqm'],['분양(평)','sge-sale-py'],
+        ['매매가','sge-price'],['보증금','sge-deposit'],['월세','sge-monthly'],
+        ['소유자','sge-owner'],['임차인','sge-tenant'],['손님구분','sge-guest'],
+        ['계약금중일부','sge-earnest'],['계약일','sge-contract-date'],['중도금','sge-middle'],
+        ['잔금일','sge-balance-date'],['독점','sge-exclusive'],['갱신청구권','sge-renewal'],
+        ['발생수익-매도,임대(VAT포함)','sge-rev1'],['발생수익-매수,임차(VAT포함)','sge-rev2'],
+        ['주요특징','sge-features'],['상담 내용','sge-memo'],['실행일','sge-exec-date'],['프로세스','sge-proc'],
+        ['지정업종','sge-designated'],['건축물용도','sge-usage'],['부가세','sge-vat'],
+        ['분양가(1차)','sge-sale-price1'],['분양가(최종)','sge-sale-price-final'],
+        ['분양평단가','sge-sale-per-py'],['평단가','sge-per-py'],['명목수익률','sge-nominal-yield'],
+        ['매매가대비수익률','sge-yield-vs-price'],['분양가-부가세','sge-sale-ex-vat'],
+        ['창고배정호수','sge-storage-ho'],['창고(평)','sge-storage-py'],['전용+창고(평)','sge-excl-storage-py']
+      ];
+      fields.forEach(function(f){ vals[f[0]] = get(f[1]); });
+
+      var btn = document.getElementById('sg-saveBtnEdit');
+      if (btn) { btn.disabled = true; btn.textContent = '저장 중...'; }
+      try {
+        var res = await fetch(SG_ASURL, { method: 'POST', headers: {'Content-Type':'text/plain'}, body: safeStringify({ action: 'updateSangga', rowIndex: r['__row__'], values: vals }) });
+        var j = await res.json();
+        if (!j.success) throw new Error(j.message || '저장 실패');
+        // 로컬 데이터 업데이트
+        Object.keys(vals).forEach(function(k){ if (vals[k] !== '') r[k] = vals[k]; });
+        showToast('상가 매물 저장 완료');
+        sgCancelEdit();
+        sgDet(_sgCurIdx);
+      } catch(e) { showToast('저장 오류: ' + e.message); }
+      finally { if (btn) { btn.disabled = false; btn.textContent = '💾 저장'; } }
+    }
+
+    // ── 상가 신규 등록 ────────────────────────────────
+    function sgOpenAddNew() {
+      document.getElementById('SGAM').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      // 실행일 기본값
+      var di = document.getElementById('sgn-exec-date');
+      if (di && !di.value) di.value = new Date().toISOString().slice(0,10).replace(/-/g,'.');
+    }
+    function sgCloseAddNew() {
+      document.getElementById('SGAM').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    async function sgSaveNewRow() {
+      if (!SG_ASURL) { showToast('상가 Apps Script URL이 설정되지 않았습니다.'); return; }
+      var g = function(id){ var e = document.getElementById(id); return e ? e.value.trim() : ''; };
+      if (!g('sgn-building')) { showToast('건물명을 입력하세요'); return; }
+      if (!g('sgn-type'))     { showToast('유형을 선택하세요'); return; }
+      if (!g('sgn-ho'))       { showToast('호를 입력하세요'); return; }
+      var vals = {
+        '건물명': g('sgn-building'), '유형': g('sgn-type'), '측': g('sgn-side'),
+        '동': g('sgn-dong'), '호': g('sgn-ho'), '현재상호': g('sgn-current-name'),
+        '전용(평)': g('sgn-excl-py'), '분양(평)': g('sgn-sale-py'),
+        '매매가': g('sgn-price'), '보증금': g('sgn-deposit'), '월세': g('sgn-monthly'),
+        '소유자': g('sgn-owner'), '프로세스': g('sgn-proc'),
+        '실행일': g('sgn-exec-date'), '상담 내용': g('sgn-memo')
+      };
+      try {
+        var res = await fetch(SG_ASURL, { method: 'POST', headers: {'Content-Type':'text/plain'}, body: safeStringify({ action: 'appendSangga', values: vals }) });
+        var j = await res.json();
+        if (!j.success) throw new Error(j.message || '추가 실패');
+        showToast('상가 매물 추가 완료');
+        sgCloseAddNew();
+        sgSyncSheets();
+      } catch(e) { showToast('추가 오류: ' + e.message); }
+    }
+
+    // ── 상가 필터 함수 ────────────────────────────────
+    function sgSelTypeGroup(g) {
+      var map = SG_TYPE_GROUP_MAP[g];
+      if (!map) return;
+      map.forEach(function(t){ _sgTypes.add(t); });
+      sgUpdateTypeUI(); sgApplyAll();
+    }
+    function sgSelTypeSingle(t) {
+      if (_sgTypes.has(t)) _sgTypes.delete(t); else _sgTypes.add(t);
+      sgUpdateTypeUI(); sgApplyAll();
+    }
+    function sgUpdateTypeUI() {
+      var all = ['매매','전세','월세','매전세','매월세','전월세','매전월'];
+      all.forEach(function(t){
+        var el = document.getElementById('sg-type-' + ({'매매':'mae','전세':'jun','월세':'wol','매전세':'maejun','매월세':'maewol','전월세':'junwol','매전월':'maejunwol'})[t]);
+        if (el) el.classList.toggle('active', _sgTypes.has(t));
+      });
+      var gMap = {'매매s':'sg-type-maes','전세s':'sg-type-jeons','월세s':'sg-type-wols'};
+      Object.keys(SG_TYPE_GROUP_MAP).forEach(function(g){
+        var el = document.getElementById(gMap[g]);
+        if (el) el.classList.toggle('active', SG_TYPE_GROUP_MAP[g].every(function(t){ return _sgTypes.has(t); }));
+      });
+    }
+    function sgToggleTypeExpand() {
+      var ex = document.getElementById('sgTypeExtra'), btn = document.getElementById('sgTypeExpandBtn');
+      var isOpen = ex.classList.contains('open');
+      ex.classList.toggle('open', !isOpen);
+      btn.textContent = isOpen ? '＋ 전체보기' : '－ 접기';
+    }
+    function sgSelBld(b) {
+      if (b === '전체') { _sgBlds.clear(); }
+      else { if (_sgBlds.has(b)) _sgBlds.delete(b); else _sgBlds.add(b); }
+      // 버튼 UI 업데이트
+      var allBtn = document.getElementById('sg-bld-all');
+      if (allBtn) allBtn.classList.toggle('active', _sgBlds.size === 0);
+      _sgRaw.forEach(function(r){ if (r['건물명']) {
+        var el = document.getElementById('sg-bld-' + r['건물명']);
+        if (el) el.classList.toggle('active', _sgBlds.has(r['건물명']));
+      }});
+      sgApplyAll();
+    }
+    function sgResetAll() {
+      _sgTypes.clear(); _sgBlds.clear(); _sgSearch = '';
+      var si = document.getElementById('sg-SI2'); if (si) si.value = '';
+      sgUpdateTypeUI();
+      var allBtn = document.getElementById('sg-bld-all'); if (allBtn) allBtn.classList.add('active');
+      sgApplyAll();
+    }
+
+    // ── 상가 캘린더 ──────────────────────────────────
+    function sgOpenCalendar() {
+      var r = _sgFD[_sgCurIdx]; if (!r) return;
+      var title = encodeURIComponent('[상가] ' + (r['건물명']||'') + ' ' + (r['동']||'') + (r['호']||'') + ' ' + (r['유형']||''));
+      var details = encodeURIComponent((r['상담 내용']||'').slice(0,200));
+      window.open('https://calendar.google.com/calendar/r/eventedit?text=' + title + '&details=' + details, '_blank');
+    }
+
+    // ══════════════════════════════════════════════════
+    // ══════════════════════════════════════════════════
 
     // ══════════ 구입자 탭 ══════════
     function buyerSwitchTab(name, el) {
@@ -4170,6 +4699,283 @@
     }
 
   </script>
+
+  <!-- ══════════════════ 상가 매물 페이지 ══════════════════ -->
+  <div id="sangga-view">
+
+    <!-- 상가 필터 패널 -->
+    <div class="filter-panel" id="sangga-filter">
+      <div class="filter-row">
+        <div class="filter-row-label">① 유형</div>
+        <div class="btn-group">
+          <button class="sel-btn type-mae" id="sg-type-maes" onclick="sgSelTypeGroup('매매s')">매매s</button>
+          <button class="sel-btn type-jun" id="sg-type-jeons" onclick="sgSelTypeGroup('전세s')">전세s</button>
+          <button class="sel-btn type-wol" id="sg-type-wols" onclick="sgSelTypeGroup('월세s')">월세s</button>
+          <button class="bld-expand-btn" id="sgTypeExpandBtn" onclick="sgToggleTypeExpand()">＋ 전체보기</button>
+        </div>
+        <div class="bld-extra" id="sgTypeExtra">
+          <button class="sel-btn type-mae" id="sg-type-mae" onclick="sgSelTypeSingle('매매')">매매</button>
+          <button class="sel-btn type-jun" id="sg-type-jun" onclick="sgSelTypeSingle('전세')">전세</button>
+          <button class="sel-btn type-wol" id="sg-type-wol" onclick="sgSelTypeSingle('월세')">월세</button>
+          <button class="sel-btn type-mae" id="sg-type-maejun" onclick="sgSelTypeSingle('매전세')">매전세</button>
+          <button class="sel-btn type-mae" id="sg-type-maewol" onclick="sgSelTypeSingle('매월세')">매월세</button>
+          <button class="sel-btn type-jun" id="sg-type-junwol" onclick="sgSelTypeSingle('전월세')">전월세</button>
+          <button class="sel-btn type-mae" id="sg-type-maejunwol" onclick="sgSelTypeSingle('매전월')">매전월</button>
+        </div>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-row">
+        <div class="filter-row-label">② 건물명</div>
+        <div class="btn-group" id="sg-bld-group">
+          <button class="sel-btn bld-all" id="sg-bld-all" onclick="sgSelBld('전체')">전체</button>
+          <!-- 동적으로 건물명 버튼 생성됨 -->
+        </div>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="search-row">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" id="sg-SI2" type="text" placeholder="동 · 호 · 상호 · 소유자 (전체 검색)">
+        </div>
+        <button class="reset-btn" onclick="sgResetAll()">초기화</button>
+      </div>
+    </div>
+
+    <!-- 결과바 -->
+    <div class="result-bar" id="sg-result-bar">
+      <span id="sg-RC">로딩 중...</span>
+      <span id="sg-LS" style="font-size:11px;"></span>
+    </div>
+
+    <!-- 카드 목록 (모바일) -->
+    <div class="card-list" id="sg-CL"></div>
+
+    <!-- 테이블 뷰 (데스크탑) -->
+    <div class="sg-table-wrap">
+      <table class="sg-table" id="sg-main-table">
+        <thead>
+          <tr>
+            <th style="width:70px;">실행일</th>
+            <th style="width:55px;">유형</th>
+            <th style="width:90px;">건물명</th>
+            <th style="width:30px;">측</th>
+            <th style="width:40px;">동</th>
+            <th style="width:40px;">호</th>
+            <th style="width:90px;">현재상호</th>
+            <th style="width:55px;">전용(평)</th>
+            <th style="width:75px;">매매가</th>
+            <th style="width:75px;">보증금</th>
+            <th style="width:60px;">월세</th>
+            <th style="width:110px;">소유자</th>
+            <th style="width:70px;">프로세스</th>
+            <th style="width:150px;">상담 내용</th>
+          </tr>
+        </thead>
+        <tbody id="sg-TB"></tbody>
+      </table>
+    </div>
+
+    <!-- 상가 상세 오버레이 -->
+    <div class="detail-overlay" id="SGDO" onclick="if(event.target===this)sgCloseDet()">
+      <div class="detail-panel">
+        <div class="detail-handle"></div>
+        <div class="detail-header">
+          <div>
+            <div class="detail-title" id="sg-DT"></div>
+            <div class="detail-subtitle" id="sg-DS"></div>
+          </div>
+          <div style="display:flex;gap:7px;flex-shrink:0;align-items:center;">
+            <a id="sg-sheet-link" href="#" target="_blank"
+              style="background:rgba(52,211,153,0.12);border:1.5px solid rgba(52,211,153,0.35);border-radius:7px;color:var(--green);padding:6px 10px;font-size:12px;font-weight:600;text-decoration:none;">📋</a>
+            <button id="sg-editToggleBtn" onclick="sgToggleEdit()"
+              style="background:rgba(147,197,253,0.2);border:1.5px solid rgba(147,197,253,0.4);border-radius:7px;color:#93c5fd;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;">✏️ 수정</button>
+            <button class="detail-close" onclick="sgCloseDet()">✕</button>
+          </div>
+        </div>
+        <div class="detail-body" id="sg-DB"></div>
+        <!-- 상가 수정 폼 -->
+        <div class="edit-form" id="sg-EF">
+          <div style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">✏️ 내용 수정</div>
+
+          <!-- 기본 정보 -->
+          <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:0 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);">기본 정보</div>
+          <div class="edit-grid">
+            <div class="ef-group"><label class="ef-label">건물명</label><textarea id="sge-building" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">유형</label>
+              <select id="sge-type" class="ef-select">
+                <option value="">선택 안함</option>
+                <option>매매</option><option>전세</option><option>월세</option>
+                <option>매전세</option><option>매월세</option><option>전월세</option><option>매전월</option>
+              </select>
+            </div>
+            <div class="ef-group"><label class="ef-label">측</label><textarea id="sge-side" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">동</label><textarea id="sge-dong" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">호</label><textarea id="sge-ho" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">현재상호</label><textarea id="sge-current-name" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">과거입점상호</label><textarea id="sge-past-name" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          </div>
+
+          <!-- 면적 정보 -->
+          <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);">면적</div>
+          <div class="edit-grid">
+            <div class="ef-group"><label class="ef-label">전용(㎡)</label><textarea id="sge-excl-sqm" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">전용(평)</label><textarea id="sge-excl-py" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">분양(㎡)</label><textarea id="sge-sale-sqm" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">분양(평)</label><textarea id="sge-sale-py" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          </div>
+
+          <!-- 가격 정보 -->
+          <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);">가격 (만원 단위 입력)</div>
+          <div class="edit-grid">
+            <div class="ef-group"><label class="ef-label">매매가</label>
+              <div class="amount-wrap"><input id="sge-price" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sge-price-hint')"><span id="sge-price-hint" class="amount-hint" style="font-weight:700;"></span></div>
+            </div>
+            <div class="ef-group"><label class="ef-label">보증금</label>
+              <div class="amount-wrap"><input id="sge-deposit" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sge-deposit-hint')"><span id="sge-deposit-hint" class="amount-hint" style="font-weight:700;"></span></div>
+            </div>
+            <div class="ef-group"><label class="ef-label">월세</label>
+              <div class="amount-wrap"><input id="sge-monthly" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sge-monthly-hint')"><span id="sge-monthly-hint" class="amount-hint" style="font-weight:700;"></span></div>
+            </div>
+          </div>
+
+          <!-- 소유자 정보 -->
+          <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);">소유자 정보</div>
+          <div class="edit-grid">
+            <div class="ef-group"><label class="ef-label">소유자 (전화)</label><textarea id="sge-owner" class="ef-input ef-ta" placeholder="010-XXXX-XXXX,이름" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">임차인</label><textarea id="sge-tenant" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">손님구분</label><textarea id="sge-guest" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          </div>
+
+          <!-- 계약 정보 -->
+          <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);">계약 정보</div>
+          <div class="edit-grid">
+            <div class="ef-group"><label class="ef-label">계약금중일부</label><textarea id="sge-earnest" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">계약일</label><textarea id="sge-contract-date" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">중도금</label><textarea id="sge-middle" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">잔금일</label><textarea id="sge-balance-date" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">독점</label><textarea id="sge-exclusive" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">갱신청구권</label><textarea id="sge-renewal" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매도·임대(VAT포함)</label><textarea id="sge-rev1" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매수·임차(VAT포함)</label><textarea id="sge-rev2" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          </div>
+
+          <!-- 주요특징 -->
+          <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);">주요특징</div>
+          <div class="ef-group" style="margin-bottom:12px;">
+            <textarea id="sge-features" class="ef-textarea" rows="2" placeholder="예) #역세권 #1층"></textarea>
+          </div>
+
+          <!-- 상담 내용 -->
+          <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:0 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);">상담 내용</div>
+          <div class="ef-group" style="margin-bottom:14px;">
+            <div style="display:flex;gap:6px;margin-bottom:5px;">
+              <input id="sge-exec-date" class="ef-input" type="text" placeholder="실행일 (예: 2026-03-28)" style="flex:1;">
+              <select id="sge-proc" class="ef-select" style="flex:1;">
+                <option value="">프로세스 선택</option>
+                <option>제안가능</option><option>대기</option><option>보류</option>
+                <option>계약</option><option>잔금</option><option>완료</option><option>매매완료</option>
+              </select>
+            </div>
+            <textarea id="sge-memo" class="ef-textarea" rows="4"></textarea>
+          </div>
+
+          <!-- 분양 정보 (접힘) -->
+          <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:0 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;" onclick="sgToggleSec('sge-sec-bunyang')">
+            분양 정보 <span style="font-size:11px;opacity:0.6;" id="sge-sec-bunyang-arr">▶</span>
+          </div>
+          <div id="sge-sec-bunyang" style="display:none;">
+            <div class="edit-grid" style="margin-bottom:12px;">
+              <div class="ef-group"><label class="ef-label">지정업종</label><textarea id="sge-designated" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+              <div class="ef-group"><label class="ef-label">건축물용도</label><textarea id="sge-usage" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+              <div class="ef-group"><label class="ef-label">부가세</label><textarea id="sge-vat" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+              <div class="ef-group"><label class="ef-label">분양가(1차)</label><div class="amount-wrap"><input id="sge-sale-price1" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sge-sp1-hint')"><span id="sge-sp1-hint" class="amount-hint" style="font-weight:700;"></span></div></div>
+              <div class="ef-group"><label class="ef-label">분양가(최종)</label><div class="amount-wrap"><input id="sge-sale-price-final" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sge-spf-hint')"><span id="sge-spf-hint" class="amount-hint" style="font-weight:700;"></span></div></div>
+              <div class="ef-group"><label class="ef-label">분양평단가</label><textarea id="sge-sale-per-py" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+              <div class="ef-group"><label class="ef-label">평단가</label><textarea id="sge-per-py" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+              <div class="ef-group"><label class="ef-label">명목수익률</label><textarea id="sge-nominal-yield" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+              <div class="ef-group"><label class="ef-label">매매가대비수익률</label><textarea id="sge-yield-vs-price" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+              <div class="ef-group"><label class="ef-label">분양가-부가세</label><textarea id="sge-sale-ex-vat" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            </div>
+          </div>
+
+          <!-- 창고 정보 (접힘) -->
+          <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:0 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;" onclick="sgToggleSec('sge-sec-storage')">
+            창고 정보 <span style="font-size:11px;opacity:0.6;" id="sge-sec-storage-arr">▶</span>
+          </div>
+          <div id="sge-sec-storage" style="display:none;">
+            <div class="edit-grid" style="margin-bottom:12px;">
+              <div class="ef-group"><label class="ef-label">창고배정호수</label><textarea id="sge-storage-ho" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+              <div class="ef-group"><label class="ef-label">창고(평)</label><textarea id="sge-storage-py" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+              <div class="ef-group"><label class="ef-label">전용+창고(평)</label><textarea id="sge-excl-storage-py" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            </div>
+          </div>
+
+          <div class="ef-actions" style="margin-top:16px;">
+            <button class="ef-save" id="sg-saveBtnEdit" onclick="sgSaveEdit()">💾 저장</button>
+            <button class="ef-cancel" onclick="sgCancelEdit()">취소</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 상가 새 매물 모달 -->
+    <div class="modal-overlay" id="SGAM" onclick="if(event.target===this)sgCloseAddNew()">
+      <div class="modal-panel">
+        <div class="detail-handle"></div>
+        <div class="modal-header">
+          <div class="modal-title">🏪 상가 새 매물 추가</div>
+          <button class="detail-close" onclick="sgCloseAddNew()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="edit-grid">
+            <div class="ef-group"><label class="ef-label">건물명 *</label>
+              <input id="sgn-building" class="ef-input" list="sg-bld-list" placeholder="선택 또는 직접 입력" autocomplete="off">
+              <datalist id="sg-bld-list"><!-- 동적 생성 --></datalist>
+            </div>
+            <div class="ef-group"><label class="ef-label">유형 *</label>
+              <select id="sgn-type" class="ef-select">
+                <option value="">선택</option>
+                <option>매매</option><option>전세</option><option>월세</option>
+                <option>매전세</option><option>매월세</option><option>전월세</option><option>매전월</option>
+              </select>
+            </div>
+            <div class="ef-group"><label class="ef-label">측</label><input id="sgn-side" class="ef-input" type="text" placeholder="예) A측"></div>
+            <div class="ef-group"><label class="ef-label">동</label><input id="sgn-dong" class="ef-input" type="text" placeholder="예) 상가동"></div>
+            <div class="ef-group"><label class="ef-label">호 *</label><input id="sgn-ho" class="ef-input" type="text" placeholder="예) 101"></div>
+            <div class="ef-group"><label class="ef-label">현재상호</label><input id="sgn-current-name" class="ef-input" type="text"></div>
+            <div class="ef-group"><label class="ef-label">전용(평)</label><input id="sgn-excl-py" class="ef-input" type="text" placeholder="예) 15.5"></div>
+            <div class="ef-group"><label class="ef-label">분양(평)</label><input id="sgn-sale-py" class="ef-input" type="text" placeholder="예) 20.0"></div>
+            <div class="ef-group"><label class="ef-label">매매가 (만원)</label>
+              <div class="amount-wrap"><input id="sgn-price" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sgn-price-hint')"><span id="sgn-price-hint" class="amount-hint" style="font-weight:700;"></span></div>
+            </div>
+            <div class="ef-group"><label class="ef-label">보증금 (만원)</label>
+              <div class="amount-wrap"><input id="sgn-deposit" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sgn-deposit-hint')"><span id="sgn-deposit-hint" class="amount-hint" style="font-weight:700;"></span></div>
+            </div>
+            <div class="ef-group"><label class="ef-label">월세 (만원)</label>
+              <div class="amount-wrap"><input id="sgn-monthly" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sgn-monthly-hint')"><span id="sgn-monthly-hint" class="amount-hint" style="font-weight:700;"></span></div>
+            </div>
+            <div class="ef-group"><label class="ef-label">프로세스</label>
+              <select id="sgn-proc" class="ef-select">
+                <option value="">선택</option>
+                <option>제안가능</option><option>대기</option><option>보류</option>
+                <option>계약</option><option>잔금</option><option>완료</option><option>매매완료</option>
+              </select>
+            </div>
+            <div class="ef-group"><label class="ef-label">실행일</label><input id="sgn-exec-date" class="ef-input" type="text" placeholder="예) 2026-03-28"></div>
+          </div>
+          <div class="ef-group" style="margin-top:8px;"><label class="ef-label">소유자 (전화)</label><input id="sgn-owner" class="ef-input" type="text" placeholder="010-XXXX-XXXX,이름"></div>
+          <div class="ef-group" style="margin-top:8px;"><label class="ef-label">상담 내용</label><textarea id="sgn-memo" class="ef-textarea" rows="3"></textarea></div>
+          <div style="margin-top:14px;display:flex;gap:8px;">
+            <button onclick="sgSaveNewRow()"
+              style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">💾 추가</button>
+            <button onclick="sgCloseAddNew()"
+              style="flex:1;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:14px;cursor:pointer;">취소</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /sangga-view -->
 
   <!-- ══════════════════ 구입자 페이지 ══════════════════ -->
   <!-- ══════════════════ 구입자 페이지 ══════════════════ -->
