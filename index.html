@@ -877,6 +877,17 @@
       margin-left: 2px;
     }
 
+    .ct-save-btn {
+      background: rgba(52,211,153,0.12);
+      border: 1px solid rgba(52,211,153,0.35);
+      border-radius: 6px;
+      color: #34d399;
+      font-size: 11px;
+      padding: 3px 6px;
+      cursor: pointer;
+      margin-left: 1px;
+    }
+
     .detail-section {
       margin-bottom: 16px;
     }
@@ -2546,10 +2557,10 @@
       try {
         var cached = loadCache();
         if (cached.length > 0) {
-          initData(cached); // 캐시 있으면 즉시 표시, 로딩화면 없음
+          initData(cached); // 캐시 있으면 즉시 표시
+          syncSheets(true); // 백그라운드 동기화 (로딩화면 없이)
         } else {
-          // 캐시 없으면 자동으로 동기화 시작
-          syncSheets();
+          syncSheets(); // 캐시 없으면 로딩화면과 함께 동기화
         }
       } catch (e) { console.error('로드 실패:', e.message); }
     };
@@ -2564,12 +2575,13 @@
       _sheetName = sf ? sf.properties.title : (m.sheets && m.sheets[0] ? m.sheets[0].properties.title : '');
       return _sheetName;
     }
-    async function syncSheets() {
+    async function syncSheets(silent) {
       var sb = document.getElementById('SB'), si = document.getElementById('SI'), lo = document.getElementById('LO'), lt = document.getElementById('LT');
-      sb.classList.add('loading'); si.textContent = '↻'; si.className = 'spin'; lo.classList.add('show'); lt.textContent = '시트 연결 중...';
+      sb.classList.add('loading'); si.textContent = '↻'; si.className = 'spin';
+      if (!silent) { lo.classList.add('show'); lt.textContent = '시트 연결 중...'; }
       try {
         var sn = await getSheetName();
-        lt.textContent = '"' + sn + '" 로드 중...';
+        if (!silent) lt.textContent = '"' + sn + '" 로드 중...';
         // 매물 시트 + 구입자 시트 동시 로드
         var [dr, br] = await Promise.all([
           fetch('https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent(sn) + '?key=' + AKEY),
@@ -2603,8 +2615,8 @@
         } catch(e2) { /* 구입자 로드 실패는 무시 */ }
         document.getElementById('LS').textContent = '✓ ' + new Date().toLocaleTimeString('ko-KR') + ' 동기화';
         initData(nd); applyAll();
-      } catch (e) { alert('동기화 실패: ' + e.message); }
-      finally { lo.classList.remove('show'); sb.classList.remove('loading'); si.textContent = '🔄'; si.className = ''; }
+      } catch (e) { if (!silent) alert('동기화 실패: ' + e.message); else console.warn('백그라운드 동기화 실패:', e.message); }
+      finally { if (!silent) lo.classList.remove('show'); sb.classList.remove('loading'); si.textContent = '🔄'; si.className = ''; }
     }
 
     // ── 필터 ──────────────────────────────────────────
@@ -2920,13 +2932,15 @@
       var h = '';
       if (ph.length) {
         window._contactData = ph.map(function (p) { return { phone: p, name: (r['건물명'] || '') + (r['동'] || '') + '동' + (r['호'] || '') + '호 ' + (r['소유자'] || '').slice(0, 15), memo: (r['상담 내용'] || '').slice(0, 50) }; });
-        var ctTypes = {}; try { ctTypes = JSON.parse(r['연락처종류'] || '{}'); } catch(e2) {}
+        var CT_TYPES = ['메인','주인','현세입자','신규세입자','매수자'];
         h = '<div class="detail-phones">' + ph.map(function (p, ci) {
-          var curType = ctTypes[p] || '';
-          var opts = ['','메인','주인','현세입자','신규세입자','매수자'].map(function(t){ return '<option value="'+t+'"'+(curType===t?' selected':'')+'>'+(t||'유형선택')+'</option>'; }).join('');
+          var curType = '';
+          CT_TYPES.forEach(function(t){ if ((r['연락처('+t+')']||'')=== p) curType = t; });
+          var opts = [''].concat(CT_TYPES).map(function(t){ return '<option value="'+t+'"'+(curType===t?' selected':'')+'>'+(t||'유형선택')+'</option>'; }).join('');
           return '<a class="phone-link" href="tel:' + p + '">📞 ' + fph(p) + '</a>' +
-            '<select class="ct-type-sel" onchange="savePhoneType('+idx+',\''+p+'\',this.value,\'apt\')">'+opts+'</select>' +
-            '<button class="vcf-btn" onclick="saveContactByIdx(' + ci + ')">👤 저장</button>';
+            '<select class="ct-type-sel">'+opts+'</select>' +
+            '<button class="ct-save-btn" onclick="savePhoneType('+idx+',\''+p+'\',this.previousElementSibling.value,\'apt\')">💾</button>' +
+            '<button class="vcf-btn" onclick="saveContactByIdx(' + ci + ')">👤</button>';
         }).join('') + '</div>';
       }
       // 섹션 렌더 헬퍼
@@ -3446,6 +3460,7 @@
     function saveContactByIdx(idx) { var d = (window._contactData || [])[idx]; if (d) saveContact(d.phone, d.name, d.memo); }
 
     async function savePhoneType(idx, phone, type, mode) {
+      if (!type) { showToast('유형을 선택하세요'); return; }
       var r, rowIndex, asUrl, action;
       if (mode === 'apt') {
         r = FD[idx]; rowIndex = r['__row__']; asUrl = ASURL; action = 'update';
@@ -3453,16 +3468,16 @@
         r = _sgFD[idx]; rowIndex = r['__row__']; asUrl = SG_ASURL; action = 'updateSangga';
       }
       if (!rowIndex) { showToast('행 정보 없음'); return; }
-      var ctTypes = {}; try { ctTypes = JSON.parse(r['연락처종류'] || '{}'); } catch(e) {}
-      if (type) ctTypes[phone] = type; else delete ctTypes[phone];
-      var ctJson = JSON.stringify(ctTypes);
+      var colName = '연락처(' + type + ')'; // 예: 연락처(주인)
+      var vals = {};
+      vals[colName] = phone;
       try {
         var res = await fetch(asUrl, { method: 'POST', headers: {'Content-Type':'text/plain'},
-          body: safeStringify({ action: action, rowIndex: rowIndex, values: {'연락처종류': ctJson} }) });
+          body: safeStringify({ action: action, rowIndex: rowIndex, values: vals }) });
         var j = JSON.parse(await res.text());
         if (!j.success) { showToast('저장 실패: ' + (j.message||'')); return; }
-        r['연락처종류'] = ctJson;
-        showToast('연락처 종류 저장 완료');
+        r[colName] = phone; // 로컬 반영
+        showToast('연락처(' + type + ') 저장 완료');
       } catch(e) { showToast('저장 오류: ' + e.message); }
     }
     function saveContact(phone, name, memo) {
@@ -3894,7 +3909,7 @@
       try { localStorage.setItem(SG_BLD_GROUPS_KEY, JSON.stringify(arr)); } catch(e) {}
     }
     var _sgBldGroups = sgLoadBldGroups();
-    var _sg1Select = null, _sg2Select = null;
+    var _sg1Select = null, _sg2Select = null, _sgBldItemsOpen = false;
 
     function sgRenderBldGroups() {
       // 1단계: 고유 prefix (하이픈 앞)
@@ -3914,6 +3929,13 @@
         btn.setAttribute('onclick','sgSelL1(' + JSON.stringify(p) + ')');
         L1el.appendChild(btn);
       });
+      // +개별선택 버튼
+      var expBtn = document.createElement('button');
+      expBtn.className = 'bld-expand-btn';
+      expBtn.id = 'sgBldItemsExpandBtn';
+      expBtn.textContent = _sgBldItemsOpen ? '닫기' : '＋ 개별선택';
+      expBtn.onclick = function(){ sgToggleBldItems(); };
+      L1el.appendChild(expBtn);
       // 2단계
       var L2el = document.getElementById('sg-bld-L2');
       if (!L2el) return;
@@ -3938,8 +3960,8 @@
     function sgRenderBldItems() {
       var itemsEl = document.getElementById('sg-bld-items');
       if (!itemsEl) return;
-      // 그룹 미선택 시 개별 건물 버튼 숨김
-      if (!_sg1Select && !_sg2Select) {
+      // 그룹 미선택 + 개별선택 미열림 시 숨김
+      if (!_sg1Select && !_sg2Select && !_sgBldItemsOpen) {
         itemsEl.innerHTML = '';
         itemsEl.style.display = 'none';
         return;
@@ -3953,6 +3975,15 @@
       } else if (_sg1Select) {
         _sgBldGroups.filter(function(g){ return g.key.split('-')[0] === _sg1Select; })
           .forEach(function(g){ g.buildings.forEach(function(b){ if (visibleBlds.indexOf(b)===-1) visibleBlds.push(b); }); });
+      } else {
+        // 개별선택 확장: 전체 건물 표시
+        var allDefined = [];
+        _sgBldGroups.forEach(function(g){ g.buildings.forEach(function(b){ if (allDefined.indexOf(b)===-1) allDefined.push(b); }); });
+        var fromData = [];
+        _sgRaw.forEach(function(r){ if (r['건물명'] && fromData.indexOf(r['건물명'])===-1) fromData.push(r['건물명']); });
+        visibleBlds = allDefined.slice();
+        fromData.forEach(function(b){ if (visibleBlds.indexOf(b)===-1) visibleBlds.push(b); });
+        visibleBlds.sort();
       }
       itemsEl.innerHTML = '';
       visibleBlds.forEach(function(b){
@@ -3963,6 +3994,12 @@
         itemsEl.appendChild(btn);
       });
     }
+    function sgToggleBldItems() {
+      _sgBldItemsOpen = !_sgBldItemsOpen;
+      if (!_sgBldItemsOpen) _sgBlds.clear();
+      sgRenderBldGroups(); sgApplyAll();
+    }
+
     function sgSelL1(p) {
       _sg1Select = p; _sg2Select = null;
       if (p === null) { _sgBlds.clear(); }
@@ -4197,12 +4234,14 @@
       var ph = xph([(r['소유자']||''), (r['임차인']||'')].join(' '));
       var h = '';
       if (ph.length) {
-        var sgCtTypes = {}; try { sgCtTypes = JSON.parse(r['연락처종류'] || '{}'); } catch(e2) {}
+        var SG_CT_TYPES = ['메인','주인','현세입자','신규세입자','매수자'];
         h = '<div class="detail-phones">' + ph.map(function(p) {
-          var curType = sgCtTypes[p] || '';
-          var opts = ['','메인','주인','현세입자','신규세입자','매수자'].map(function(t){ return '<option value="'+t+'"'+(curType===t?' selected':'')+'>'+(t||'유형선택')+'</option>'; }).join('');
+          var curType = '';
+          SG_CT_TYPES.forEach(function(t){ if ((r['연락처('+t+')']||'') === p) curType = t; });
+          var opts = [''].concat(SG_CT_TYPES).map(function(t){ return '<option value="'+t+'"'+(curType===t?' selected':'')+'>'+(t||'유형선택')+'</option>'; }).join('');
           return '<a class="phone-link" href="tel:' + p + '">📞 ' + fph(p) + '</a>' +
-            '<select class="ct-type-sel" onchange="savePhoneType('+idx+',\''+p+'\',this.value,\'sg\')">'+opts+'</select>';
+            '<select class="ct-type-sel">'+opts+'</select>' +
+            '<button class="ct-save-btn" onclick="savePhoneType('+idx+',\''+p+'\',this.previousElementSibling.value,\'sg\')">💾</button>';
         }).join('') + '</div>';
       }
 
@@ -4444,7 +4483,7 @@
     function sgResetAll() {
       _sgTypes.clear(); _sgBlds.clear(); _sgSearch = '';
       _sgProcs.clear(); _sgSizeMin = null; _sgSizeMax = null;
-      _sg1Select = null; _sg2Select = null;
+      _sg1Select = null; _sg2Select = null; _sgBldItemsOpen = false;
       var si = document.getElementById('sg-SI2'); if (si) si.value = '';
       var szMin = document.getElementById('sg-size-min'); if (szMin) szMin.value = '';
       var szMax = document.getElementById('sg-size-max'); if (szMax) szMax.value = '';
