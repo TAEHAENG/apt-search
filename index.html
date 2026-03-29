@@ -1217,7 +1217,7 @@
     }
 
     .view-toggle-btn {
-      padding: 5px 11px;
+      padding: 5px 10px;
       font-size: 12px;
       font-weight: 600;
       color: #94a3b8;
@@ -1901,11 +1901,10 @@
 
   <!-- 헤더 -->
   <header>
-    <h1>🏢 아이파크 부동산 검색기</h1>
     <div class="view-toggle">
-      <button class="view-toggle-btn active" id="vbtn-search" onclick="switchView('search')">🔍 APT 매물</button>
-      <button class="view-toggle-btn" id="vbtn-sangga" onclick="switchView('sangga')">🏪 상가 매물</button>
-      <button class="view-toggle-btn" id="vbtn-buyer" onclick="switchView('buyer')">👤 구입자</button>
+      <button class="view-toggle-btn active" id="vbtn-search" onclick="switchView('search')">APT 매물</button>
+      <button class="view-toggle-btn" id="vbtn-sangga" onclick="switchView('sangga')">상가 매물</button>
+      <button class="view-toggle-btn" id="vbtn-buyer" onclick="switchView('buyer')">구입자</button>
     </div>
     <div class="header-right">
       <!-- APT 전용 버튼 -->
@@ -3470,7 +3469,7 @@
       if (!rowIndex) { showToast('행 정보 없음'); return; }
       var colName = '연락처(' + type + ')'; // 예: 연락처(주인)
       var vals = {};
-      vals[colName] = phone;
+      vals[colName] = fph(phone); // 하이픈 포함 형식으로 저장 (숫자 변환 방지)
       try {
         var res = await fetch(asUrl, { method: 'POST', headers: {'Content-Type':'text/plain'},
           body: safeStringify({ action: action, rowIndex: rowIndex, values: vals }) });
