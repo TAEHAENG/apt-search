@@ -2002,8 +2002,8 @@
       <div class="filter-row-label">③ 프로세스</div>
       <div class="btn-group">
         <button class="sel-btn proc-all" id="proc-all" onclick="selProc('A')">전체</button>
-        <button class="sel-btn proc-propose" id="proc-propose" onclick="selProc('P')">제안가능</button>
-        <button class="sel-btn proc-latent" id="proc-latent" onclick="selProc('L')">잠재매물</button>
+        <button class="sel-btn proc-propose" id="proc-propose" onclick="selProc('P')">제안가능s</button>
+        <button class="sel-btn proc-latent" id="proc-latent" onclick="selProc('L')">잠재매물s</button>
         <button class="bld-expand-btn" id="procExpandBtn" onclick="toggleProcExpand()">＋ 항목별 선택</button>
       </div>
       <div class="bld-extra" id="procExtra">
@@ -2664,10 +2664,29 @@
       applyAll();
     }
     function selProc(p) {
-      fProcs.clear(); document.querySelectorAll('.sel-btn.proc-item').forEach(function (b) { b.classList.remove('active'); });
-      fP = (fP === p) ? null : p;
+      fProcs.clear();
+      document.querySelectorAll('.sel-btn.proc-item').forEach(function (b) { b.classList.remove('active'); });
       document.querySelectorAll('.sel-btn[id^="proc-"]').forEach(function (b) { b.classList.remove('active'); });
-      if (fP) { var m = { 'P': 'proc-propose', 'L': 'proc-latent', 'A': 'proc-all' }; document.getElementById(m[fP]).classList.add('active'); }
+      fP = (fP === p) ? null : p;
+      if (fP === 'A') {
+        document.getElementById('proc-all').classList.add('active');
+      } else if (fP === 'P' || fP === 'L') {
+        var m = { 'P': 'proc-propose', 'L': 'proc-latent' };
+        document.getElementById(m[fP]).classList.add('active');
+        // procExtra 확장
+        var ex = document.getElementById('procExtra'), btn = document.getElementById('procExpandBtn');
+        if (ex && !ex.classList.contains('open')) { ex.classList.add('open'); if (btn) btn.textContent = '－ 접기'; }
+        // 개별 버튼 선택: P=PP 항목, L=PP 제외 나머지
+        document.querySelectorAll('.sel-btn.proc-item').forEach(function (b) {
+          var val = b.getAttribute('onclick').match(/'([^']+)'/)[1];
+          var isPP = PP.indexOf(val) !== -1;
+          if ((fP === 'P' && isPP) || (fP === 'L' && !isPP)) {
+            b.classList.add('active');
+            fProcs.add(val);
+          }
+        });
+        fP = null; // fProcs로 필터링하므로 fP 해제
+      }
       applyAll();
     }
     function selProcItem(val, btn) {
@@ -4377,10 +4396,11 @@
         var res = await fetch(SG_ASURL, { method: 'POST', headers: {'Content-Type':'text/plain'}, body: safeStringify({ action: 'updateSangga', rowIndex: r['__row__'], values: vals }) });
         var j = await res.json();
         if (!j.success) throw new Error(j.message || '저장 실패');
-        // 로컬 데이터 업데이트
-        Object.keys(vals).forEach(function(k){ if (vals[k] !== '') r[k] = vals[k]; });
+        // 로컬 데이터 업데이트 (빈값 포함 전부 반영)
+        Object.keys(vals).forEach(function(k){ r[k] = vals[k]; });
         showToast('상가 매물 저장 완료');
         sgCancelEdit();
+        sgRender();
         sgDet(_sgCurIdx);
       } catch(e) { showToast('저장 오류: ' + e.message); }
       finally { if (btn) { btn.disabled = false; btn.textContent = '💾 저장'; } }
