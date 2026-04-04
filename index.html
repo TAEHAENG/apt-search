@@ -2523,7 +2523,7 @@
     var SSID = '1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw';
     var AKEY = 'AIzaSyD5YiNNP1d9cmnehlSLDViEOBdjZhealMw';
     var SGID = '505657259';
-    var ASURL = 'https://script.google.com/macros/s/AKfycbw96CvTsSiXg8Bsd3qysT4BoIx7cIKp7HIgk5DADpRx6q8UCfar6LzNEI4bchH-WXqkJA/exec';
+    var ASURL = 'https://script.google.com/macros/s/AKfycbyH6ClgoVcUNE5fEKO0XKWqGjq68Tne5c1Pq1Ij5dHZ74hZO1q6MFcPC301mh-3dFWfaA/exec';
     var TM = { "매매": ["매매", "매전세", "매월세", "매전월"], "전세": ["전세", "매전세", "전월세", "매전월"], "월세": ["월세", "매월세", "전월세", "매전월"] };
     var B6 = ["아이", "아이2", "더샵", "힐스", "중푸", "송푸"];
     var B6_SET = new Set(B6);
@@ -3026,11 +3026,18 @@
     window.addEventListener('scroll', function () {
       if (window.innerWidth >= 900) return;
       var sb = document.documentElement.scrollHeight - window.scrollY - window.innerHeight;
+      // APT 카드 무한스크롤
       if (sb < 300 && SCROLL_END < FD.length) {
         SCROLL_END = Math.min(SCROLL_END + 30, FD.length);
         var cards = '';
         FD.slice(0, SCROLL_END).forEach(function (r, i) { cards += makeCard(r, i); });
         document.getElementById('CL').innerHTML = cards;
+      }
+      // 상가 카드 무한스크롤
+      if (sb < 300 && SG_SCROLL_END < _sgFD.length) {
+        SG_SCROLL_END = Math.min(SG_SCROLL_END + 30, _sgFD.length);
+        var cl = document.getElementById('sg-CL');
+        if (cl) cl.innerHTML = _sgFD.slice(0, SG_SCROLL_END).map(function(r, i){ return sgMakeCard(r, i); }).join('');
       }
     });
 
@@ -3393,7 +3400,7 @@
     // ══════════ 열 너비 조정 (localStorage 저장/복원) ══════════
     // 슬롯 키: col_w_apt_s1, col_w_apt_s2, col_w_buyer_s1, col_w_buyer_s2
     var _colResizeModeOn = false;
-    var _rTh = null, _rStartX = 0, _rStartW = 0, _rTableKey = '';
+    var _rTh = null, _rStartX = 0, _rStartW = 0, _rTableKey = '', _rLastX = 0;
 
     function _slotKey(tableType, slot) {
       return 'col_w_' + tableType + '_s' + slot;
@@ -3482,16 +3489,24 @@
       tbl.querySelectorAll('.col-resize-handle').forEach(function(h) { h.remove(); });
     }
 
+    var _rafPending = false;
     function onColResizeMove(e) {
       if (!_rTh) return;
-      var newW = Math.max(28, _rStartW + (e.clientX - _rStartX));
-      _rTh.style.width = newW + 'px';
-      var tbl = document.getElementById(_rTableKey);
-      if (tbl) {
-        var totalW = 0;
-        tbl.querySelectorAll('thead th').forEach(function(th) { totalW += parseInt(th.style.width) || 0; });
-        if (totalW > 0) tbl.style.width = totalW + 'px';
-      }
+      _rLastX = e.clientX;
+      if (_rafPending) return;
+      _rafPending = true;
+      requestAnimationFrame(function() {
+        _rafPending = false;
+        if (!_rTh) return;
+        var newW = Math.max(28, _rStartW + (_rLastX - _rStartX));
+        _rTh.style.width = newW + 'px';
+        var tbl = document.getElementById(_rTableKey);
+        if (tbl) {
+          var totalW = 0;
+          tbl.querySelectorAll('thead th').forEach(function(th) { totalW += parseInt(th.style.width) || 0; });
+          if (totalW > 0) tbl.style.width = totalW + 'px';
+        }
+      });
     }
 
     function onColResizeEnd() {
@@ -3942,7 +3957,7 @@
     var SG_SSID = '19KWBXPiK-qXycopkNRHNMddmux2cKohtm7fLLyfiZGw';
     var SG_SHEET_NAME = '상가DB';
     // 상가매물장 Apps Script URL (배포 후 아래에 입력)
-    var SG_ASURL = 'https://script.google.com/macros/s/AKfycbwm3WbajD7Av7XmwSR4YrbqZItCW3QBzVbojn-jT1qU0BOVdVDDrbPrL33rx3tWVAw/exec';
+    var SG_ASURL = 'https://script.google.com/macros/s/AKfycbzLaa_931P85-gWVPyACyB77AdSvezmHfrkxo65Sl6E_ruvNESoew6xjX2elesYFk3h/exec';
 
     // ── 상가 상태 ─────────────────────────────────────
     var _sgRaw = [], _sgFD = [];
@@ -4249,10 +4264,12 @@
         });
       }
       _sgFD.sort(function(a, b) { return ((a[_sgSC]||'')).localeCompare((b[_sgSC]||''), 'ko') * _sgSD; });
+      SG_PAGE = 1; SG_SCROLL_END = 30;
       sgRender();
     }
 
     var _sgSC = '실행일', _sgSD = -1;
+    var SG_PAGE = 1, SG_PER = 200, SG_SCROLL_END = 30;
     function sgSrt(col, th) {
       if (_sgSC === col) _sgSD *= -1; else { _sgSC = col; _sgSD = 1; }
       document.querySelectorAll('#sg-main-table thead th').forEach(function(t) { t.classList.remove('sorted'); });
@@ -4263,20 +4280,46 @@
     function sgRender() {
       var cl = document.getElementById('sg-CL');
       var tb = document.getElementById('sg-TB');
-      document.getElementById('sg-RC').textContent = _sgFD.length + '건';
+      var rc = document.getElementById('sg-RC');
+      if (rc) rc.textContent = _sgFD.length + '건';
       if (!_sgFD.length) {
         if (cl) cl.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text3);">매물이 없습니다</div>';
         if (tb) tb.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:30px;color:var(--text3);">매물이 없습니다</td></tr>';
+        var pg = document.getElementById('sg-PAGER'); if (pg) pg.innerHTML = '';
         return;
       }
-      if (cl) cl.innerHTML = _sgFD.map(function(r, i){ return sgMakeCard(r, i); }).join('');
-      if (tb) tb.innerHTML = _sgFD.map(function(r, i){ return sgMakeRow(r, i); }).join('');
+      // 카드: 모바일 무한스크롤
+      if (cl) cl.innerHTML = _sgFD.slice(0, SG_SCROLL_END).map(function(r, i){ return sgMakeCard(r, i); }).join('');
+      // 테이블: 200행 페이지네이션
+      var st = (SG_PAGE - 1) * SG_PER, slice = _sgFD.slice(st, st + SG_PER);
+      if (tb) tb.innerHTML = slice.map(function(r, i){ return sgMakeRow(r, st + i); }).join('');
+      sgRenderPager();
       // search event
       var si = document.getElementById('sg-SI2');
       if (si && !si._sgBound) {
         si._sgBound = true;
-        si.addEventListener('input', function(){ _sgSearch = this.value.trim(); sgApplyAll(); });
+        si.addEventListener('input', function(){ _sgSearch = this.value.trim(); SG_PAGE = 1; sgApplyAll(); });
       }
+    }
+    function sgRenderPager() {
+      var tot = Math.ceil(_sgFD.length / SG_PER);
+      var el = document.getElementById('sg-PAGER');
+      if (!el || tot <= 1) { if (el) el.innerHTML = ''; return; }
+      var h = '<div style="display:flex;align-items:center;justify-content:center;gap:4px;padding:10px;">';
+      h += '<button onclick="sgGoPage(' + (SG_PAGE-1) + ')" ' + (SG_PAGE===1?'disabled':'') + ' style="padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">◀</button>';
+      var s = Math.max(1, SG_PAGE-2), en = Math.min(tot, s+4); if (en-s<4) s=Math.max(1,en-4);
+      if (s>1) h+='<button onclick="sgGoPage(1)" style="padding:5px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">1</button><span style="color:var(--text3);padding:0 2px;">…</span>';
+      for(var i=s;i<=en;i++) h+='<button onclick="sgGoPage('+i+')" style="padding:5px 9px;background:'+(i===SG_PAGE?'var(--accent)':'var(--surface2)')+';border:1px solid '+(i===SG_PAGE?'var(--accent)':'var(--border)')+';border-radius:5px;color:'+(i===SG_PAGE?'#fff':'var(--text2)')+';cursor:pointer;">'+i+'</button>';
+      if(en<tot) h+='<span style="color:var(--text3);padding:0 2px;">…</span><button onclick="sgGoPage('+tot+')" style="padding:5px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">'+tot+'</button>';
+      h += '<button onclick="sgGoPage(' + (SG_PAGE+1) + ')" ' + (SG_PAGE===tot?'disabled':'') + ' style="padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">▶</button>';
+      h += '<span style="font-size:11px;color:var(--text3);margin-left:4px;">'+SG_PAGE+'/'+tot+'p ('+_sgFD.length+'건)</span></div>';
+      el.innerHTML = h;
+    }
+    function sgGoPage(p) {
+      var tot = Math.ceil(_sgFD.length / SG_PER);
+      if (p < 1 || p > tot) return;
+      SG_PAGE = p; sgRender();
+      var tw = document.querySelector('.sg-table-wrap'); if (tw) tw.scrollTop = 0;
     }
 
     function sgMakeRow(r, i) {
@@ -5463,6 +5506,7 @@
         <tbody id="sg-TB"></tbody>
       </table>
     </div>
+    <div id="sg-PAGER"></div>
 
     <!-- 상가 상세 오버레이 -->
     <div class="detail-overlay" id="SGDO" onclick="if(event.target===this)sgCloseDet()">
