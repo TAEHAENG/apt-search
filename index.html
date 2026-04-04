@@ -3130,8 +3130,15 @@
       var controller = new AbortController();
       var timeoutId = setTimeout(function() {
         controller.abort();
-        if (btn) { btn.disabled = false; btn.textContent = '🔍 안전검사'; btn.style.background = ''; btn.style.borderColor = ''; btn.style.color = '#fbbf24'; }
-        showToast('⏱ 응답 시간 초과\n검사는 완료됐을 수 있습니다\n→ 비교결과 시트를 직접 확인하세요');
+        var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent('비교결과') + '?key=' + AKEY;
+        fetch(apiUrl).then(function(r){ return r.json(); }).then(function(j){
+          var count = (j.values && j.values.length > 1) ? j.values.length - 1 : 0;
+          if (btn) { btn.disabled = false; btn.style.background = count > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.borderColor = count > 0 ? 'rgba(239,68,68,0.5)' : 'rgba(52,211,153,0.4)'; btn.style.color = count > 0 ? '#f87171' : '#34d399'; btn.textContent = count > 0 ? '⚠️ ' + count + '건 변경' : '✅ 정상'; }
+          showToast(count > 0 ? '⚠️ 안전검사: ' + count + '건 변경 감지\n→ 비교결과 시트 확인' : '✅ 안전검사: 기준점과 차이 없음');
+        }).catch(function(){
+          if (btn) { btn.disabled = false; btn.textContent = '🔍 안전검사'; btn.style.background = ''; btn.style.borderColor = ''; btn.style.color = '#fbbf24'; }
+          showToast('⏱ 응답 시간 초과\n→ 비교결과 시트를 직접 확인하세요');
+        });
       }, 5 * 60 * 1000); // 5분
       try {
         var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'compare' }), signal: controller.signal });
@@ -3171,8 +3178,15 @@
       var controller = new AbortController();
       var timeoutId = setTimeout(function() {
         controller.abort();
-        if (btn) { btn.disabled = false; btn.textContent = '🔍 상가안전검사'; btn.style.background = ''; btn.style.borderColor = ''; btn.style.color = '#fbbf24'; }
-        showToast('⏱ 응답 시간 초과\n검사는 완료됐을 수 있습니다\n→ 비교결과-상가 시트를 직접 확인하세요');
+        var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SG_SSID + '/values/' + encodeURIComponent('비교결과-상가') + '?key=' + AKEY;
+        fetch(apiUrl).then(function(r){ return r.json(); }).then(function(j){
+          var count = (j.values && j.values.length > 1) ? j.values.length - 1 : 0;
+          if (btn) { btn.disabled = false; btn.style.background = count > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.borderColor = count > 0 ? 'rgba(239,68,68,0.5)' : 'rgba(52,211,153,0.4)'; btn.style.color = count > 0 ? '#f87171' : '#34d399'; btn.textContent = count > 0 ? '⚠️ ' + count + '건 변경' : '✅ 정상'; }
+          showToast(count > 0 ? '⚠️ 상가 안전검사: ' + count + '건 변경 감지\n→ 비교결과-상가 시트 확인' : '✅ 상가 안전검사: 기준점과 차이 없음');
+        }).catch(function(){
+          if (btn) { btn.disabled = false; btn.textContent = '🔍 상가안전검사'; btn.style.background = ''; btn.style.borderColor = ''; btn.style.color = '#fbbf24'; }
+          showToast('⏱ 응답 시간 초과\n→ 비교결과-상가 시트를 직접 확인하세요');
+        });
       }, 5 * 60 * 1000);
       try {
         var res = await fetch(SG_ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' },
@@ -3218,8 +3232,15 @@
       var controller = new AbortController();
       var timeoutId = setTimeout(function() {
         controller.abort();
-        if (btn) { btn.disabled = false; btn.textContent = '🔍 구입자안전검사'; btn.style.background = ''; btn.style.borderColor = ''; btn.style.color = '#fbbf24'; }
-        showToast('⏱ 응답 시간 초과\n검사는 완료됐을 수 있습니다\n→ 비교결과-구입자 시트를 직접 확인하세요');
+        var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent('비교결과-구입자') + '?key=' + AKEY;
+        fetch(apiUrl).then(function(r){ return r.json(); }).then(function(j){
+          var count = (j.values && j.values.length > 1) ? j.values.length - 1 : 0;
+          if (btn) { btn.disabled = false; btn.style.background = count > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.borderColor = count > 0 ? 'rgba(239,68,68,0.5)' : 'rgba(52,211,153,0.4)'; btn.style.color = count > 0 ? '#f87171' : '#34d399'; btn.textContent = count > 0 ? '⚠️ ' + count + '건 변경' : '✅ 정상'; }
+          showToast(count > 0 ? '⚠️ 구입자 안전검사: ' + count + '건 변경 감지\n→ 비교결과-구입자 시트 확인' : '✅ 구입자 안전검사: 기준점과 차이 없음');
+        }).catch(function(){
+          if (btn) { btn.disabled = false; btn.textContent = '🔍 구입자안전검사'; btn.style.background = ''; btn.style.borderColor = ''; btn.style.color = '#fbbf24'; }
+          showToast('⏱ 응답 시간 초과\n→ 비교결과-구입자 시트를 직접 확인하세요');
+        });
       }, 5 * 60 * 1000);
       try {
         var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' },
@@ -3951,8 +3972,18 @@
       document.getElementById('vbtn-sangga').classList.toggle('active', isSangga);
       document.getElementById('vbtn-buyer').classList.toggle('active', isBuyer);
 
-      // 상가 탭 최초 진입 시 데이터 자동 로드
-      if (isSangga && !_sgRaw.length) sgSyncSheets();
+      // 상가 탭 최초 진입 시 데이터 자동 로드 (캐시 있으면 즉시 표시 후 백그라운드 동기화)
+      if (isSangga && !_sgRaw.length) {
+        var sgCached = sgLoadCache();
+        if (sgCached.length > 0) {
+          sgInitData(sgCached);
+          var sgCacheTime = localStorage.getItem('sangga_cache_time_v1');
+          if (sgCacheTime) { var sgAge = Math.round((Date.now() - parseInt(sgCacheTime)) / 60000); document.getElementById('sg-LS').textContent = '캐시 ' + (sgAge < 60 ? sgAge + '분' : Math.round(sgAge/60) + '시간') + ' 전'; }
+          sgSyncSheets(true); // 백그라운드 동기화
+        } else {
+          sgSyncSheets();
+        }
+      }
       // 구입자 뷰 전환 시 데이터 자동 로드 (처음 한 번만)
       if (isBuyer && !_dbList.length) {
         loadBuyerDb().then(function() { renderBuyerClassify(); });
@@ -3993,15 +4024,15 @@
     var SG_CACHE_KEY = 'sangga_cache_v1';
 
     // ── 상가 캐시 ─────────────────────────────────────
-    function sgSaveCache(d) { try { localStorage.setItem(SG_CACHE_KEY, JSON.stringify(d)); } catch(e){} }
+    function sgSaveCache(d) { try { localStorage.setItem(SG_CACHE_KEY, JSON.stringify(d)); localStorage.setItem('sangga_cache_time_v1', Date.now().toString()); } catch(e){} }
     function sgLoadCache() { try { var d = JSON.parse(localStorage.getItem(SG_CACHE_KEY)||'null'); return Array.isArray(d) ? d : []; } catch(e){ return []; } }
 
     // ── 상가 동기화 ───────────────────────────────────
-    async function sgSyncSheets() {
+    async function sgSyncSheets(silent) {
       var sb = document.getElementById('SB'), si = document.getElementById('SI');
       var lo = document.getElementById('LO'), lt = document.getElementById('LT');
       sb.classList.add('loading'); si.textContent = '↻'; si.className = 'spin';
-      lo.classList.add('show'); lt.textContent = '상가DB 로드 중...';
+      if (!silent) { lo.classList.add('show'); lt.textContent = '상가DB 로드 중...'; }
       try {
         var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SG_SSID + '/values/' + encodeURIComponent(SG_SHEET_NAME) + '?key=' + AKEY;
         var resp = await fetch(url);
@@ -4017,12 +4048,13 @@
         sgInitData(nd);
         document.getElementById('sg-LS').textContent = '✓ ' + new Date().toLocaleTimeString('ko-KR');
       } catch(e) {
-        // 캐시 있으면 캐시 사용
-        var cached = sgLoadCache();
-        if (cached.length) { sgInitData(cached); showToast('상가 오프라인 모드 (캐시 사용)'); }
-        else { document.getElementById('sg-RC').textContent = '동기화 실패: ' + e.message; }
+        if (!silent) {
+          var cached = sgLoadCache();
+          if (cached.length) { sgInitData(cached); showToast('상가 오프라인 모드 (캐시 사용)'); }
+          else { document.getElementById('sg-RC').textContent = '동기화 실패: ' + e.message; }
+        } else { console.warn('상가 백그라운드 동기화 실패:', e.message); }
       } finally {
-        lo.classList.remove('show'); sb.classList.remove('loading'); si.textContent = '🔄'; si.className = '';
+        if (!silent) lo.classList.remove('show'); sb.classList.remove('loading'); si.textContent = '🔄'; si.className = '';
       }
     }
 
@@ -4730,17 +4762,17 @@
       }
     }
     var _dbList = [], _dbListFiltered = [];
-    async function loadBuyerDb() {
+    async function loadBuyerDb(silent) {
       var tbody = document.getElementById('db-tbody');
       if (!tbody) return;
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text3);">불러오는 중...</td></tr>';
+      if (!silent) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text3);">불러오는 중...</td></tr>';
       try {
         var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent(BUYER_SHEET) + '?key=' + AKEY;
         var res = await fetch(url); var json = await res.json();
         if (json.error) throw new Error(json.error.message);
         if (!json.values || json.values.length < 2) {
-          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text3);">등록된 상담 기록이 없습니다</td></tr>';
-          document.getElementById('db-count').textContent = '0건'; return;
+          if (!silent) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text3);">등록된 상담 기록이 없습니다</td></tr>'; document.getElementById('db-count').textContent = '0건'; }
+          return;
         }
         var headers = json.values[0].map(function(h) { return h.trim(); });
         _dbList = json.values.slice(1).map(function(row, i) {
@@ -4756,8 +4788,7 @@
         // _buyerListFiltered도 동기화 (분류탭에서 openBuyerDet 호출 시 참조)
         if (!_buyerListFiltered.length) _buyerListFiltered = _dbList.slice();
       } catch (e) {
-        var tbody2 = document.getElementById('db-tbody');
-        if (tbody2) tbody2.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:#b91c1c;">불러오기 실패: ' + esc(e.message) + '</td></tr>';
+        if (!silent) { var tbody2 = document.getElementById('db-tbody'); if (tbody2) tbody2.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:#b91c1c;">불러오기 실패: ' + esc(e.message) + '</td></tr>'; }
       }
     }
     var _dbSC = '기입일', _dbSD = -1;
@@ -4937,8 +4968,8 @@
           ['b-type', 'b-status', 'b-proptype', 'b-selfuse'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
           buyerClearListings();
           toggleDbForm(); // 폼 닫기
-          // Google Sheets API 캐시 반영 대기 후 전체 새로고침 (행 번호 정확히 동기화)
-          setTimeout(function() { loadBuyerDb(); }, 2500);
+          // 백그라운드 조용한 리싱크 (행 번호 동기화, UI 깜빡임 없음)
+          setTimeout(function() { loadBuyerDb(true); }, 1500);
         } else { showToast('❌ 저장 실패: ' + (json.message || '')); }
       } catch (e) { showToast('❌ 오류: ' + e.message); }
       finally { btn.textContent = '💾 구글 시트에 저장'; btn.disabled = false; }
