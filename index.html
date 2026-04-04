@@ -3127,8 +3127,15 @@
     async function runSafetyCheck(silent) {
       var btn = document.getElementById('safetyCheckBtn');
       if (btn) { btn.textContent = '⏳ 검사 중...'; btn.disabled = true; }
+      var controller = new AbortController();
+      var timeoutId = setTimeout(function() {
+        controller.abort();
+        if (btn) { btn.disabled = false; btn.textContent = '🔍 안전검사'; btn.style.background = ''; btn.style.borderColor = ''; btn.style.color = '#fbbf24'; }
+        showToast('⏱ 응답 시간 초과\n검사는 완료됐을 수 있습니다\n→ 비교결과 시트를 직접 확인하세요');
+      }, 5 * 60 * 1000); // 5분
       try {
-        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'compare' }) });
+        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'compare' }), signal: controller.signal });
+        clearTimeout(timeoutId);
         var json = JSON.parse(await res.text());
         if (!json.success) {
           if (!silent) showToast('⚠️ 안전검사 실패: ' + (json.message || ''));
@@ -3150,8 +3157,10 @@
         if (btn) btn.style.color = diffCount > 0 ? '#f87171' : '#34d399';
         if (btn) btn.textContent = diffCount > 0 ? '⚠️ ' + diffCount + '건 변경' : '✅ 정상';
       } catch (e) {
-        if (!silent) showToast('❌ 안전검사 오류: ' + e.message);
+        clearTimeout(timeoutId);
+        if (e.name !== 'AbortError' && !silent) showToast('❌ 안전검사 오류: ' + e.message);
       } finally {
+        clearTimeout(timeoutId);
         if (btn) btn.disabled = false;
       }
     }
@@ -3159,13 +3168,20 @@
     async function runSgSafetyCheck(silent) {
       var btn = document.getElementById('sgSafetyCheckBtn');
       if (btn) { btn.textContent = '⏳ 검사 중...'; btn.disabled = true; }
+      var controller = new AbortController();
+      var timeoutId = setTimeout(function() {
+        controller.abort();
+        if (btn) { btn.disabled = false; btn.textContent = '🔍 상가안전검사'; btn.style.background = ''; btn.style.borderColor = ''; btn.style.color = '#fbbf24'; }
+        showToast('⏱ 응답 시간 초과\n검사는 완료됐을 수 있습니다\n→ 비교결과-상가 시트를 직접 확인하세요');
+      }, 5 * 60 * 1000);
       try {
         var res = await fetch(SG_ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' },
           body: safeStringify({ action: 'compareSangga',
             baselineSheet: '상가DB_기준점20260328', resultSheet: '비교결과-상가',
             keyFields: ['건물명','측','동','호'],
             compareFields: ['전용(평)','소유자','상담 내용'],
-            phoneFields: ['소유자'], memoFirstLineOnly: true }) });
+            phoneFields: ['소유자'], memoFirstLineOnly: true }), signal: controller.signal });
+        clearTimeout(timeoutId);
         var json = JSON.parse(await res.text());
         if (!json.success) {
           if (!silent) showToast('⚠️ 상가 안전검사 실패: ' + (json.message || ''));
@@ -3188,8 +3204,10 @@
         if (btn) btn.style.color = diffCount > 0 ? '#f87171' : '#34d399';
         if (btn) btn.textContent = diffCount > 0 ? '⚠️ ' + diffCount + '건 변경' : '✅ 정상';
       } catch (e) {
-        if (!silent) showToast('❌ 상가 안전검사 오류: ' + e.message);
+        clearTimeout(timeoutId);
+        if (e.name !== 'AbortError' && !silent) showToast('❌ 상가 안전검사 오류: ' + e.message);
       } finally {
+        clearTimeout(timeoutId);
         if (btn) btn.disabled = false;
       }
     }
@@ -3197,12 +3215,19 @@
     async function runBuyerSafetyCheck(silent) {
       var btn = document.getElementById('buyerSafetyCheckBtn');
       if (btn) { btn.textContent = '⏳ 검사 중...'; btn.disabled = true; }
+      var controller = new AbortController();
+      var timeoutId = setTimeout(function() {
+        controller.abort();
+        if (btn) { btn.disabled = false; btn.textContent = '🔍 구입자안전검사'; btn.style.background = ''; btn.style.borderColor = ''; btn.style.color = '#fbbf24'; }
+        showToast('⏱ 응답 시간 초과\n검사는 완료됐을 수 있습니다\n→ 비교결과-구입자 시트를 직접 확인하세요');
+      }, 5 * 60 * 1000);
       try {
         var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' },
           body: safeStringify({ action: 'compareBuyer',
             baselineSheet: '구입자_기준점20260329', resultSheet: '비교결과-구입자',
             keyField: '고객명', phonePatternKey: true,
-            compareFields: ['상담 내용'], memoFirstLineOnly: true }) });
+            compareFields: ['상담 내용'], memoFirstLineOnly: true }), signal: controller.signal });
+        clearTimeout(timeoutId);
         var json = JSON.parse(await res.text());
         if (!json.success) {
           if (!silent) showToast('⚠️ 구입자 안전검사 실패: ' + (json.message || ''));
@@ -3222,8 +3247,10 @@
         if (btn) btn.style.color = diffCount > 0 ? '#f87171' : '#34d399';
         if (btn) btn.textContent = diffCount > 0 ? '⚠️ ' + diffCount + '건 변경' : '✅ 정상';
       } catch (e) {
-        if (!silent) showToast('❌ 구입자 안전검사 오류: ' + e.message);
+        clearTimeout(timeoutId);
+        if (e.name !== 'AbortError' && !silent) showToast('❌ 구입자 안전검사 오류: ' + e.message);
       } finally {
+        clearTimeout(timeoutId);
         if (btn) btn.disabled = false;
       }
     }
