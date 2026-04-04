@@ -620,6 +620,10 @@
       border: 1px solid rgba(148,163,184,0.35); background: rgba(148,163,184,0.1);
       color: #94a3b8; font-weight: 600;
     }
+    .col-hide-panel { display:none; flex-wrap:wrap; gap:3px 10px; padding:4px 0; }
+    .col-hide-panel.open { display:flex; }
+    .col-hide-panel label { font-size:11px; color:#94a3b8; cursor:pointer; display:flex; align-items:center; gap:3px; white-space:nowrap; }
+    .col-hide-panel label:hover { color:#cbd5e1; }
     .slot-btn:hover { background: rgba(148,163,184,0.2); }
     .slot-btn.slot-active { background: rgba(147,197,253,0.2); border-color: rgba(147,197,253,0.5); color: #93c5fd; }
     .slot-btn.slot-save { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.35); color: #34d399; }
@@ -1836,7 +1840,7 @@
         height: auto !important;
       }
       /* 테이블 인쇄 스타일 */
-      table { width: 100% !important; border-collapse: collapse !important; font-size: 9pt; }
+      table { width: 100% !important; border-collapse: collapse !important; table-layout: fixed !important; font-size: 9pt; }
       thead { display: table-header-group; } /* 페이지마다 헤더 반복 */
       thead th {
         position: static !important;
@@ -1935,6 +1939,10 @@
       <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',4)">💾 S4</button>
       <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',4)">⬆ S4</button>
     </div>
+    <div style="margin:3px 0 6px;">
+      <button class="slot-btn" style="font-size:11px;width:100%;text-align:left;" onclick="toggleColHidePanel('apt')">👁 열 표시/숨기기 ▾</button>
+      <div id="col-hide-panel-apt" class="col-hide-panel"></div>
+    </div>
     <div class="cwp-section">상가 매물</div>
     <div class="cwp-row" style="flex-wrap:wrap;gap:4px;">
       <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',1)">💾 S1</button>
@@ -1946,6 +1954,10 @@
       <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',4)">💾 S4</button>
       <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',4)">⬆ S4</button>
     </div>
+    <div style="margin:3px 0 6px;">
+      <button class="slot-btn" style="font-size:11px;width:100%;text-align:left;" onclick="toggleColHidePanel('sg')">👁 열 표시/숨기기 ▾</button>
+      <div id="col-hide-panel-sg" class="col-hide-panel"></div>
+    </div>
     <div class="cwp-section">구입자 DB</div>
     <div class="cwp-row" style="flex-wrap:wrap;gap:4px;">
       <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',1)">💾 S1</button>
@@ -1956,6 +1968,10 @@
       <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',3)">⬆ S3</button>
       <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',4)">💾 S4</button>
       <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',4)">⬆ S4</button>
+    </div>
+    <div style="margin:3px 0 6px;">
+      <button class="slot-btn" style="font-size:11px;width:100%;text-align:left;" onclick="toggleColHidePanel('buyer')">👁 열 표시/숨기기 ▾</button>
+      <div id="col-hide-panel-buyer" class="col-hide-panel"></div>
     </div>
     <div class="cwp-hint">드래그 조정 후 💾 저장 / 접속 기기 변경 시 ⬆ 불러오기</div>
 
@@ -2523,7 +2539,7 @@
     var SSID = '1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw';
     var AKEY = 'AIzaSyD5YiNNP1d9cmnehlSLDViEOBdjZhealMw';
     var SGID = '505657259';
-    var ASURL = 'https://script.google.com/macros/s/AKfycbyH6ClgoVcUNE5fEKO0XKWqGjq68Tne5c1Pq1Ij5dHZ74hZO1q6MFcPC301mh-3dFWfaA/exec';
+    var ASURL = 'https://script.google.com/macros/s/AKfycbyj1xuXmDLqucQmd8lMZ7MdVeK2Z6nQ5dbRI-CMo98FYzHlp6-suMQBbYK8w_Yz_fdS_w/exec';
     var TM = { "매매": ["매매", "매전세", "매월세", "매전월"], "전세": ["전세", "매전세", "전월세", "매전월"], "월세": ["월세", "매월세", "전월세", "매전월"] };
     var B6 = ["아이", "아이2", "더샵", "힐스", "중푸", "송푸"];
     var B6_SET = new Set(B6);
@@ -2577,6 +2593,7 @@
       FD.sort(function (a, b) { return ((b['실행일'] || '')).localeCompare((a['실행일'] || ''), 'ko'); });
       SCROLL_END = 50;
       render();
+      applyColHide('apt');
       document.getElementById('RC').innerHTML = '검색결과: <b>' + RAW.length.toLocaleString() + '</b>건';
       document.getElementById('LO').classList.remove('show');
       if (RAW.length === 0) {
@@ -3499,6 +3516,54 @@
       } catch(e) {}
     }
 
+    // ── 열 숨기기 ─────────────────────────────────────
+    var _COL_HIDE_TABLE = { apt: 'apt-main-table', sg: 'sg-main-table', buyer: 'buyer-main-table' };
+
+    function loadColHide(tableType) {
+      try { return new Set(JSON.parse(localStorage.getItem('col_hide_' + tableType) || '[]')); } catch(e) { return new Set(); }
+    }
+    function saveColHide(tableType, hidden) {
+      try { localStorage.setItem('col_hide_' + tableType, JSON.stringify(Array.from(hidden))); } catch(e) {}
+    }
+    function applyColHide(tableType) {
+      var tableId = _COL_HIDE_TABLE[tableType];
+      var hidden = loadColHide(tableType);
+      var styleId = 'col-hide-style-' + tableType;
+      var el = document.getElementById(styleId);
+      if (!el) { el = document.createElement('style'); el.id = styleId; document.head.appendChild(el); }
+      var css = '';
+      hidden.forEach(function(idx) {
+        css += '#' + tableId + ' thead th:nth-child(' + idx + '), #' + tableId + ' tbody td:nth-child(' + idx + ') { display: none !important; }\n';
+      });
+      el.textContent = css;
+    }
+    function toggleColHide(tableType, colIdx, visible) {
+      var hidden = loadColHide(tableType);
+      if (visible) hidden.delete(colIdx); else hidden.add(colIdx);
+      saveColHide(tableType, hidden);
+      applyColHide(tableType);
+    }
+    function toggleColHidePanel(tableType) {
+      var panel = document.getElementById('col-hide-panel-' + tableType);
+      if (!panel) return;
+      if (panel.classList.contains('open')) { panel.classList.remove('open'); return; }
+      var tableId = _COL_HIDE_TABLE[tableType];
+      var tbl = document.getElementById(tableId);
+      if (!tbl || tbl.offsetWidth === 0) { showToast('해당 탭에서 열어주세요'); return; }
+      var ths = tbl.querySelectorAll('thead th');
+      var hidden = loadColHide(tableType);
+      var html = '';
+      ths.forEach(function(th, i) {
+        var label = th.textContent.replace(/\s*↕\s*/g, '').trim();
+        if (!label) return; // 체크박스 열 건너뜀
+        var colIdx = i + 1;
+        var checked = !hidden.has(colIdx) ? 'checked' : '';
+        html += '<label><input type="checkbox" ' + checked + ' onchange="toggleColHide(\'' + tableType + '\',' + colIdx + ',this.checked)" style="width:12px;height:12px;accent-color:#1d4ed8;">' + esc(label) + '</label>';
+      });
+      panel.innerHTML = html;
+      panel.classList.add('open');
+    }
+
     // 리사이즈 핸들 추가 (숨겨진 테이블은 스킵 — offsetWidth=0이면 열너비 오염 방지)
     function addResizeHandles(tableId) {
       var tbl = document.getElementById(tableId);
@@ -3998,13 +4063,9 @@
     }
 
     // ══════════ 고객명 역순 표시 (전화번호를 뒤로) ══════════
-    // 저장형: "010-xxxx-xxxx홍길동 메모" → 표시형: "홍길동 메모 010-xxxx-xxxx"
+    // 입력값 그대로 표시 (재배치 없음)
     function fmtBuyerName(raw) {
-      if (!raw) return '-';
-      var phones = [];
-      var text = raw.replace(/0\d{1,2}-\d{3,4}-\d{4}/g, function(m) { phones.push(m); return ''; }).trim();
-      if (!phones.length) return raw;
-      return (text + ' ' + phones.join(' ')).trim();
+      return raw || '-';
     }
 
     // ══════════════════════════════════════════════════
@@ -4015,7 +4076,7 @@
     var SG_SSID = '19KWBXPiK-qXycopkNRHNMddmux2cKohtm7fLLyfiZGw';
     var SG_SHEET_NAME = '상가DB';
     // 상가매물장 Apps Script URL (배포 후 아래에 입력)
-    var SG_ASURL = 'https://script.google.com/macros/s/AKfycbzLaa_931P85-gWVPyACyB77AdSvezmHfrkxo65Sl6E_ruvNESoew6xjX2elesYFk3h/exec';
+    var SG_ASURL = 'https://script.google.com/macros/s/AKfycbzUCouvVx_0b_K1dHklD2NNzt7IYMVpcCwim3keQUXJwnZtZOdaXnCvFgiEh7oN6QTc/exec';
 
     // ── 상가 상태 ─────────────────────────────────────
     var _sgRaw = [], _sgFD = [];
@@ -4074,6 +4135,7 @@
       var moreEl = document.getElementById('sg-proc-more');
       if (moreEl) { moreEl._initialized = false; moreEl.innerHTML = ''; }
       sgApplyAll();
+      applyColHide('sg');
     }
 
     // ── 상가 건물 그룹 데이터 ──────────────────────────
@@ -4856,6 +4918,7 @@
           '<div class="buyer-db-card-date">' + esc(r['기입일'] || '') + '</div>' +
           '</div>';
       }).join('');
+      applyColHide('buyer');
     }
 
     // ══════════ 제안하기 흐름 ══════════
