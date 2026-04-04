@@ -1855,7 +1855,7 @@
         white-space: normal !important;
         font-size: 8pt;
       }
-      .cell-clamp { -webkit-line-clamp: unset !important; line-clamp: unset !important; display: block !important; overflow: visible !important; }
+      /* cell-clamp는 테이블뷰 높이 그대로 인쇄 — 해제하지 않음 */
       /* 링크/버튼 숨김 */
       button, a.hdr-btn { display: none !important; }
       /* 행 클릭 시각효과 제거 */
@@ -2903,6 +2903,11 @@
     }
     function fph(p) { if (p.length === 11) return p.slice(0, 3) + '-' + p.slice(3, 7) + '-' + p.slice(7); if (p.length === 10) return p.slice(0, 3) + '-' + p.slice(3, 6) + '-' + p.slice(6); return p; }
     function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    // 상담 내용 하단 N줄만 추출 (최신 내용 위주 노출)
+    function lastLines(text, n) {
+      var lines = (text || '').split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+      return lines.slice(-n).join('\n');
+    }
 
     // ── 만단위 한글 금액 표기 ─────────────────────────
     function manToKorean(n) {
@@ -2969,7 +2974,7 @@
         '<td class="col-typev2">' + esc(r['타입(전용)'] || '-') + '</td>' +
         '<td class="col-owner" style="font-weight:600;"><div class="cell-clamp">' + esc(fmtBuyerName(r['소유자'] || '') || '-') + '</div></td>' +
         '<td class="col-price" style="color:var(--accent);font-family:monospace;font-weight:700;">' + esc(r['가격'] || '-') + '</td>' +
-        '<td class="col-memo"><div class="cell-clamp">' + esc(r['상담 내용'] || '-') + '</div></td>' +
+        '<td class="col-memo"><div class="cell-clamp">' + esc(lastLines(r['상담 내용'], 3) || '-') + '</div></td>' +
         '<td class="col-expire">' + esc(r['만기일'] || '-') + '</td>' +
         '<td class="col-e" style="text-align:center">' + esc(r['에'] || '-') + '</td>' +
         '<td class="col-room" style="text-align:center">' + esc(r['방'] || '-') + '</td>' +
@@ -2983,16 +2988,38 @@
     }
 
     // ── 렌더 ──────────────────────────────────────────
+    var PAGE = 1, PER = 200;
     function render() {
       // 카드: 무한스크롤 (모바일)
       var cards = '';
       FD.slice(0, SCROLL_END).forEach(function (r, i) { cards += makeCard(r, i); });
       document.getElementById('CL').innerHTML = cards;
-      // 테이블: 전체 행 표시 (스크롤)
+      // 테이블: 200행 페이지네이션
+      var st = (PAGE - 1) * PER, pg = FD.slice(st, st + PER);
       var rows = '';
-      FD.forEach(function (r, i) { rows += makeRow(r, i); });
+      pg.forEach(function (r, i) { rows += makeRow(r, st + i); });
       document.getElementById('TB').innerHTML = rows;
-      var el = document.getElementById('PAGER'); if (el) el.innerHTML = '';
+      renderPager();
+    }
+    function renderPager() {
+      var tot = Math.ceil(FD.length / PER);
+      var el = document.getElementById('PAGER');
+      if (!el || tot <= 1) { if (el) el.innerHTML = ''; return; }
+      var h = '<div style="display:flex;align-items:center;justify-content:center;gap:4px;padding:10px;">';
+      h += '<button onclick="goPage(' + (PAGE-1) + ')" ' + (PAGE===1?'disabled':'') + ' style="padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">◀</button>';
+      var s = Math.max(1, PAGE-2), en = Math.min(tot, s+4); if (en-s<4) s=Math.max(1,en-4);
+      if (s>1) h+='<button onclick="goPage(1)" style="padding:5px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">1</button><span style="color:var(--text3);padding:0 2px;">…</span>';
+      for(var i=s;i<=en;i++) h+='<button onclick="goPage('+i+')" style="padding:5px 9px;background:'+(i===PAGE?'var(--accent)':'var(--surface2)')+';border:1px solid '+(i===PAGE?'var(--accent)':'var(--border)')+';border-radius:5px;color:'+(i===PAGE?'#fff':'var(--text2)')+';cursor:pointer;">'+i+'</button>';
+      if(en<tot) h+='<span style="color:var(--text3);padding:0 2px;">…</span><button onclick="goPage('+tot+')" style="padding:5px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">'+tot+'</button>';
+      h += '<button onclick="goPage(' + (PAGE+1) + ')" ' + (PAGE===tot?'disabled':'') + ' style="padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">▶</button>';
+      h += '<span style="font-size:11px;color:var(--text3);margin-left:4px;">'+PAGE+'/'+tot+'p (' + FD.length + '건)</span></div>';
+      el.innerHTML = h;
+    }
+    function goPage(p) {
+      var tot = Math.ceil(FD.length / PER);
+      if (p < 1 || p > tot) return;
+      PAGE = p; render();
+      document.querySelector('.table-wrap').scrollTop = 0;
     }
 
     // 무한스크롤
@@ -3347,7 +3374,8 @@
       var ca = document.getElementById('chk-all'); if (ca) ca.checked = false;
     }
     function toggleAllSelect(masterCb) {
-      FD.forEach(function (r, j) { if (masterCb.checked) _selected.add(j); else _selected.delete(j); });
+      var st = (PAGE - 1) * PER;
+      FD.slice(st, st + PER).forEach(function (r, j) { if (masterCb.checked) _selected.add(st + j); else _selected.delete(st + j); });
       document.querySelectorAll('#TB input[type=checkbox]').forEach(function (cb) { cb.checked = masterCb.checked; });
       updateSelectBar();
     }
@@ -4269,7 +4297,7 @@
         '<td class="td-wrap"><div class="cell-clamp">' + esc(ownerFmt) + '</div></td>' +
         '<td>' + esc(r['입주구분']||'-') + '</td>' +
         '<td>' + esc(r['프로세스']||'-') + '</td>' +
-        '<td class="td-wrap"><div class="cell-clamp">' + esc(r['상담 내용']||'-') + '</div></td>' +
+        '<td class="td-wrap"><div class="cell-clamp">' + esc(lastLines(r['상담 내용'], 3) || '-') + '</div></td>' +
         '</tr>';
     }
 
@@ -4689,8 +4717,8 @@
         return;
       }
       tbody.innerHTML = _dbListFiltered.map(function(r, i) {
-        var listing = (r['제안 매물'] || '').split('\n')[0] || '';
-        var memo = (r['상담 내용'] || '').split('\n')[0] || '';
+        var listing = lastLines(r['제안 매물'], 3) || '';
+        var memo = lastLines(r['상담 내용'], 3) || '';
         return '<tr onclick="openBuyerDet(' + i + ')">' +
           '<td>' + esc(r['기입일'] || '-') + '</td>' +
           '<td style="font-weight:600;">' + esc(fmtBuyerName(r['고객명(전화번호)'])) + '</td>' +
