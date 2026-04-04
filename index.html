@@ -1816,6 +1816,51 @@
     .sg-amount-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .sg-amount-wrap { display: flex; align-items: center; gap: 6px; }
     .sg-amount-hint { font-size: 12px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+
+    /* ── 인쇄 ─────────────────────────────────────── */
+    @media print {
+      @page { size: landscape; margin: 10mm; }
+      /* 인쇄 영역 외 모두 숨김 */
+      .pw-overlay, .loading-overlay, #colWidthPanel,
+      header, .filter-panel, .search-row, .filter-divider,
+      .result-bar, #CL, #PAGER, #ES,
+      .detail-overlay, #SGDO, .msg-overlay, #ADD_MODAL, #SGAM,
+      .sg-filter-panel, .sg-result-bar, #sg-CL,
+      .buyer-tabs, #btab-db > :not(.buyer-table-wrap),
+      .toast, .select-bar { display: none !important; }
+      /* 현재 탭의 테이블만 표시 */
+      .table-wrap, .sg-table-wrap, .buyer-table-wrap {
+        display: block !important;
+        overflow: visible !important;
+        max-height: none !important;
+        height: auto !important;
+      }
+      /* 테이블 인쇄 스타일 */
+      table { width: 100% !important; border-collapse: collapse !important; font-size: 9pt; }
+      thead { display: table-header-group; } /* 페이지마다 헤더 반복 */
+      thead th {
+        position: static !important;
+        background: #e2e8f0 !important;
+        color: #1e293b !important;
+        border: 1px solid #94a3b8 !important;
+        padding: 3px 5px !important;
+        font-size: 8pt;
+        cursor: default;
+      }
+      tbody td {
+        border: 1px solid #cbd5e1 !important;
+        padding: 3px 5px !important;
+        color: #1e293b !important;
+        background: #fff !important;
+        white-space: normal !important;
+        font-size: 8pt;
+      }
+      .cell-clamp { -webkit-line-clamp: unset !important; line-clamp: unset !important; display: block !important; overflow: visible !important; }
+      /* 링크/버튼 숨김 */
+      button, a.hdr-btn { display: none !important; }
+      /* 행 클릭 시각효과 제거 */
+      tr:hover td { background: #fff !important; }
+    }
   </style>
 </head>
 
@@ -1838,6 +1883,24 @@
       <label class="pw-auto" style="margin-top:6px;">
         <input type="checkbox" id="pwSave"> 암호저장
       </label>
+      <!-- 열너비 슬롯 선택 -->
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(148,163,184,0.25);">
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:8px;">↔ 열너비 설정 (기기별)</div>
+        <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+          <label id="slot-lbl-1" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1.5px solid rgba(148,163,184,0.3);background:rgba(148,163,184,0.08);font-size:11px;color:#94a3b8;">
+            <input type="radio" name="pwSlot" value="1" style="display:none;" onchange="updateSlotLabel()"> S1<span style="font-size:9px;color:#64748b;">와이드QHD</span>
+          </label>
+          <label id="slot-lbl-2" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1.5px solid rgba(148,163,184,0.3);background:rgba(148,163,184,0.08);font-size:11px;color:#94a3b8;">
+            <input type="radio" name="pwSlot" value="2" style="display:none;" onchange="updateSlotLabel()"> S2<span style="font-size:9px;color:#64748b;">FHD모니터</span>
+          </label>
+          <label id="slot-lbl-3" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1.5px solid rgba(148,163,184,0.3);background:rgba(148,163,184,0.08);font-size:11px;color:#94a3b8;">
+            <input type="radio" name="pwSlot" value="3" style="display:none;" onchange="updateSlotLabel()"> S3<span style="font-size:9px;color:#64748b;">태블릿13인치</span>
+          </label>
+          <label id="slot-lbl-4" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1.5px solid rgba(148,163,184,0.3);background:rgba(148,163,184,0.08);font-size:11px;color:#94a3b8;">
+            <input type="radio" name="pwSlot" value="4" style="display:none;" onchange="updateSlotLabel()"> S4<span style="font-size:9px;color:#64748b;">폴더블폰</span>
+          </label>
+        </div>
+      </div>
       <div class="pw-err" id="pwErr"></div>
     </div>
   </div>
@@ -1862,27 +1925,39 @@
       <button id="colResizeBtn" onclick="toggleColResizeMode()" style="font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid rgba(148,163,184,0.5);background:rgba(148,163,184,0.1);color:#94a3b8;font-weight:600;">↔ 드래그 조정 켜기</button>
     </div>
     <div class="cwp-section">APT 매물</div>
-    <div class="cwp-row">
-      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',1)">💾 S1 저장</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',1)">⬆ S1 불러오기</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',2)">💾 S2 저장</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',2)">⬆ S2 불러오기</button>
+    <div class="cwp-row" style="flex-wrap:wrap;gap:4px;">
+      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',1)">💾 S1</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',1)">⬆ S1</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',2)">💾 S2</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',2)">⬆ S2</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',3)">💾 S3</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',3)">⬆ S3</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',4)">💾 S4</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',4)">⬆ S4</button>
     </div>
     <div class="cwp-section">상가 매물</div>
-    <div class="cwp-row">
-      <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',1)">💾 S1 저장</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',1)">⬆ S1 불러오기</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',2)">💾 S2 저장</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',2)">⬆ S2 불러오기</button>
+    <div class="cwp-row" style="flex-wrap:wrap;gap:4px;">
+      <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',1)">💾 S1</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',1)">⬆ S1</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',2)">💾 S2</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',2)">⬆ S2</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',3)">💾 S3</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',3)">⬆ S3</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',4)">💾 S4</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',4)">⬆ S4</button>
     </div>
     <div class="cwp-section">구입자 DB</div>
-    <div class="cwp-row">
-      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',1)">💾 S1 저장</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',1)">⬆ S1 불러오기</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',2)">💾 S2 저장</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',2)">⬆ S2 불러오기</button>
+    <div class="cwp-row" style="flex-wrap:wrap;gap:4px;">
+      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',1)">💾 S1</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',1)">⬆ S1</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',2)">💾 S2</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',2)">⬆ S2</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',3)">💾 S3</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',3)">⬆ S3</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',4)">💾 S4</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',4)">⬆ S4</button>
     </div>
-    <div class="cwp-hint">드래그로 조정 후 💾 저장 / 모니터 변경 시 ⬆ 불러오기</div>
+    <div class="cwp-hint">드래그 조정 후 💾 저장 / 접속 기기 변경 시 ⬆ 불러오기</div>
 
     <!-- 보안 설정 -->
     <div class="cwp-section" style="margin-top:10px;padding-top:8px;border-top:1px solid #334155;">🔒 보안 설정</div>
@@ -1922,6 +1997,7 @@
       <button class="hdr-btn hdr-btn-add" id="hdr-sg-add" style="display:none;" onclick="sgOpenAddNew()">＋ 새 상가매물</button>
       <button class="hdr-btn" id="sgSafetyCheckBtn" style="display:none;background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24;" onclick="runSgSafetyCheck(false)">🔍 상가안전검사</button>
       <button class="hdr-btn" id="buyerSafetyCheckBtn" style="display:none;background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24;" onclick="runBuyerSafetyCheck(false)">🔍 구입자안전검사</button>
+      <button class="hdr-btn" onclick="window.print()" style="background:rgba(148,163,184,0.15);border:1.5px solid rgba(148,163,184,0.35);color:var(--text3);">🖨 인쇄</button>
       <button class="sync-btn" id="SB" onclick="syncSheets()"><span id="SI">🔄</span></button>
       <div class="total-badge">총 <span id="TC">-</span>건</div>
     </div>
@@ -2068,21 +2144,21 @@
           <th class="col-type" onclick="srt('유형',this)">유형 ↕</th>
           <th class="col-building" onclick="srt('건물명',this)">건물명 ↕</th>
           <th class="col-dong" onclick="srt('동',this)">동 ↕</th>
-          <th class="col-ho">호</th>
-          <th class="col-typev">타입(공용)</th>
-          <th class="col-typev2">타입(전용)</th>
-          <th class="col-owner">소유자</th>
+          <th class="col-ho" onclick="srt('호',this)">호 ↕</th>
+          <th class="col-typev" onclick="srt('타입(공용)',this)">타입(공용) ↕</th>
+          <th class="col-typev2" onclick="srt('타입(전용)',this)">타입(전용) ↕</th>
+          <th class="col-owner" onclick="srt('소유자',this)">소유자 ↕</th>
           <th class="col-price" onclick="srt('가격',this)">가격 ↕</th>
-          <th class="col-memo">상담 내용</th>
-          <th class="col-expire">만기일</th>
-          <th class="col-e">에</th>
-          <th class="col-room">방</th>
-          <th class="col-loan">융자</th>
-          <th class="col-adcycle">광고주기</th>
+          <th class="col-memo" onclick="srt('상담 내용',this)">상담 내용 ↕</th>
+          <th class="col-expire" onclick="srt('만기일',this)">만기일 ↕</th>
+          <th class="col-e" onclick="srt('에어컨',this)">에 ↕</th>
+          <th class="col-room" onclick="srt('방',this)">방 ↕</th>
+          <th class="col-loan" onclick="srt('융자',this)">융자 ↕</th>
+          <th class="col-adcycle" onclick="srt('광고주기',this)">광고주기 ↕</th>
           <th class="col-process" onclick="srt('프로세스',this)">프로세스 ↕</th>
-          <th class="col-guest">손님구분</th>
-          <th class="col-feat">주요특징</th>
-          <th class="col-floor col-ext col-ext-first">층</th>
+          <th class="col-guest" onclick="srt('손님구분',this)">손님구분 ↕</th>
+          <th class="col-feat" onclick="srt('주요특징',this)">주요특징 ↕</th>
+          <th class="col-floor col-ext col-ext-first" onclick="srt('층공개',this)">층 ↕</th>
         </tr>
       </thead>
       <tbody id="TB"></tbody>
@@ -2513,6 +2589,28 @@
 
     var PW = '4600';
     var AUTO_KEY = 'apt_autologin';
+    var SLOT_KEY = 'apt_col_slot'; // 기기별 열너비 슬롯 번호 (1~4)
+
+    function getSelectedSlot() {
+      var r = document.querySelector('input[name="pwSlot"]:checked');
+      return r ? parseInt(r.value) : 1;
+    }
+    function updateSlotLabel() {
+      var sel = getSelectedSlot();
+      for (var i = 1; i <= 4; i++) {
+        var lbl = document.getElementById('slot-lbl-' + i);
+        if (lbl) {
+          lbl.style.borderColor = i === sel ? 'var(--accent)' : 'rgba(148,163,184,0.3)';
+          lbl.style.color = i === sel ? 'var(--accent)' : '#94a3b8';
+          lbl.style.background = i === sel ? 'rgba(59,130,246,0.12)' : 'rgba(148,163,184,0.08)';
+        }
+      }
+    }
+    function applyLoginSlot(slot) {
+      applyColWidths('apt-main-table',   _slotKey('apt',   slot));
+      applyColWidths('sg-main-table',    _slotKey('sg',    slot));
+      applyColWidths('buyer-main-table', _slotKey('buyer', slot));
+    }
 
     function checkPw() {
       var v = document.getElementById('pwInput').value;
@@ -2527,7 +2625,11 @@
         var save = document.getElementById('pwSave').checked;
         if (save) { localStorage.setItem('apt_savedpw', v); }
         else { localStorage.removeItem('apt_savedpw'); }
+        // 슬롯 저장 및 적용
+        var slot = getSelectedSlot();
+        localStorage.setItem(SLOT_KEY, slot);
         document.getElementById('pwOverlay').style.display = 'none';
+        applyLoginSlot(slot);
       } else {
         document.getElementById('pwErr').textContent = '비밀번호가 틀렸습니다';
         document.getElementById('pwInput').value = '';
@@ -2541,6 +2643,11 @@
     }
 
     window.onload = function () {
+      // 슬롯 라디오 초기화 (저장된 슬롯 또는 기본 S1)
+      var savedSlot = parseInt(localStorage.getItem(SLOT_KEY)) || 1;
+      var slotRadio = document.querySelector('input[name="pwSlot"][value="' + savedSlot + '"]');
+      if (slotRadio) slotRadio.checked = true;
+      updateSlotLabel();
       // 인증 확인
       if (!isAuthed()) {
         document.getElementById('pwOverlay').style.display = 'flex';
@@ -2551,6 +2658,8 @@
         }
       } else {
         document.getElementById('pwOverlay').style.display = 'none';
+        // 자동로그인 시 저장된 슬롯 자동 적용 (load 이벤트 후 처리)
+        window.addEventListener('load', function() { applyLoginSlot(savedSlot); }, { once: true });
       }
       loadMsgs();
       try {
@@ -2874,38 +2983,16 @@
     }
 
     // ── 렌더 ──────────────────────────────────────────
-    var PAGE = 1, PER = 50;
     function render() {
-      // 카드: 무한스크롤
+      // 카드: 무한스크롤 (모바일)
       var cards = '';
       FD.slice(0, SCROLL_END).forEach(function (r, i) { cards += makeCard(r, i); });
       document.getElementById('CL').innerHTML = cards;
-      // 테이블: 페이지네이션 50건
-      var st = (PAGE - 1) * PER, pg = FD.slice(st, st + PER);
+      // 테이블: 전체 행 표시 (스크롤)
       var rows = '';
-      pg.forEach(function (r, i) { rows += makeRow(r, st + i); });
+      FD.forEach(function (r, i) { rows += makeRow(r, i); });
       document.getElementById('TB').innerHTML = rows;
-      renderPager();
-    }
-    function renderPager() {
-      var tot = Math.ceil(FD.length / PER);
-      var el = document.getElementById('PAGER');
-      if (!el || tot <= 1) { if (el) el.innerHTML = ''; return; }
-      var h = '<div style="display:flex;align-items:center;justify-content:center;gap:4px;padding:10px;">';
-      h += '<button onclick="goPage(' + (PAGE - 1) + ')" ' + (PAGE === 1 ? 'disabled' : '') + ' style="padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">◀</button>';
-      var s = Math.max(1, PAGE - 2), en = Math.min(tot, s + 4); if (en - s < 4) s = Math.max(1, en - 4);
-      if (s > 1) h += '<button onclick="goPage(1)" style="padding:5px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">1</button><span style="color:var(--text3);padding:0 2px;">…</span>';
-      for (var i = s; i <= en; i++)h += '<button onclick="goPage(' + i + ')" style="padding:5px 9px;background:' + (i === PAGE ? 'var(--accent)' : 'var(--surface2)') + ';border:1px solid ' + (i === PAGE ? 'var(--accent)' : 'var(--border)') + ';border-radius:5px;color:' + (i === PAGE ? '#fff' : 'var(--text2)') + ';cursor:pointer;">' + i + '</button>';
-      if (en < tot) h += '<span style="color:var(--text3);padding:0 2px;">…</span><button onclick="goPage(' + tot + ')" style="padding:5px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">' + tot + '</button>';
-      h += '<button onclick="goPage(' + (PAGE + 1) + ')" ' + (PAGE === tot ? 'disabled' : '') + ' style="padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text2);cursor:pointer;">▶</button>';
-      h += '<span style="font-size:11px;color:var(--text3);margin-left:4px;">' + PAGE + '/' + tot + 'p</span></div>';
-      el.innerHTML = h;
-    }
-    function goPage(p) {
-      var tot = Math.ceil(FD.length / PER);
-      if (p < 1 || p > tot) return;
-      PAGE = p; render();
-      document.querySelector('.table-wrap').scrollTop = 0;
+      var el = document.getElementById('PAGER'); if (el) el.innerHTML = '';
     }
 
     // 무한스크롤
@@ -3260,7 +3347,7 @@
       var ca = document.getElementById('chk-all'); if (ca) ca.checked = false;
     }
     function toggleAllSelect(masterCb) {
-      var st = (PAGE - 1) * PER; FD.slice(st, st + PER).forEach(function (r, j) { if (masterCb.checked) _selected.add(st + j); else _selected.delete(st + j); });
+      FD.forEach(function (r, j) { if (masterCb.checked) _selected.add(j); else _selected.delete(j); });
       document.querySelectorAll('#TB input[type=checkbox]').forEach(function (cb) { cb.checked = masterCb.checked; });
       updateSelectBar();
     }
@@ -3438,14 +3525,8 @@
       location.reload();
     }
 
-    // 페이지 로드 시 저장된 너비 복원 (각 슬롯 S1 기본)
-    (function initColWidths() {
-      window.addEventListener('load', function() {
-        applyColWidths('apt-main-table',   _slotKey('apt',   _aptSlot));
-        applyColWidths('sg-main-table',    _slotKey('sg',    1));
-        applyColWidths('buyer-main-table', _slotKey('buyer', _buyerSlot));
-      });
-    })();
+    // 페이지 로드 시 저장된 슬롯 너비 복원 (applyLoginSlot이 처리하므로 여기선 생략)
+    (function initColWidths() { })();
 
     function toggleDetSec(id) {
       var el = document.getElementById(id);
@@ -4139,7 +4220,16 @@
           moreEl.appendChild(btn);
         });
       }
+      _sgFD.sort(function(a, b) { return ((a[_sgSC]||'')).localeCompare((b[_sgSC]||''), 'ko') * _sgSD; });
       sgRender();
+    }
+
+    var _sgSC = '실행일', _sgSD = -1;
+    function sgSrt(col, th) {
+      if (_sgSC === col) _sgSD *= -1; else { _sgSC = col; _sgSD = 1; }
+      document.querySelectorAll('#sg-main-table thead th').forEach(function(t) { t.classList.remove('sorted'); });
+      if (th) th.classList.add('sorted');
+      sgApplyAll();
     }
 
     function sgRender() {
@@ -4572,12 +4662,20 @@
         if (tbody2) tbody2.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:#b91c1c;">불러오기 실패: ' + esc(e.message) + '</td></tr>';
       }
     }
+    var _dbSC = '기입일', _dbSD = -1;
+    function dbSrt(col, th) {
+      if (_dbSC === col) _dbSD *= -1; else { _dbSC = col; _dbSD = 1; }
+      document.querySelectorAll('#buyer-main-table thead th').forEach(function(t) { t.classList.remove('sorted'); });
+      if (th) th.classList.add('sorted');
+      applyDbSearch();
+    }
     function applyDbSearch() {
       var sq = (document.getElementById('db-search') || { value: '' }).value.toLowerCase().trim();
       _dbListFiltered = _dbList.filter(function(r) {
         if (sq && [(r['고객명(전화번호)'] || ''), (r['찾는 매물'] || ''), (r['상담 내용'] || ''), (r['제안 매물'] || '')].join(' ').toLowerCase().indexOf(sq) === -1) return false;
         return true;
       });
+      _dbListFiltered.sort(function(a, b) { return ((a[_dbSC]||'')).localeCompare((b[_dbSC]||''), 'ko') * _dbSD; });
       var cnt = document.getElementById('db-count'); if (cnt) cnt.textContent = _dbListFiltered.length + '건';
       renderDbTable();
     }
@@ -5317,21 +5415,21 @@
       <table class="sg-table" id="sg-main-table">
         <thead>
           <tr>
-            <th style="width:70px;">실행일</th>
-            <th style="width:55px;">유형</th>
-            <th style="width:90px;">건물명</th>
-            <th style="width:30px;">측</th>
-            <th style="width:40px;">동</th>
-            <th style="width:40px;">호</th>
-            <th style="width:90px;">현재상호</th>
-            <th style="width:55px;">전용(평)</th>
-            <th style="width:75px;">매매가</th>
-            <th style="width:75px;">보증금</th>
-            <th style="width:60px;">월세</th>
-            <th style="width:100px;">소유자</th>
-            <th style="width:58px;">입주구분</th>
-            <th style="width:70px;">프로세스</th>
-            <th style="width:140px;">상담 내용</th>
+            <th style="width:70px;" onclick="sgSrt('실행일',this)">실행일 ↕</th>
+            <th style="width:55px;" onclick="sgSrt('유형',this)">유형 ↕</th>
+            <th style="width:90px;" onclick="sgSrt('건물명',this)">건물명 ↕</th>
+            <th style="width:30px;" onclick="sgSrt('측',this)">측 ↕</th>
+            <th style="width:40px;" onclick="sgSrt('동',this)">동 ↕</th>
+            <th style="width:40px;" onclick="sgSrt('호',this)">호 ↕</th>
+            <th style="width:90px;" onclick="sgSrt('현재상호',this)">현재상호 ↕</th>
+            <th style="width:55px;" onclick="sgSrt('전용(평)',this)">전용(평) ↕</th>
+            <th style="width:75px;" onclick="sgSrt('매매가',this)">매매가 ↕</th>
+            <th style="width:75px;" onclick="sgSrt('보증금',this)">보증금 ↕</th>
+            <th style="width:60px;" onclick="sgSrt('월세',this)">월세 ↕</th>
+            <th style="width:100px;" onclick="sgSrt('소유자',this)">소유자 ↕</th>
+            <th style="width:58px;" onclick="sgSrt('입주구분',this)">입주구분 ↕</th>
+            <th style="width:70px;" onclick="sgSrt('프로세스',this)">프로세스 ↕</th>
+            <th style="width:140px;" onclick="sgSrt('상담 내용',this)">상담 내용 ↕</th>
           </tr>
         </thead>
         <tbody id="sg-TB"></tbody>
@@ -5618,20 +5716,20 @@
         <table class="buyer-table" id="buyer-main-table">
           <thead>
             <tr>
-              <th style="width:76px;">기입일</th>
-              <th style="width:120px;">고객명(전화번호)</th>
-              <th style="width:58px;">부동산유형</th>
-              <th style="width:58px;">거래유형</th>
-              <th style="width:76px;">매매가(예산)</th>
-              <th style="width:76px;">보증금(예산)</th>
-              <th style="width:66px;">월세(예산)</th>
-              <th style="width:72px;">입주일</th>
-              <th style="width:52px;">실거주</th>
-              <th style="width:110px;">찾는 매물</th>
-              <th style="width:110px;">제안 매물</th>
-              <th style="width:110px;">상담 내용</th>
-              <th style="width:70px;">프로세스</th>
-              <th style="width:88px;">주요특징</th>
+              <th style="width:76px;" onclick="dbSrt('기입일',this)">기입일 ↕</th>
+              <th style="width:120px;" onclick="dbSrt('고객명(전화번호)',this)">고객명(전화번호) ↕</th>
+              <th style="width:58px;" onclick="dbSrt('부동산유형',this)">부동산유형 ↕</th>
+              <th style="width:58px;" onclick="dbSrt('거래유형',this)">거래유형 ↕</th>
+              <th style="width:76px;" onclick="dbSrt('매매가(예산)',this)">매매가(예산) ↕</th>
+              <th style="width:76px;" onclick="dbSrt('보증금(예산)',this)">보증금(예산) ↕</th>
+              <th style="width:66px;" onclick="dbSrt('월세(예산)',this)">월세(예산) ↕</th>
+              <th style="width:72px;" onclick="dbSrt('입주일',this)">입주일 ↕</th>
+              <th style="width:52px;" onclick="dbSrt('실거주여부',this)">실거주 ↕</th>
+              <th style="width:110px;" onclick="dbSrt('찾는 매물',this)">찾는 매물 ↕</th>
+              <th style="width:110px;" onclick="dbSrt('제안 매물',this)">제안 매물 ↕</th>
+              <th style="width:110px;" onclick="dbSrt('상담 내용',this)">상담 내용 ↕</th>
+              <th style="width:70px;" onclick="dbSrt('프로세스',this)">프로세스 ↕</th>
+              <th style="width:88px;" onclick="dbSrt('주요특징',this)">주요특징 ↕</th>
             </tr>
           </thead>
           <tbody id="db-tbody"></tbody>
