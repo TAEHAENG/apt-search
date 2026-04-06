@@ -2539,7 +2539,7 @@
     var SSID = '1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw';
     var AKEY = 'AIzaSyD5YiNNP1d9cmnehlSLDViEOBdjZhealMw';
     var SGID = '505657259';
-    var ASURL = 'https://script.google.com/macros/s/AKfycbyj1xuXmDLqucQmd8lMZ7MdVeK2Z6nQ5dbRI-CMo98FYzHlp6-suMQBbYK8w_Yz_fdS_w/exec';
+    var ASURL = 'https://script.google.com/macros/s/AKfycby5Bu-AlEW3qkeZnLQFzv2Yfqc2rMt4cs3IjPmKV4HfDszidZuYv4HZF0aarIY_LDrdQg/exec';
     var TM = { "매매": ["매매", "매전세", "매월세", "매전월"], "전세": ["전세", "매전세", "전월세", "매전월"], "월세": ["월세", "매월세", "전월세", "매전월"] };
     var B6 = ["아이", "아이2", "더샵", "힐스", "중푸", "송푸"];
     var B6_SET = new Set(B6);
@@ -2623,7 +2623,24 @@
         }
       }
     }
-    function applyLoginSlot(slot) {
+    // '열너비' 시트에서 모든 슬롯 너비를 읽어 localStorage에 동기화
+    async function syncColWidthsFromSheet() {
+      try {
+        var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent('열너비') + '?key=' + AKEY;
+        var res = await fetch(url); var json = await res.json();
+        if (!json.values || json.values.length < 2) return;
+        json.values.slice(1).forEach(function(row) {
+          if (row[0] && row[1]) { try { localStorage.setItem(row[0], row[1]); } catch(e){} }
+        });
+      } catch(e) {}
+    }
+    async function applyLoginSlot(slot) {
+      // 1. localStorage에 있으면 즉시 적용 (빠름)
+      applyColWidths('apt-main-table',   _slotKey('apt',   slot));
+      applyColWidths('sg-main-table',    _slotKey('sg',    slot));
+      applyColWidths('buyer-main-table', _slotKey('buyer', slot));
+      // 2. Sheets에서 최신 너비 가져와 localStorage 갱신 후 재적용 (기기 간 동기화)
+      await syncColWidthsFromSheet();
       applyColWidths('apt-main-table',   _slotKey('apt',   slot));
       applyColWidths('sg-main-table',    _slotKey('sg',    slot));
       applyColWidths('buyer-main-table', _slotKey('buyer', slot));
@@ -2981,7 +2998,7 @@
     }
     function makeRow(r, i) {
       var checked = _selected.has(i) ? 'checked' : '';
-      return '<tr onclick="det(' + i + ')">' +
+      return '<tr onclick="detByRow(' + r['__row__'] + ')">' +
         '<td class="col-check" onclick="event.stopPropagation()"><input type="checkbox" ' + checked + ' onclick="toggleSelect(' + i + ',this)" style="width:15px;height:15px;cursor:pointer;accent-color:#1d4ed8;"></td>' +
         '<td class="col-date">' + esc(r['실행일'] || '-') + '</td>' +
         '<td class="col-type"><span class="badge ' + gtc(r['유형'] || '') + '">' + esc(r['유형'] || '-') + '</span></td>' +
@@ -3060,6 +3077,12 @@
     });
 
     // ── 상세 패널 ─────────────────────────────────────
+    function detByRow(rowNum) {
+      var idx = -1;
+      for (var i = 0; i < FD.length; i++) { if (FD[i]['__row__'] === rowNum) { idx = i; break; } }
+      if (idx === -1) return;
+      det(idx);
+    }
     function det(idx) {
       CUR_IDX = idx; cancelEdit();
       var r = FD[idx];
@@ -3499,9 +3522,16 @@
       return 'col_w_' + tableType + '_s' + slot;
     }
 
-    // 저장 버튼 — 현재 열너비를 해당 슬롯에 저장
+    // 저장 버튼 — 현재 열너비를 슬롯에 저장 (localStorage + Sheets)
     function saveSlot(tableId, tableType, slot) {
       saveColWidths(tableId, _slotKey(tableType, slot));
+      var key = _slotKey(tableType, slot);
+      var stored = localStorage.getItem(key);
+      if (stored && ASURL) {
+        fetch(ASURL, { method: 'POST', headers: {'Content-Type':'text/plain'},
+          body: safeStringify({ action: 'saveColWidths', slotKey: key, widthsJson: stored })
+        }).catch(function(){});
+      }
       showToast((tableType === 'apt' ? 'APT 매물' : tableType === 'sg' ? '상가 매물' : '구입자DB') + ' S' + slot + ' 저장 완료');
     }
 
@@ -3849,9 +3879,8 @@
           showToast('✅ 저장 완료!'); cancelEdit();
           det(CUR_IDX);
           // 해당 행만 테이블에서 즉시 갱신
-          var _st = (PAGE-1)*PER, _pos = CUR_IDX - _st;
           var _tb = document.getElementById('TB');
-          if (_tb && _pos >= 0) { var _trs = _tb.querySelectorAll('tr'); if (_pos < _trs.length) { var _tmp = document.createElement('tbody'); _tmp.innerHTML = makeRow(r, CUR_IDX); _trs[_pos].parentNode.replaceChild(_tmp.firstChild, _trs[_pos]); applyColHide('apt'); } }
+          if (_tb) { var _trs = _tb.querySelectorAll('tr'); for (var _ti=0; _ti<_trs.length; _ti++) { if (_trs[_ti].getAttribute('onclick') === 'detByRow('+r['__row__']+')') { var _tmp = document.createElement('tbody'); _tmp.innerHTML = makeRow(r, CUR_IDX); _trs[_ti].parentNode.replaceChild(_tmp.firstChild, _trs[_ti]); applyColHide('apt'); break; } } }
         } else { showToast('❌ 실패: ' + json.message); }
       } catch (e) { showToast('❌ 오류: ' + e.message); }
       finally { btn.textContent = '💾 저장'; btn.disabled = false; }
