@@ -1,0 +1,547 @@
+// ── APT 매물장 Apps Script (코드.gs 전체 교체용) ────────────────────────────
+// 대상 스프레드시트: APT 매물장
+// 배포 URL → index.html 의 ASURL 변수에 설정
+// ─────────────────────────────────────────────────────────────────────────────
+
+const SHEET_NAME = 'APT 매물';
+const MSG_SHEET_NAME = '안내문구';
+const BUYER_SHEET_NAME = '구입자';
+
+// ── 기준점 비교 설정 ───────────────────────────────
+const BASELINE_SHEET_NAME = 'APT매물_기준점20260324';
+const COMPARE_RESULT_SHEET = '비교결과';
+
+function doPost(e) {
+  try {
+    var params = JSON.parse(e.postData.contents);
+    var action = params.action;
+    if (action === 'update')        return makeResp(updateRow(params));
+    if (action === 'append')        return makeResp(appendRow(params));
+    if (action === 'appendMsg')     return makeResp(appendMsg(params));
+    if (action === 'updateMsg')     return makeResp(updateMsg(params));
+    if (action === 'deleteMsg')     return makeResp(deleteMsg(params));
+    if (action === 'appendBuyer')   return makeResp(appendBuyer(params));
+    if (action === 'updateBuyer')   return makeResp(updateBuyer(params));
+    if (action === 'compare')         return makeResp(doCompareWithBaseline());
+    if (action === 'compareBuyer')    return makeResp(doCompareBuyer(params));
+    if (action === 'saveColWidths')   return makeResp(saveColWidthsToSheet(params));
+    return makeResp({success: false, message: '알 수 없는 action: ' + action});
+  } catch(err) {
+    return makeResp({success: false, message: err.message});
+  }
+}
+
+// ── 매물 수정 ──────────────────────────────────────
+function updateRow(params) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  if (!sheet) return {success: false, message: '시트를 찾을 수 없음: ' + SHEET_NAME};
+  var rowIndex = Number(params.rowIndex);
+  if (!rowIndex || rowIndex < 2) return {success: false, message: '잘못된 행 번호: ' + rowIndex};
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+
+  // ── 행 검증: 건물명/동/호 일치 확인 ───────────────
+  if (params.checkBld !== undefined || params.checkDong !== undefined || params.checkHo !== undefined) {
+    var rowVals = sheet.getRange(rowIndex, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var bldIdx = -1, dongIdx = -1, hoIdx = -1;
+    headers.forEach(function(h, i) {
+      var key = h.toString().replace(/\n/g, ' ').trim();
+      if (key === '건물명') bldIdx = i;
+      if (key === '동')     dongIdx = i;
+      if (key === '호')     hoIdx = i;
+    });
+    var actualBld  = bldIdx  >= 0 ? (rowVals[bldIdx]  || '').toString().trim() : '';
+    var actualDong = dongIdx >= 0 ? (rowVals[dongIdx] || '').toString().trim() : '';
+    var actualHo   = hoIdx   >= 0 ? (rowVals[hoIdx]   || '').toString().trim() : '';
+    var expBld  = (params.checkBld  || '').toString().trim();
+    var expDong = (params.checkDong || '').toString().trim();
+    var expHo   = (params.checkHo  || '').toString().trim();
+    if (actualBld !== expBld || actualDong !== expDong || actualHo !== expHo) {
+      return {
+        success: false,
+        rowMismatch: true,
+        message: '행 불일치 — 동기화 후 다시 시도하세요.\n예상: ' + expBld + ' ' + expDong + '동 ' + expHo + '호\n실제: ' + actualBld + ' ' + actualDong + '동 ' + actualHo + '호'
+      };
+    }
+  }
+
+  var updated = [];
+  // 빈값도 저장해야 하는 열 (지우기 가능해야 함)
+  var allowEmpty = ['주요특징', '상담 내용', '소유자', '소유자2', '이름', '임차인',
+                    '거주자명', '현재점유형태', '입주형태', '층공개', '독점', '융자',
+                    '토허제', '광고주기', '갱신청구권', '손님구분',
+                    '연락처(메인)', '연락처(주인)', '연락처(현세입자)', '연락처(신규세입자)', '연락처(매수자)',
+                    '금액', '실행일', '만기일', '계약일', '계약금중일부',
+                    '약정일', '중도금', '잔금일',
+                    '발생수익-매도,임대(VAT포함)', '발생수익-매수,임차(VAT포함)'];
+  headers.forEach(function(h, i) {
+    var key = h.toString().replace(/\n/g, ' ').trim();
+    if (params.values.hasOwnProperty(key)) {
+      var val = params.values[key];
+      if (val !== '' || allowEmpty.indexOf(key) !== -1) {
+        sheet.getRange(rowIndex, i + 1).setValue(val);
+        updated.push(key);
+      }
+    }
+  });
+  return {success: true, message: rowIndex + '행 수정 완료', updated: updated};
+}
+
+// ── 매물 추가 ──────────────────────────────────────
+function appendRow(params) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  if (!sheet) return {success: false, message: '시트를 찾을 수 없음: ' + SHEET_NAME};
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var newRow = headers.map(function(h) {
+    var key = h.toString().replace(/\n/g, ' ').trim();
+    return params.values.hasOwnProperty(key) ? params.values[key] : '';
+  });
+  sheet.appendRow(newRow);
+  return {success: true, message: '새 행 추가 완료 (' + sheet.getLastRow() + '행)'};
+}
+
+// ── 안내문구 추가 ──────────────────────────────────
+function appendMsg(params) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(MSG_SHEET_NAME);
+  if (!sheet) return {success: false, message: '시트를 찾을 수 없음: ' + MSG_SHEET_NAME};
+  sheet.appendRow([params.cat || '', params.title || '', params.body || '']);
+  return {success: true, message: '문구 추가 완료 (' + sheet.getLastRow() + '행)', rowIndex: sheet.getLastRow()};
+}
+
+// ── 안내문구 수정 ──────────────────────────────────
+function updateMsg(params) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(MSG_SHEET_NAME);
+  if (!sheet) return {success: false, message: '시트를 찾을 수 없음: ' + MSG_SHEET_NAME};
+  var rowIndex = Number(params.rowIndex);
+  if (!rowIndex || rowIndex < 2) return {success: false, message: '잘못된 행 번호'};
+  sheet.getRange(rowIndex, 1).setValue(params.cat || '');
+  sheet.getRange(rowIndex, 2).setValue(params.title || '');
+  sheet.getRange(rowIndex, 3).setValue(params.body || '');
+  return {success: true, message: rowIndex + '행 문구 수정 완료'};
+}
+
+// ── 안내문구 삭제 ──────────────────────────────────
+function deleteMsg(params) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(MSG_SHEET_NAME);
+  if (!sheet) return {success: false, message: '시트를 찾을 수 없음: ' + MSG_SHEET_NAME};
+  var rowIndex = Number(params.rowIndex);
+  if (!rowIndex || rowIndex < 2) return {success: false, message: '잘못된 행 번호'};
+  sheet.deleteRow(rowIndex);
+  return {success: true, message: rowIndex + '행 문구 삭제 완료'};
+}
+
+// ── 구입자 상담 추가 ───────────────────────────────
+function appendBuyer(params) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheetName = params.sheetName || BUYER_SHEET_NAME;
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) return {success: false, message: '시트를 찾을 수 없음: ' + sheetName};
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var v = params.values;
+  var newRow = headers.map(function(h) {
+    var key = h.toString().trim();
+    return v.hasOwnProperty(key) ? v[key] : '';
+  });
+  // 포맷만 있는 빈 행을 무시하고 실제 마지막 데이터 행 탐색
+  var sheetLastRow = sheet.getLastRow();
+  var scanCols = Math.min(headers.length, 4);
+  var allVals = sheet.getRange(2, 1, sheetLastRow - 1, scanCols).getValues();
+  var lastDataRow = 1; // 헤더행
+  for (var i = allVals.length - 1; i >= 0; i--) {
+    var hasData = allVals[i].some(function(c) { return c !== '' && c !== null && c !== undefined; });
+    if (hasData) { lastDataRow = i + 2; break; } // +2: 0-indexed + 헤더 1행
+  }
+  var targetRow = lastDataRow + 1;
+  sheet.getRange(targetRow, 1, 1, newRow.length).setValues([newRow]);
+  return {success: true, message: '구입자 상담 추가 완료 (' + targetRow + '행)'};
+}
+
+// ── 열너비 슬롯 저장 (기기 간 공유) ──────────────────
+function saveColWidthsToSheet(params) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('열너비');
+  if (!sheet) {
+    sheet = ss.insertSheet('열너비');
+    sheet.getRange(1, 1, 1, 2).setValues([['slot_key', 'widths_json']]);
+  }
+  var slotKey = params.slotKey;
+  var widthsJson = params.widthsJson;
+  if (!slotKey || !widthsJson) return {success: false, message: 'slotKey 또는 widthsJson 없음'};
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === slotKey) {
+      sheet.getRange(i + 1, 2).setValue(widthsJson);
+      return {success: true};
+    }
+  }
+  sheet.appendRow([slotKey, widthsJson]);
+  return {success: true};
+}
+
+// ── 구입자 상담 수정 ───────────────────────────────
+function updateBuyer(params) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheetName = params.sheetName || BUYER_SHEET_NAME;
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) return {success: false, message: '시트를 찾을 수 없음: ' + sheetName};
+  var rowIndex = Number(params.rowIndex);
+  if (!rowIndex || rowIndex < 2) return {success: false, message: '잘못된 행 번호: ' + rowIndex};
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var updated = [];
+  headers.forEach(function(h, i) {
+    var key = h.toString().trim();
+    if (params.values.hasOwnProperty(key)) {
+      sheet.getRange(rowIndex, i + 1).setValue(params.values[key]);
+      updated.push(key);
+    }
+  });
+  return {success: true, message: rowIndex + '행 구입자 수정 완료', updated: updated};
+}
+
+// ════════════════════════════════════════════════════
+// APT 안전검사 — 기준점 비교 (소유자/상담내용 보호)
+// 기준점 시트: APT매물_기준점20260324
+// 비교결과 시트: 비교결과 (없으면 자동 생성)
+// ════════════════════════════════════════════════════
+function doCompareWithBaseline() {
+  var ss        = SpreadsheetApp.getActiveSpreadsheet();
+  var aptSheet  = ss.getSheetByName(SHEET_NAME);
+  var baseSheet = ss.getSheetByName(BASELINE_SHEET_NAME);
+
+  if (!baseSheet) return {success: false, message: '기준점 시트(' + BASELINE_SHEET_NAME + ')가 없습니다.'};
+  if (!aptSheet)  return {success: false, message: '매물 시트 없음: ' + SHEET_NAME};
+
+  // getDataRange() 대신 lastRow/lastCol 명시 — 일부 열이 범위 밖으로 빠지는 현상 방지
+  var aptLastRow  = aptSheet.getLastRow();
+  var aptLastCol  = aptSheet.getLastColumn();
+  var baseLastRow = baseSheet.getLastRow();
+  var baseLastCol = baseSheet.getLastColumn();
+  if (aptLastRow < 2 || baseLastRow < 2) {
+    return { success: true, diffCount: 0, columnSummary: {} };
+  }
+  var aptVals  = aptSheet.getRange(1, 1, aptLastRow,  aptLastCol).getValues();
+  var baseVals = baseSheet.getRange(1, 1, baseLastRow, baseLastCol).getValues();
+
+  var aptH  = aptVals[0].map(function(h){ return h.toString().replace(/\n/g,' ').trim(); });
+  var baseH = baseVals[0].map(function(h){ return h.toString().replace(/\n/g,' ').trim(); });
+
+  var KEY_COLS = ['건물명', '동', '호'];
+  var VAL_COLS = ['소유자', '상담 내용'];
+
+  function cellStr(row, idx) {
+    if (idx < 0 || idx >= row.length) return '';
+    var v = row[idx];
+    if (v === null || v === undefined || v === '') return '';
+    return String(v).trim();
+  }
+
+  // 헤더 검색: 정확 일치 우선, 없으면 포함(contains) 매칭
+  function findCol(headers, name) {
+    var i = headers.indexOf(name);
+    if (i !== -1) return i;
+    for (var j = 0; j < headers.length; j++) {
+      if (headers[j].indexOf(name) !== -1) return j;
+    }
+    return -1;
+  }
+
+  function makeKey(headers, row) {
+    return KEY_COLS.map(function(c) {
+      return cellStr(row, findCol(headers, c));
+    }).join('§');
+  }
+
+  // 전화번호 추출: 하이픈·공백 제거 후 0으로 시작하는 10-11자리 숫자 배열 반환
+  function extractPhones(str) {
+    if (!str) return [];
+    var cleaned = str.replace(/[\s\-]/g, '');
+    return cleaned.match(/0\d{9,10}/g) || [];
+  }
+
+  // 소유자 동일 여부: 전화번호 하나라도 겹치면 동일, 전화번호 없으면 특수문자 제거 후 50% 유사도
+  function ownerSame(bv, av) {
+    var bp = extractPhones(bv);
+    var ap = extractPhones(av);
+    if (bp.length > 0 && ap.length > 0) {
+      return bp.some(function(p) { return ap.indexOf(p) !== -1; });
+    }
+    var bNorm = bv.replace(/[\s\-\(\)\*\.\/\r\n]/g, '');
+    var aNorm = av.replace(/[\s\-\(\)\*\.\/\r\n]/g, '');
+    if (!bNorm && !aNorm) return true;
+    if (!bNorm || !aNorm) return false;
+    var longer = bNorm.length >= aNorm.length ? bNorm : aNorm;
+    var shorter = bNorm.length < aNorm.length ? bNorm : aNorm;
+    var pool = longer.split('');
+    var matched = 0;
+    shorter.split('').forEach(function(ch) {
+      var idx = pool.indexOf(ch);
+      if (idx !== -1) { matched++; pool.splice(idx, 1); }
+    });
+    return (matched / longer.length) >= 0.5;
+  }
+
+  // baseMap / aptMap: key → [row, ...] (중복 키 모두 수집)
+  var baseMap = {};
+  baseVals.slice(1).forEach(function(row) {
+    var k = makeKey(baseH, row);
+    if (k.replace(/§/g,'').length > 0) {
+      if (!baseMap[k]) baseMap[k] = [];
+      baseMap[k].push(row);
+    }
+  });
+  var aptMap = {};
+  aptVals.slice(1).forEach(function(row) {
+    var k = makeKey(aptH, row);
+    if (k.replace(/§/g,'').length > 0) {
+      if (!aptMap[k]) aptMap[k] = [];
+      aptMap[k].push(row);
+    }
+  });
+
+  var diffs = [];
+  var colChangedAny = { '소유자': false, '상담 내용': false };
+
+  Object.keys(baseMap).forEach(function(k) {
+    var baseRows = baseMap[k];
+    var aptRows  = aptMap[k] || [];
+    var parts    = k.split('§');
+
+    baseRows.forEach(function(br, bIdx) {
+      // 현재 시트에서 매칭 행 결정: 소유자 전화번호 우선, 없으면 순서(인덱스) 매칭
+      var ar = null;
+      var bOwner  = cellStr(br, findCol(baseH, '소유자'));
+      var bPhones = extractPhones(bOwner);
+      if (bPhones.length > 0) {
+        for (var ai = 0; ai < aptRows.length; ai++) {
+          var aPhones = extractPhones(cellStr(aptRows[ai], findCol(aptH, '소유자')));
+          if (bPhones.some(function(p){ return aPhones.indexOf(p) !== -1; })) {
+            ar = aptRows[ai]; break;
+          }
+        }
+      }
+      if (!ar && aptRows.length > bIdx) ar = aptRows[bIdx];
+      if (!ar) return;
+
+      var rowDiff = null;
+      VAL_COLS.forEach(function(col) {
+        var bv = cellStr(br, findCol(baseH, col));
+        var av = cellStr(ar, findCol(aptH, col));
+        var isSame = (col === '소유자') ? ownerSame(bv, av) : (bv === av);
+        if (!isSame) {
+          if (!rowDiff) rowDiff = { 건물명: parts[0], 동: parts[1], 호: parts[2] };
+          rowDiff[col + '_기준'] = bv;
+          rowDiff[col + '_현재'] = av;
+          rowDiff[col + '_변경'] = 'O';
+          colChangedAny[col] = true;
+        }
+      });
+      if (rowDiff) {
+        // 변경 없는 열도 실제 값을 기록 (소유자가 동일하더라도 값은 표시)
+        VAL_COLS.forEach(function(col) {
+          if (!rowDiff[col + '_변경']) {
+            rowDiff[col + '_변경'] = 'X';
+            rowDiff[col + '_기준'] = cellStr(br, findCol(baseH, col));
+            rowDiff[col + '_현재'] = cellStr(ar, findCol(aptH, col));
+          }
+        });
+        diffs.push(rowDiff);
+      }
+    });
+  });
+
+  var resSheet = ss.getSheetByName(COMPARE_RESULT_SHEET);
+  if (!resSheet) resSheet = ss.insertSheet(COMPARE_RESULT_SHEET);
+  resSheet.clearContents();
+
+  // 진단: 헤더 열 인덱스 + 실제 첫 번째 소유자 셀값 샘플
+  var diagOwnerBase = findCol(baseH, '소유자');
+  var diagOwnerApt  = findCol(aptH,  '소유자');
+  var diagMemoBase  = findCol(baseH, '상담 내용');
+  var diagMemoApt   = findCol(aptH,  '상담 내용');
+  // 첫 번째 비어있지 않은 소유자 샘플값 추출
+  function firstSample(vals, colIdx) {
+    if (colIdx < 0) return '(열없음)';
+    for (var ri = 1; ri < Math.min(vals.length, 10); ri++) {
+      var v = vals[ri][colIdx];
+      if (v !== null && v !== undefined && String(v).trim() !== '') return '"' + String(v).trim().slice(0, 30) + '"';
+    }
+    return '(샘플없음)';
+  }
+  var diagInfo = '헤더 진단 | 기준점-소유자:col' + (diagOwnerBase+1) + ' 샘플=' + firstSample(baseVals, diagOwnerBase) +
+                 ' | 매물-소유자:col' + (diagOwnerApt+1) + ' 샘플=' + firstSample(aptVals, diagOwnerApt) +
+                 ' | 기준점rows=' + baseLastRow + ' cols=' + baseLastCol +
+                 ' | 매물rows=' + aptLastRow + ' cols=' + aptLastCol;
+
+  // 기준점에 있으나 현재 시트에 키 매칭 안 된 항목 (최대 30건) — 키 불일치 원인 파악용
+  var unmatchedKeys = [];
+  Object.keys(baseMap).forEach(function(k) {
+    if (!aptMap[k]) {
+      var parts = k.split('§');
+      unmatchedKeys.push(parts);
+      if (unmatchedKeys.length >= 30) return;
+    }
+  });
+
+  // 건물명 오름차순 정렬
+  diffs.sort(function(a, b) {
+    var cmp = (a['건물명']||'').localeCompare(b['건물명']||'', 'ko');
+    if (cmp !== 0) return cmp;
+    cmp = (a['동']||'').localeCompare(b['동']||'', 'ko');
+    if (cmp !== 0) return cmp;
+    return (a['호']||'').localeCompare(b['호']||'', 'ko');
+  });
+
+  var ts = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss');
+  var HDR = ['건물명','동','호','소유자_기준','소유자_현재','소유자_변경','상담내용_기준','상담내용_현재','상담내용_변경'];
+  // 메인 테이블: 1행부터 시작
+  resSheet.getRange(1, 1, 1, HDR.length).setValues([HDR]);
+  var rows = diffs.map(function(d) {
+    return [d['건물명'],d['동'],d['호'],
+            d['소유자_기준']||'', d['소유자_현재']||'', d['소유자_변경']||'X',
+            d['상담 내용_기준']||'', d['상담 내용_현재']||'', d['상담 내용_변경']||'X'];
+  });
+  if (rows.length > 0) resSheet.getRange(2, 1, rows.length, HDR.length).setValues(rows);
+
+  // 요약 정보: 테이블 우측 (열 11~)
+  var SC = HDR.length + 2; // 우측 시작 열
+  resSheet.getRange(1, SC).setValue('비교시각');
+  resSheet.getRange(1, SC+1).setValue(ts);
+  resSheet.getRange(2, SC).setValue('기준점');
+  resSheet.getRange(2, SC+1).setValue(BASELINE_SHEET_NAME);
+  resSheet.getRange(3, SC).setValue('총 변경');
+  resSheet.getRange(3, SC+1).setValue(diffs.length + '건');
+  resSheet.getRange(5, SC).setValue('소유자 변경');
+  resSheet.getRange(5, SC+1).setValue(colChangedAny['소유자'] ? 'O' : 'X');
+  resSheet.getRange(6, SC).setValue('상담내용 변경');
+  resSheet.getRange(6, SC+1).setValue(colChangedAny['상담 내용'] ? 'O' : 'X');
+
+  // 키 매칭 불가 목록: 우측 아래
+  if (unmatchedKeys.length > 0) {
+    resSheet.getRange(8, SC).setValue('키매칭불가 (' + unmatchedKeys.length + '건)');
+    resSheet.getRange(9, SC, 1, 3).setValues([['건물명', '동', '호']]);
+    resSheet.getRange(10, SC, unmatchedKeys.length, 3).setValues(unmatchedKeys);
+  }
+  // 헤더에 자동필터 적용
+  resSheet.getRange(1, 1, 1, HDR.length).createFilter ? resSheet.getRange(1, 1, (rows.length||1)+1, HDR.length).createFilter() : null;
+
+  return {success: true, diffCount: diffs.length, columnSummary: colChangedAny};
+}
+
+// ════════════════════════════════════════════════════
+// 구입자 안전검사 — 기준점 비교 (상담내용 첫줄 O/X)
+// 기준점 시트: 구입자_기준점20260329
+// 비교결과 시트: 비교결과-구입자
+// 키: 고객명 (010 패턴 포함 유사 비교)
+// ════════════════════════════════════════════════════
+function doCompareBuyer(params) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var baseSheetName   = params.baselineSheet || '구입자_기준점20260329';
+  var resultSheetName = params.resultSheet   || '비교결과-구입자';
+  var buyerSheetName  = params.sheetName     || BUYER_SHEET_NAME;
+
+  var buyerSheet = ss.getSheetByName(buyerSheetName);
+  var baseSheet  = ss.getSheetByName(baseSheetName);
+  if (!baseSheet)  return {success: false, message: '기준점 시트 없음: ' + baseSheetName};
+  if (!buyerSheet) return {success: false, message: '구입자 시트 없음: ' + buyerSheetName};
+
+  var curVals  = buyerSheet.getDataRange().getValues();
+  var baseVals = baseSheet.getDataRange().getValues();
+  if (curVals.length < 2 || baseVals.length < 2) return {success: true, diffCount: 0, columnSummary: {}};
+
+  var curH  = curVals[0].map(function(h){ return h.toString().trim(); });
+  var baseH = baseVals[0].map(function(h){ return h.toString().trim(); });
+
+  // 안전한 셀 값 추출
+  function cellStr(row, idx) {
+    if (idx < 0 || idx >= row.length) return '';
+    var v = row[idx];
+    if (v === null || v === undefined || v === '') return '';
+    return String(v).trim();
+  }
+
+  // 010 패턴 추출 (키 정규화용)
+  function extractPhone(str) {
+    var m = (str || '').match(/01[0-9][- ]?\d{3,4}[- ]?\d{4}/);
+    return m ? m[0].replace(/[- ]/g,'') : '';
+  }
+  function makeKey(headers, row) {
+    var ki = headers.indexOf('고객명');
+    if (ki < 0) ki = headers.indexOf('고객명(전화번호)');
+    var raw = cellStr(row, ki);
+    var phone = extractPhone(raw);
+    return phone || raw;
+  }
+
+  // 상담내용 첫 줄만 추출
+  function firstLine(val) {
+    if (!val) return '';
+    return String(val).trim().split(/\n/)[0].trim();
+  }
+
+  var baseMap = {};
+  baseVals.slice(1).forEach(function(row) {
+    var k = makeKey(baseH, row);
+    if (k) baseMap[k] = row;
+  });
+  var curMap = {};
+  curVals.slice(1).forEach(function(row) {
+    var k = makeKey(curH, row);
+    if (k) curMap[k] = row;
+  });
+
+  var diffs = [];
+  var changed = false;
+
+  Object.keys(baseMap).forEach(function(k) {
+    var br = baseMap[k];
+    var ar = curMap[k];
+    if (!ar) return;
+    var bi = baseH.indexOf('상담 내용');
+    var ai = curH.indexOf('상담 내용');
+    var bv = firstLine(cellStr(br, bi));
+    var av = firstLine(cellStr(ar, ai));
+    if (bv !== av) {
+      var ki = baseH.indexOf('고객명');
+      if (ki < 0) ki = baseH.indexOf('고객명(전화번호)');
+      diffs.push({ key: k, 고객명: cellStr(br, ki) || k,
+        상담내용_기준: bv, 상담내용_현재: av, 상담내용_변경: 'O' });
+      changed = true;
+    }
+  });
+
+  // 고객명 오름차순 정렬
+  diffs.sort(function(a, b) { return (a['고객명']||'').localeCompare(b['고객명']||'', 'ko'); });
+
+  var resSheet = ss.getSheetByName(resultSheetName);
+  if (!resSheet) resSheet = ss.insertSheet(resultSheetName);
+  resSheet.clearContents();
+
+  var ts = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss');
+  var HDR = ['고객명(키)','상담내용_기준(첫줄)','상담내용_현재(첫줄)','변경'];
+  // 메인 테이블: 1행부터 시작
+  resSheet.getRange(1, 1, 1, HDR.length).setValues([HDR]);
+  var rows = diffs.map(function(d){ return [d['고객명'], d['상담내용_기준'], d['상담내용_현재'], d['상담내용_변경']]; });
+  if (rows.length > 0) resSheet.getRange(2, 1, rows.length, HDR.length).setValues(rows);
+
+  // 요약 정보: 테이블 우측 (열 6~)
+  var SC = HDR.length + 2;
+  resSheet.getRange(1, SC).setValue('비교시각');     resSheet.getRange(1, SC+1).setValue(ts);
+  resSheet.getRange(2, SC).setValue('기준점');        resSheet.getRange(2, SC+1).setValue(baseSheetName);
+  resSheet.getRange(3, SC).setValue('총 변경');       resSheet.getRange(3, SC+1).setValue(diffs.length + '건');
+  resSheet.getRange(5, SC).setValue('상담내용 변경'); resSheet.getRange(5, SC+1).setValue(changed ? 'O' : 'X');
+
+  // 자동필터 적용
+  try { resSheet.getRange(1, 1, (rows.length||1)+1, HDR.length).createFilter(); } catch(e) {}
+
+  return {success: true, diffCount: diffs.length, columnSummary: {'상담 내용': changed}};
+}
+
+// ── GET (연결 테스트) ──────────────────────────────
+function doGet(e) {
+  return makeResp({success: true, message: '웹훅 정상 작동 중'});
+}
+
+function makeResp(obj) {
+  var output = ContentService.createTextOutput(JSON.stringify(obj));
+  output.setMimeType(ContentService.MimeType.JSON);
+  return output;
+}
