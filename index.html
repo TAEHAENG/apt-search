@@ -2590,7 +2590,7 @@
       RAW = raw;
       document.getElementById('TC').textContent = RAW.length.toLocaleString();
       FD = RAW.slice();
-      FD.sort(function (a, b) { return ((b['실행일'] || '')).localeCompare((a['실행일'] || ''), 'ko'); });
+      FD.sort(function (a, b) { return natCmp((b['실행일'] || ''), (a['실행일'] || '')); });
       SCROLL_END = 50;
       render();
       applyColHide('apt');
@@ -2600,6 +2600,7 @@
         document.getElementById('ES').style.display = 'block';
         document.getElementById('ES').innerHTML = '<div class="empty-icon">&#128260;</div><p style="margin-bottom:12px;">데이터가 없습니다</p><button onclick="syncSheets()" style="background:var(--accent);border:none;border-radius:8px;color:#fff;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;">동기화하기</button>';
       }
+      refreshBldButtons();
     }
 
     // ── 로드 ──────────────────────────────────────────
@@ -2850,6 +2851,34 @@
       FD = RAW.slice(); asr();
     }
 
+    // 건물 필터 버튼 동적 추가 (RAW에 있지만 버튼 없는 건물명 자동 생성)
+    function refreshBldButtons() {
+      var extra = document.getElementById('bldExtra');
+      if (!extra) return;
+      var bldSet = new Set();
+      RAW.forEach(function(r) { if (r['건물명']) bldSet.add(r['건물명'].trim()); });
+      bldSet.forEach(function(name) {
+        if (!name) return;
+        var id = 'bld-' + name;
+        if (!document.getElementById(id)) {
+          ALL_BLDS.push(name);
+          var btn = document.createElement('button');
+          btn.className = 'sel-btn bld-one';
+          btn.id = id;
+          btn.setAttribute('onclick', 'selBld(' + JSON.stringify(name) + ')');
+          btn.textContent = name;
+          extra.appendChild(btn);
+        }
+      });
+    }
+
+    // 자연수 정렬: 1,2,9,10,11,100 순 (앞 숫자 추출 비교)
+    function natCmp(a, b) {
+      var ra = /^(\d+)(.*)/, ma = ra.exec(a), mb = ra.exec(b);
+      if (ma && mb) { var n = parseInt(ma[1], 10) - parseInt(mb[1], 10); if (n !== 0) return n; return ma[2].localeCompare(mb[2], 'ko'); }
+      return a.localeCompare(b, 'ko');
+    }
+
     // 검색어 파싱: "아이702호","더샵 1205","힐스101동302호"
     function parseSearch(sq) {
       var sorted = ALL_BLDS.slice().sort(function (a, b) { return b.length - a.length; });
@@ -2876,6 +2905,13 @@
           return { bld: b, dong: dong, ho: ho };
         }
       }
+      // 건물명 없는 "101동 103호" / "101동" / "103호" 형태 지원
+      var dh = sq.match(/^([0-9]+)\s*동\s*([0-9]+)\s*호$/);
+      if (dh) return { bld: null, dong: dh[1], ho: dh[2] };
+      var do_ = sq.match(/^([0-9]+)\s*동$/);
+      if (do_) return { bld: null, dong: do_[1], ho: null };
+      var ho_ = sq.match(/^([0-9]+)\s*호$/);
+      if (ho_) return { bld: null, dong: null, ho: ho_[1] };
       return null;
     }
 
@@ -2914,7 +2950,7 @@
       asr();
     }
     function asr() {
-      FD.sort(function (a, b) { return ((a[SC] || '')).localeCompare((b[SC] || ''), 'ko') * SD; });
+      FD.sort(function (a, b) { return natCmp((a[SC] || ''), (b[SC] || '')) * SD; });
       if (fTypes.size > 0) {
         var seen = new Set();
         FD = FD.filter(function (r) {
@@ -3906,13 +3942,11 @@
         var json = JSON.parse(await res.text());
         if (json.success) {
           closeAddNew();
-          // 새 매물은 캐시에 없으므로 즉시 동기화 필요 안내
-          document.getElementById('SYNC_PROMPT').style.display = 'flex';
-          document.getElementById('SYNC_PROMPT').querySelector('div > div:nth-child(3)').textContent = '새 매물을 검색기에서 바로 찾으려면 동기화가 필요합니다.';
-          showToast('✅ 매물 추가 완료!');
+          showToast('✅ 매물 추가 완료! ' + (json.message || '') + ' 동기화 중...');
+          syncSheets(true);
         }
-        else showToast('❌ 실패: ' + json.message);
-      } catch (e) { showToast('❌ 오류: ' + e.message); }
+        else { alert('❌ 매물 추가 실패\n\n' + (json.message || JSON.stringify(json))); }
+      } catch (e) { alert('❌ 매물 추가 오류\n\n' + e.message); }
       finally { btn.textContent = '＋ 매물장에 추가'; btn.disabled = false; }
     }
 
@@ -4446,7 +4480,7 @@
           moreEl.appendChild(btn);
         });
       }
-      _sgFD.sort(function(a, b) { return ((a[_sgSC]||'')).localeCompare((b[_sgSC]||''), 'ko') * _sgSD; });
+      _sgFD.sort(function(a, b) { return natCmp((a[_sgSC]||''), (b[_sgSC]||'')) * _sgSD; });
       SG_PAGE = 1; SG_SCROLL_END = 30;
       sgRender();
     }
@@ -4938,7 +4972,7 @@
         if (sq && [(r['고객명(전화번호)'] || ''), (r['찾는 매물'] || ''), (r['상담 내용'] || ''), (r['제안 매물'] || '')].join(' ').toLowerCase().indexOf(sq) === -1) return false;
         return true;
       });
-      _dbListFiltered.sort(function(a, b) { return ((a[_dbSC]||'')).localeCompare((b[_dbSC]||''), 'ko') * _dbSD; });
+      _dbListFiltered.sort(function(a, b) { return natCmp((a[_dbSC]||''), (b[_dbSC]||'')) * _dbSD; });
       var cnt = document.getElementById('db-count'); if (cnt) cnt.textContent = _dbListFiltered.length + '건';
       renderDbTable();
     }
