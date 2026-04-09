@@ -2005,14 +2005,35 @@
         target="_blank">📋 매물장</a>
       <button class="hdr-btn hdr-btn-add" id="hdr-apt-add" onclick="openAddNew()">＋ 새 매물</button>
       <button class="hdr-btn" id="settingsBtn" onclick="toggleSettings()" style="background:rgba(148,163,184,0.15);border:1.5px solid rgba(148,163,184,0.35);color:var(--text3);">⚙ 설정</button>
-      <button class="hdr-btn" id="safetyCheckBtn" onclick="runSafetyCheck(false)" style="background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24;">🔍 안전검사</button>
+      <div style="position:relative;display:inline-block;" id="safetyWrap">
+        <button class="hdr-btn" id="safetyCheckBtn" onclick="toggleSafetyDrop('apt')" style="background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24;">🔍 안전검사 ▾</button>
+        <div id="safetyDrop-apt" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.18);z-index:300;min-width:160px;overflow:hidden;">
+          <button onclick="hideSafetyDrop('apt');runSafetyCheck(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔍 기본 (기준점→현재)</button>
+          <div style="height:1px;background:var(--border);margin:0 8px;"></div>
+          <button onclick="hideSafetyDrop('apt');runSafetyCheckReverse(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔄 역순 (현재→기준점)</button>
+        </div>
+      </div>
       <!-- 상가 전용 버튼 -->
       <a class="hdr-btn hdr-btn-sheet" id="hdr-sg-sheet" style="display:none;"
         href="https://docs.google.com/spreadsheets/d/19KWBXPiK-qXycopkNRHNMddmux2cKohtm7fLLyfiZGw/edit"
         target="_blank">📋 상가매물장</a>
       <button class="hdr-btn hdr-btn-add" id="hdr-sg-add" style="display:none;" onclick="sgOpenAddNew()">＋ 새 상가매물</button>
-      <button class="hdr-btn" id="sgSafetyCheckBtn" style="display:none;background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24;" onclick="runSgSafetyCheck(false)">🔍 상가안전검사</button>
-      <button class="hdr-btn" id="buyerSafetyCheckBtn" style="display:none;background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24;" onclick="runBuyerSafetyCheck(false)">🔍 구입자안전검사</button>
+      <div style="position:relative;display:none;" id="sgSafetyWrap">
+        <button class="hdr-btn" id="sgSafetyCheckBtn" onclick="toggleSafetyDrop('sg')" style="background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24;">🔍 상가안전검사 ▾</button>
+        <div id="safetyDrop-sg" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.18);z-index:300;min-width:180px;overflow:hidden;">
+          <button onclick="hideSafetyDrop('sg');runSgSafetyCheck(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔍 기본 (기준점→현재)</button>
+          <div style="height:1px;background:var(--border);margin:0 8px;"></div>
+          <button onclick="hideSafetyDrop('sg');runSgSafetyCheckReverse(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔄 역순 (현재→기준점)</button>
+        </div>
+      </div>
+      <div style="position:relative;display:none;" id="buyerSafetyWrap">
+        <button class="hdr-btn" id="buyerSafetyCheckBtn" onclick="toggleSafetyDrop('buyer')" style="background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24;">🔍 구입자안전검사 ▾</button>
+        <div id="safetyDrop-buyer" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.18);z-index:300;min-width:190px;overflow:hidden;">
+          <button onclick="hideSafetyDrop('buyer');runBuyerSafetyCheck(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔍 기본 (기준점→현재)</button>
+          <div style="height:1px;background:var(--border);margin:0 8px;"></div>
+          <button onclick="hideSafetyDrop('buyer');runBuyerSafetyCheckReverse(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔄 역순 (현재→기준점)</button>
+        </div>
+      </div>
       <button class="hdr-btn" onclick="window.print()" style="background:rgba(148,163,184,0.15);border:1.5px solid rgba(148,163,184,0.35);color:var(--text3);">🖨 인쇄</button>
       <button class="sync-btn" id="SB" onclick="syncSheets()"><span id="SI">🔄</span></button>
       <div class="total-badge">총 <span id="TC">-</span>건</div>
@@ -2726,7 +2747,7 @@
         var sn = await getSheetName();
         if (!silent) lt.textContent = '"' + sn + '" 로드 중...';
         // 매물 시트만 로드 (구입자는 탭 진입 시 별도 loadBuyerDb 호출)
-        var dr = await fetch('https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent(sn) + '?key=' + AKEY);
+        var dr = await fetch('https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent(sn) + '?key=' + AKEY + '&_t=' + Date.now());
         var dj = await dr.json();
         if (!dj.values || dj.values.length < 2) throw new Error('데이터 없음');
         var hd = dj.values[0].map(function (h) { return h.replace(/\n/g, ' ').trim(); });
@@ -2738,7 +2759,7 @@
             }
           });
           return o;
-        });
+        }).filter(function(o) { return Object.keys(o).some(function(k){ return k !== '__row__' && o[k]; }); });
         saveCache(nd);
         document.getElementById('LS').textContent = '✓ ' + new Date().toLocaleTimeString('ko-KR') + ' 동기화';
         initData(nd); applyAll();
@@ -3351,6 +3372,101 @@
         clearTimeout(timeoutId);
         if (btn) btn.disabled = false;
       }
+    }
+
+    // ── 안전검사 드롭다운 ─────────────────────────────
+    function toggleSafetyDrop(tab) {
+      var drop = document.getElementById('safetyDrop-' + tab);
+      if (!drop) return;
+      var isOpen = drop.style.display !== 'none';
+      // 모든 드롭다운 닫기
+      ['apt','sg','buyer'].forEach(function(t){ var d = document.getElementById('safetyDrop-' + t); if (d) d.style.display = 'none'; });
+      if (!isOpen) drop.style.display = 'block';
+    }
+    function hideSafetyDrop(tab) { var d = document.getElementById('safetyDrop-' + tab); if (d) d.style.display = 'none'; }
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#safetyWrap') && !e.target.closest('#sgSafetyWrap') && !e.target.closest('#buyerSafetyWrap')) {
+        ['apt','sg','buyer'].forEach(function(t){ var d = document.getElementById('safetyDrop-' + t); if (d) d.style.display = 'none'; });
+      }
+    });
+
+    // ── 역순 안전검사 (현재→기준점) ──────────────────
+    async function runSafetyCheckReverse(silent) {
+      var btn = document.getElementById('safetyCheckBtn');
+      if (btn) { btn.textContent = '⏳ 역순 검사 중... ▾'; btn.disabled = true; }
+      var controller = new AbortController();
+      var timeoutId = setTimeout(function() {
+        controller.abort();
+        var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent('비교결과-역순') + '?key=' + AKEY + '&_t=' + Date.now();
+        fetch(apiUrl).then(function(r){ return r.json(); }).then(function(j){
+          var count = (j.values && j.values.length > 1) ? j.values.length - 1 : 0;
+          if (btn) { btn.disabled = false; btn.style.background = count > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.borderColor = count > 0 ? 'rgba(239,68,68,0.5)' : 'rgba(52,211,153,0.4)'; btn.style.color = count > 0 ? '#f87171' : '#34d399'; btn.textContent = count > 0 ? '⚠️ 역순 ' + count + '건 ▾' : '✅ 역순정상 ▾'; }
+          showToast(count > 0 ? '⚠️ 역순: ' + count + '건 미기등록\n→ 비교결과-역순 시트 확인' : '✅ 역순: 기준점 미등록 없음');
+        }).catch(function(){ if (btn) { btn.disabled = false; btn.textContent = '🔍 안전검사 ▾'; } });
+      }, 5 * 60 * 1000);
+      try {
+        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'compareReverse' }), signal: controller.signal });
+        clearTimeout(timeoutId);
+        var json = JSON.parse(await res.text());
+        if (!json.success) { if (!silent) showToast('⚠️ 역순 검사 실패: ' + (json.message || '')); return; }
+        var newCount = json.newCount || 0;
+        if (newCount === 0) { if (!silent) showToast('✅ 역순: 기준점 미등록 항목 없음'); }
+        else { showToast('⚠️ 역순: 기준점 미등록 ' + newCount + '건\n→ 비교결과-역순 시트 확인'); }
+        if (btn) { btn.style.background = newCount > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.borderColor = newCount > 0 ? 'rgba(239,68,68,0.5)' : 'rgba(52,211,153,0.4)'; btn.style.color = newCount > 0 ? '#f87171' : '#34d399'; btn.textContent = newCount > 0 ? '⚠️ 역순 ' + newCount + '건 ▾' : '✅ 역순정상 ▾'; }
+      } catch (e) { clearTimeout(timeoutId); if (e.name !== 'AbortError' && !silent) showToast('❌ 역순 검사 오류: ' + e.message); }
+      finally { clearTimeout(timeoutId); if (btn) btn.disabled = false; }
+    }
+
+    async function runSgSafetyCheckReverse(silent) {
+      var btn = document.getElementById('sgSafetyCheckBtn');
+      if (btn) { btn.textContent = '⏳ 역순 검사 중... ▾'; btn.disabled = true; }
+      var controller = new AbortController();
+      var timeoutId = setTimeout(function() {
+        controller.abort();
+        var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SG_SSID + '/values/' + encodeURIComponent('비교결과-상가역순') + '?key=' + AKEY + '&_t=' + Date.now();
+        fetch(apiUrl).then(function(r){ return r.json(); }).then(function(j){
+          var count = (j.values && j.values.length > 1) ? j.values.length - 1 : 0;
+          if (btn) { btn.disabled = false; btn.style.background = count > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.color = count > 0 ? '#f87171' : '#34d399'; btn.textContent = count > 0 ? '⚠️ 역순 ' + count + '건 ▾' : '✅ 상가역순정상 ▾'; }
+        }).catch(function(){ if (btn) { btn.disabled = false; btn.textContent = '🔍 상가안전검사 ▾'; } });
+      }, 5 * 60 * 1000);
+      try {
+        var res = await fetch(SG_ASURL, { method: 'POST', headers: {'Content-Type':'text/plain'},
+          body: safeStringify({ action: 'compareSanggaReverse', baselineSheet: '상가DB_기준점20260328', resultSheet: '비교결과-상가역순', keyFields: ['건물명','측','동','호'] }), signal: controller.signal });
+        clearTimeout(timeoutId);
+        var json = JSON.parse(await res.text());
+        if (!json.success) { if (!silent) showToast('⚠️ 상가 역순 검사 실패: ' + (json.message || '')); return; }
+        var newCount = json.newCount || 0;
+        if (newCount === 0) { if (!silent) showToast('✅ 상가 역순: 기준점 미등록 없음'); }
+        else { showToast('⚠️ 상가 역순: 기준점 미등록 ' + newCount + '건\n→ 비교결과-상가역순 시트 확인'); }
+        if (btn) { btn.style.background = newCount > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.color = newCount > 0 ? '#f87171' : '#34d399'; btn.textContent = newCount > 0 ? '⚠️ 역순 ' + newCount + '건 ▾' : '✅ 상가역순정상 ▾'; }
+      } catch (e) { clearTimeout(timeoutId); if (e.name !== 'AbortError' && !silent) showToast('❌ 상가 역순 검사 오류: ' + e.message); }
+      finally { clearTimeout(timeoutId); if (btn) btn.disabled = false; }
+    }
+
+    async function runBuyerSafetyCheckReverse(silent) {
+      var btn = document.getElementById('buyerSafetyCheckBtn');
+      if (btn) { btn.textContent = '⏳ 역순 검사 중... ▾'; btn.disabled = true; }
+      var controller = new AbortController();
+      var timeoutId = setTimeout(function() {
+        controller.abort();
+        var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent('비교결과-구입자역순') + '?key=' + AKEY + '&_t=' + Date.now();
+        fetch(apiUrl).then(function(r){ return r.json(); }).then(function(j){
+          var count = (j.values && j.values.length > 1) ? j.values.length - 1 : 0;
+          if (btn) { btn.disabled = false; btn.style.background = count > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.color = count > 0 ? '#f87171' : '#34d399'; btn.textContent = count > 0 ? '⚠️ 역순 ' + count + '건 ▾' : '✅ 구입자역순정상 ▾'; }
+        }).catch(function(){ if (btn) { btn.disabled = false; btn.textContent = '🔍 구입자안전검사 ▾'; } });
+      }, 5 * 60 * 1000);
+      try {
+        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' },
+          body: safeStringify({ action: 'compareBuyerReverse', baselineSheet: '구입자_기준점20260329', resultSheet: '비교결과-구입자역순' }), signal: controller.signal });
+        clearTimeout(timeoutId);
+        var json = JSON.parse(await res.text());
+        if (!json.success) { if (!silent) showToast('⚠️ 구입자 역순 검사 실패: ' + (json.message || '')); return; }
+        var newCount = json.newCount || 0;
+        if (newCount === 0) { if (!silent) showToast('✅ 구입자 역순: 기준점 미등록 없음'); }
+        else { showToast('⚠️ 구입자 역순: 기준점 미등록 ' + newCount + '건\n→ 비교결과-구입자역순 시트 확인'); }
+        if (btn) { btn.style.background = newCount > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.color = newCount > 0 ? '#f87171' : '#34d399'; btn.textContent = newCount > 0 ? '⚠️ 역순 ' + newCount + '건 ▾' : '✅ 구입자역순정상 ▾'; }
+      } catch (e) { clearTimeout(timeoutId); if (e.name !== 'AbortError' && !silent) showToast('❌ 구입자 역순 검사 오류: ' + e.message); }
+      finally { clearTimeout(timeoutId); if (btn) btn.disabled = false; }
     }
 
     function showSyncPrompt() {
@@ -4118,15 +4234,18 @@
       var bv = document.getElementById('buyer-view'); if (bv) bv.style.display = isBuyer ? 'block' : 'none';
 
       // 헤더 버튼 표시 전환
-      ['hdr-apt-msg','hdr-apt-sheet','hdr-apt-add','safetyCheckBtn'].forEach(function(id) {
+      ['hdr-apt-msg','hdr-apt-sheet','hdr-apt-add'].forEach(function(id) {
         var el = document.getElementById(id); if (el) el.style.display = isSearch ? '' : 'none';
       });
-      ['hdr-sg-sheet','hdr-sg-add','sgSafetyCheckBtn'].forEach(function(id) {
+      var safetyWrap = document.getElementById('safetyWrap');
+      if (safetyWrap) safetyWrap.style.display = isSearch ? 'inline-block' : 'none';
+      ['hdr-sg-sheet','hdr-sg-add'].forEach(function(id) {
         var el = document.getElementById(id); if (el) el.style.display = isSangga ? '' : 'none';
       });
-
-      var buyerBtn = document.getElementById('buyerSafetyCheckBtn');
-      if (buyerBtn) buyerBtn.style.display = isBuyer ? '' : 'none';
+      var sgSafetyWrap = document.getElementById('sgSafetyWrap');
+      if (sgSafetyWrap) sgSafetyWrap.style.display = isSangga ? 'inline-block' : 'none';
+      var buyerSafetyWrap = document.getElementById('buyerSafetyWrap');
+      if (buyerSafetyWrap) buyerSafetyWrap.style.display = isBuyer ? 'inline-block' : 'none';
 
       // 탭 활성화
       document.getElementById('vbtn-search').classList.toggle('active', isSearch);
@@ -4191,7 +4310,7 @@
       sb.classList.add('loading'); si.textContent = '↻'; si.className = 'spin';
       if (!silent) { lo.classList.add('show'); lt.textContent = '상가DB 로드 중...'; }
       try {
-        var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SG_SSID + '/values/' + encodeURIComponent(SG_SHEET_NAME) + '?key=' + AKEY;
+        var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SG_SSID + '/values/' + encodeURIComponent(SG_SHEET_NAME) + '?key=' + AKEY + '&_t=' + Date.now();
         var resp = await fetch(url);
         var json = await resp.json();
         if (!json.values || json.values.length < 2) throw new Error('상가DB 데이터 없음');
@@ -4200,7 +4319,7 @@
           var o = { '__row__': i + 2 };
           hd.forEach(function(h, j){ if (row[j] && row[j].trim()) o[h] = row[j].trim(); });
           return o;
-        });
+        }).filter(function(o){ return Object.keys(o).some(function(k){ return k !== '__row__' && o[k]; }); });
         sgSaveCache(nd);
         sgInitData(nd);
         document.getElementById('sg-LS').textContent = '✓ ' + new Date().toLocaleTimeString('ko-KR');
@@ -4935,7 +5054,7 @@
       if (!tbody) return;
       if (!silent) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text3);">불러오는 중...</td></tr>';
       try {
-        var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent(BUYER_SHEET) + '?key=' + AKEY;
+        var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent(BUYER_SHEET) + '?key=' + AKEY + '&_t=' + Date.now();
         var res = await fetch(url); var json = await res.json();
         if (json.error) throw new Error(json.error.message);
         if (!json.values || json.values.length < 2) {
