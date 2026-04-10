@@ -2560,7 +2560,7 @@
     var SSID = '1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw';
     var AKEY = 'AIzaSyD5YiNNP1d9cmnehlSLDViEOBdjZhealMw';
     var SGID = '505657259';
-    var ASURL = 'https://script.google.com/macros/s/AKfycby5Bu-AlEW3qkeZnLQFzv2Yfqc2rMt4cs3IjPmKV4HfDszidZuYv4HZF0aarIY_LDrdQg/exec';
+    var ASURL = 'https://script.google.com/macros/s/AKfycbzi9seNa_t0NEmP2Ft5Zy08fUrgX8Hk3hVXGycNOR_ZVeKTAM4E_oq88JkuiW0EbgFVFA/exec';
     var TM = { "매매": ["매매", "매전세", "매월세", "매전월"], "전세": ["전세", "매전세", "전월세", "매전월"], "월세": ["월세", "매월세", "전월세", "매전월"] };
     var B6 = ["아이", "아이2", "더샵", "힐스", "중푸", "송푸"];
     var B6_SET = new Set(B6);
@@ -2747,9 +2747,10 @@
         var sn = await getSheetName();
         if (!silent) lt.textContent = '"' + sn + '" 로드 중...';
         // 매물 시트만 로드 (구입자는 탭 진입 시 별도 loadBuyerDb 호출)
-        var dr = await fetch('https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent(sn) + '?key=' + AKEY + '&_t=' + Date.now());
+        var dr = await fetch('https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent(sn) + '?key=' + AKEY, { cache: 'no-store' });
         var dj = await dr.json();
-        if (!dj.values || dj.values.length < 2) throw new Error('데이터 없음');
+        if (dj.error) throw new Error(dj.error.message || 'API 오류');
+        if (!dj.values || dj.values.length < 2) throw new Error('데이터 없음 (시트: ' + sn + ')');
         var hd = dj.values[0].map(function (h) { return h.replace(/\n/g, ' ').trim(); });
         var nd = dj.values.slice(1).map(function (row, i) {
           var o = { '__row__': i + 2 };
@@ -3229,7 +3230,7 @@
       var timeoutId = setTimeout(function() {
         controller.abort();
         var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent('비교결과') + '?key=' + AKEY;
-        fetch(apiUrl).then(function(r){ return r.json(); }).then(function(j){
+        fetch(apiUrl, { cache: 'no-store' }).then(function(r){ return r.json(); }).then(function(j){
           var count = (j.values && j.values.length > 1) ? j.values.length - 1 : 0;
           if (btn) { btn.disabled = false; btn.style.background = count > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.borderColor = count > 0 ? 'rgba(239,68,68,0.5)' : 'rgba(52,211,153,0.4)'; btn.style.color = count > 0 ? '#f87171' : '#34d399'; btn.textContent = count > 0 ? '⚠️ ' + count + '건 변경' : '✅ 정상'; }
           showToast(count > 0 ? '⚠️ 안전검사: ' + count + '건 변경 감지\n→ 비교결과 시트 확인' : '✅ 안전검사: 기준점과 차이 없음');
@@ -3277,7 +3278,7 @@
       var timeoutId = setTimeout(function() {
         controller.abort();
         var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SG_SSID + '/values/' + encodeURIComponent('비교결과-상가') + '?key=' + AKEY;
-        fetch(apiUrl).then(function(r){ return r.json(); }).then(function(j){
+        fetch(apiUrl, { cache: 'no-store' }).then(function(r){ return r.json(); }).then(function(j){
           var count = (j.values && j.values.length > 1) ? j.values.length - 1 : 0;
           if (btn) { btn.disabled = false; btn.style.background = count > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.borderColor = count > 0 ? 'rgba(239,68,68,0.5)' : 'rgba(52,211,153,0.4)'; btn.style.color = count > 0 ? '#f87171' : '#34d399'; btn.textContent = count > 0 ? '⚠️ ' + count + '건 변경' : '✅ 정상'; }
           showToast(count > 0 ? '⚠️ 상가 안전검사: ' + count + '건 변경 감지\n→ 비교결과-상가 시트 확인' : '✅ 상가 안전검사: 기준점과 차이 없음');
@@ -3331,7 +3332,7 @@
       var timeoutId = setTimeout(function() {
         controller.abort();
         var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent('비교결과-구입자') + '?key=' + AKEY;
-        fetch(apiUrl).then(function(r){ return r.json(); }).then(function(j){
+        fetch(apiUrl, { cache: 'no-store' }).then(function(r){ return r.json(); }).then(function(j){
           var count = (j.values && j.values.length > 1) ? j.values.length - 1 : 0;
           if (btn) { btn.disabled = false; btn.style.background = count > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.borderColor = count > 0 ? 'rgba(239,68,68,0.5)' : 'rgba(52,211,153,0.4)'; btn.style.color = count > 0 ? '#f87171' : '#34d399'; btn.textContent = count > 0 ? '⚠️ ' + count + '건 변경' : '✅ 정상'; }
           showToast(count > 0 ? '⚠️ 구입자 안전검사: ' + count + '건 변경 감지\n→ 비교결과-구입자 시트 확인' : '✅ 구입자 안전검사: 기준점과 차이 없음');
@@ -3397,8 +3398,8 @@
       var controller = new AbortController();
       var timeoutId = setTimeout(function() {
         controller.abort();
-        var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent('비교결과-역순') + '?key=' + AKEY + '&_t=' + Date.now();
-        fetch(apiUrl).then(function(r){ return r.json(); }).then(function(j){
+        var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent('비교결과-역순') + '?key=' + AKEY;
+        fetch(apiUrl, { cache: 'no-store' }).then(function(r){ return r.json(); }).then(function(j){
           var count = (j.values && j.values.length > 1) ? j.values.length - 1 : 0;
           if (btn) { btn.disabled = false; btn.style.background = count > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.borderColor = count > 0 ? 'rgba(239,68,68,0.5)' : 'rgba(52,211,153,0.4)'; btn.style.color = count > 0 ? '#f87171' : '#34d399'; btn.textContent = count > 0 ? '⚠️ 역순 ' + count + '건 ▾' : '✅ 역순정상 ▾'; }
           showToast(count > 0 ? '⚠️ 역순: ' + count + '건 미기등록\n→ 비교결과-역순 시트 확인' : '✅ 역순: 기준점 미등록 없음');
@@ -3423,8 +3424,8 @@
       var controller = new AbortController();
       var timeoutId = setTimeout(function() {
         controller.abort();
-        var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SG_SSID + '/values/' + encodeURIComponent('비교결과-상가역순') + '?key=' + AKEY + '&_t=' + Date.now();
-        fetch(apiUrl).then(function(r){ return r.json(); }).then(function(j){
+        var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SG_SSID + '/values/' + encodeURIComponent('비교결과-상가역순') + '?key=' + AKEY;
+        fetch(apiUrl, { cache: 'no-store' }).then(function(r){ return r.json(); }).then(function(j){
           var count = (j.values && j.values.length > 1) ? j.values.length - 1 : 0;
           if (btn) { btn.disabled = false; btn.style.background = count > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.color = count > 0 ? '#f87171' : '#34d399'; btn.textContent = count > 0 ? '⚠️ 역순 ' + count + '건 ▾' : '✅ 상가역순정상 ▾'; }
         }).catch(function(){ if (btn) { btn.disabled = false; btn.textContent = '🔍 상가안전검사 ▾'; } });
@@ -3449,8 +3450,8 @@
       var controller = new AbortController();
       var timeoutId = setTimeout(function() {
         controller.abort();
-        var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent('비교결과-구입자역순') + '?key=' + AKEY + '&_t=' + Date.now();
-        fetch(apiUrl).then(function(r){ return r.json(); }).then(function(j){
+        var apiUrl = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent('비교결과-구입자역순') + '?key=' + AKEY;
+        fetch(apiUrl, { cache: 'no-store' }).then(function(r){ return r.json(); }).then(function(j){
           var count = (j.values && j.values.length > 1) ? j.values.length - 1 : 0;
           if (btn) { btn.disabled = false; btn.style.background = count > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(52,211,153,0.15)'; btn.style.color = count > 0 ? '#f87171' : '#34d399'; btn.textContent = count > 0 ? '⚠️ 역순 ' + count + '건 ▾' : '✅ 구입자역순정상 ▾'; }
         }).catch(function(){ if (btn) { btn.disabled = false; btn.textContent = '🔍 구입자안전검사 ▾'; } });
@@ -4291,7 +4292,7 @@
     var SG_SSID = '19KWBXPiK-qXycopkNRHNMddmux2cKohtm7fLLyfiZGw';
     var SG_SHEET_NAME = '상가DB';
     // 상가매물장 Apps Script URL (배포 후 아래에 입력)
-    var SG_ASURL = 'https://script.google.com/macros/s/AKfycbzUCouvVx_0b_K1dHklD2NNzt7IYMVpcCwim3keQUXJwnZtZOdaXnCvFgiEh7oN6QTc/exec';
+    var SG_ASURL = 'https://script.google.com/macros/s/AKfycbwvXX1HeXgEL2nCmcpZRt-RA-jfcslkODWfku0GoEu_--0uSiy0PBTNSu_DaOPPUgxi/exec';
 
     // ── 상가 상태 ─────────────────────────────────────
     var _sgRaw = [], _sgFD = [];
@@ -4310,8 +4311,8 @@
       sb.classList.add('loading'); si.textContent = '↻'; si.className = 'spin';
       if (!silent) { lo.classList.add('show'); lt.textContent = '상가DB 로드 중...'; }
       try {
-        var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SG_SSID + '/values/' + encodeURIComponent(SG_SHEET_NAME) + '?key=' + AKEY + '&_t=' + Date.now();
-        var resp = await fetch(url);
+        var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SG_SSID + '/values/' + encodeURIComponent(SG_SHEET_NAME) + '?key=' + AKEY;
+        var resp = await fetch(url, { cache: 'no-store' });
         var json = await resp.json();
         if (!json.values || json.values.length < 2) throw new Error('상가DB 데이터 없음');
         var hd = json.values[0].map(function(h){ return h.replace(/\n/g,' ').trim(); });
@@ -5054,8 +5055,8 @@
       if (!tbody) return;
       if (!silent) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text3);">불러오는 중...</td></tr>';
       try {
-        var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent(BUYER_SHEET) + '?key=' + AKEY + '&_t=' + Date.now();
-        var res = await fetch(url); var json = await res.json();
+        var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SSID + '/values/' + encodeURIComponent(BUYER_SHEET) + '?key=' + AKEY;
+        var res = await fetch(url, { cache: 'no-store' }); var json = await res.json();
         if (json.error) throw new Error(json.error.message);
         if (!json.values || json.values.length < 2) {
           if (!silent) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text3);">등록된 상담 기록이 없습니다</td></tr>'; document.getElementById('db-count').textContent = '0건'; }
