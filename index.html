@@ -316,6 +316,21 @@
       border-color: var(--accent);
     }
 
+    .search-cols {
+      display: flex; gap: 4px; flex: 1; align-items: center;
+    }
+
+    .col-search-input {
+      flex: 1; min-width: 0; max-width: 80px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 8px; color: var(--text);
+      font-size: 13px; outline: none; font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .col-search-input:focus {
+      border-color: var(--accent);
+    }
+
     .search-input::placeholder {
       color: var(--text3);
     }
@@ -1529,8 +1544,8 @@
     }
     /* 구입자 분류 섹션 */
     .classify-section { margin-bottom: 18px; }
-    .classify-section-title { font-size: 12px; font-weight: 700; color: var(--text1); margin-bottom: 6px; padding: 6px 10px; background: rgba(90,122,138,0.08); border-left: 3px solid #5a7a8a; border-radius: 0 5px 5px 0; }
-    .classify-group-title { font-size: 11px; color: var(--text3); font-weight: 600; margin: 10px 0 4px; padding-left: 4px; border-bottom: 1px solid var(--border); padding-bottom: 3px; }
+    .classify-section-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 6px; padding: 6px 10px; background: rgba(90,122,138,0.08); border-left: 3px solid #5a7a8a; border-radius: 0 5px 5px 0; }
+    .classify-group-title { font-size: 11px; color: var(--text2); font-weight: 700; margin: 10px 0 4px; padding-left: 4px; border-bottom: 1px solid var(--border); padding-bottom: 3px; }
     .classify-row { display: grid; gap: 4px; padding: 6px 8px; border-radius: 6px; background: var(--surface2); margin-bottom: 4px; font-size: 11px; line-height: 1.5; cursor: pointer; }
     .classify-row:active { background: rgba(79,156,249,0.1); }
     .classify-row-name { font-weight: 600; color: var(--text1); }
@@ -2060,6 +2075,19 @@
         <button class="sel-btn type-jun" id="type-junwol" onclick="selTypeSingle('전월세')">전월세</button>
         <button class="sel-btn type-mae" id="type-maejunwol" onclick="selTypeSingle('매전월')">매전월</button>
       </div>
+      <div style="display:flex;align-items:center;gap:4px;margin-left:auto;flex-shrink:0;">
+        <button id="expire-filter-btn" onclick="toggleExpireFilter()" style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);border-radius:6px;color:#fbbf24;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;">📅 만기일</button>
+        <div id="expire-filter-panel" style="display:none;flex-shrink:0;display:flex;align-items:center;gap:6px;padding:0 8px;">
+          <input type="date" id="expire-from" oninput="applyAll()" style="padding:6px;font-size:12px;border:1px solid var(--border);border-radius:4px;background:var(--surface2);color:var(--text);">
+          <span style="color:var(--text3);">~</span>
+          <input type="number" id="expire-months" min="1" max="24" placeholder="개월" oninput="applyAll()" style="width:60px;padding:6px;font-size:12px;border:1px solid var(--border);border-radius:4px;background:var(--surface2);color:var(--text);">
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text2);white-space:nowrap;">
+            <input type="checkbox" id="expire-include-empty" onchange="applyAll()" style="width:14px;height:14px;cursor:pointer;">
+            <span>만기 미등록</span>
+          </label>
+          <button onclick="clearExpireFilter()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:4px;color:#f87171;padding:4px 8px;font-size:12px;cursor:pointer;flex-shrink:0;">✕</button>
+        </div>
+      </div>
     </div>
     <div class="filter-divider"></div>
     <div class="filter-row">
@@ -2142,6 +2170,11 @@
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
         <input class="search-input" id="SI2" type="text" placeholder="동 · 호 · 전화번호 · 소유자 (전체 건물 검색)">
+      </div>
+      <div class="search-cols">
+        <input id="SI-dong" class="col-search-input" type="text" placeholder="동">
+        <input id="SI-ho" class="col-search-input" type="text" placeholder="호">
+        <input id="SI-type" class="col-search-input" type="text" placeholder="타입">
       </div>
       <button class="reset-btn" onclick="resetAll()">초기화</button>
     </div>
@@ -2573,7 +2606,8 @@
 
     // ── 상태 ─────────────────────────────────────────
     var RAW = [], FD = [], SC = '실행일', SD = -1, SCROLL_END = 50;
-    var fTypes = new Set(), fBlds = new Set(), fP = null, fProcs = new Set(), fS = '';
+    var fTypes = new Set(), fBlds = new Set(), fP = null, fProcs = new Set(), fS = '', fDong = '', fHo = '', fTypeCol = '';
+    var fExpireActive = false, fExpireFrom = '', fExpireMonths = null, fExpireIncludeEmpty = false;
     var CUR_IDX = -1, _editMsgIdx = -1, _curMsgBody = '';
     var _sheetName = '';
 
@@ -2861,13 +2895,50 @@
       else { fProcs.add(val); btn.classList.add('active'); }
       applyAll();
     }
+
+    // ── 만기일 필터 ──────────────────────────────────
+    function toggleExpireFilter() {
+      var panel = document.getElementById('expire-filter-panel');
+      var btn = document.getElementById('expire-filter-btn');
+      var wasHidden = panel.style.display === 'none';
+      panel.style.display = wasHidden ? 'flex' : 'none';
+      if (wasHidden) {
+        btn.style.background = 'rgba(251,191,36,0.25)';
+        btn.style.borderColor = 'rgba(251,191,36,0.5)';
+        fExpireActive = true;
+      } else {
+        clearExpireFilter();
+      }
+    }
+    function clearExpireFilter() {
+      var panel = document.getElementById('expire-filter-panel');
+      var btn = document.getElementById('expire-filter-btn');
+      var expireFrom = document.getElementById('expire-from');
+      var expireMonths = document.getElementById('expire-months');
+      var expireIncludeEmpty = document.getElementById('expire-include-empty');
+      panel.style.display = 'none';
+      btn.style.background = 'rgba(251,191,36,0.15)';
+      btn.style.borderColor = 'rgba(251,191,36,0.4)';
+      fExpireActive = false;
+      fExpireFrom = '';
+      fExpireMonths = null;
+      fExpireIncludeEmpty = false;
+      if (expireFrom) expireFrom.value = '';
+      if (expireMonths) expireMonths.value = '';
+      if (expireIncludeEmpty) expireIncludeEmpty.checked = false;
+      applyAll();
+    }
+
     function toggleProcExpand() {
       var ex = document.getElementById('procExtra'), btn = document.getElementById('procExpandBtn');
       var open = ex.classList.toggle('open'); btn.textContent = open ? '－ 접기' : '＋ 항목별 선택';
     }
     function resetAll() {
-      fTypes.clear(); fBlds.clear(); fP = null; fProcs.clear(); fS = '';
+      fTypes.clear(); fBlds.clear(); fP = null; fProcs.clear(); fS = ''; fDong = ''; fHo = ''; fTypeCol = '';
+      fExpireActive = false; fExpireFrom = ''; fExpireMonths = null; fExpireIncludeEmpty = false;
       document.getElementById('SI2').value = '';
+      ['SI-dong','SI-ho','SI-type'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      clearExpireFilter();
       document.querySelectorAll('.sel-btn').forEach(function (b) { b.classList.remove('active'); });
       var allBtn = document.getElementById('type-all'); if (allBtn) allBtn.classList.add('active');
       FD = RAW.slice(); asr();
@@ -2939,12 +3010,40 @@
 
     function applyAll() {
       var sq = fS.toLowerCase().trim();
+      // 만기일 필터 값 읽기
+      if (fExpireActive) {
+        var expireFromEl = document.getElementById('expire-from');
+        var expireMonthsEl = document.getElementById('expire-months');
+        var expireIncludeEmptyEl = document.getElementById('expire-include-empty');
+        fExpireFrom = expireFromEl ? expireFromEl.value : '';
+        fExpireMonths = expireMonthsEl && expireMonthsEl.value ? parseInt(expireMonthsEl.value) : null;
+        fExpireIncludeEmpty = expireIncludeEmptyEl ? expireIncludeEmptyEl.checked : false;
+      }
       FD = RAW.filter(function (r) {
         // 필터 항상 먼저 적용
         if (fTypes.size > 0 && !fTypes.has(r['유형'])) return false;
         if (fBlds.size > 0 && !fBlds.has(r['건물명'])) return false;
         if (fP && fP !== 'A') { var ip = PP.indexOf(r['프로세스']) !== -1; if (fP === 'P' && !ip) return false; if (fP === 'L' && ip) return false; }
         if (fProcs.size > 0 && !fProcs.has(r['프로세스'])) return false;
+        // 개별열 검색 적용
+        if (fDong && (r['동'] || '').replace(/[^0-9]/g, '') !== fDong) return false;
+        if (fHo && (r['호'] || '').replace(/[^0-9]/g, '').indexOf(fHo) === -1) return false;
+        if (fTypeCol && (r['타입(공용)'] || '').indexOf(fTypeCol) === -1) return false;
+        // 만기일 필터 적용
+        if (fExpireActive && fExpireMonths) {
+          var fromDate = fExpireFrom ? new Date(fExpireFrom) : new Date();
+          var toDate = new Date(fromDate);
+          toDate.setMonth(toDate.getMonth() + fExpireMonths);
+          var expireStr = (r['만기일'] || '').trim();
+          if (!expireStr) {
+            if (!fExpireIncludeEmpty) return false; // 만기일 없으면서 미등록 미체크면 제외
+          } else {
+            var expireDate = new Date(expireStr);
+            if (isNaN(expireDate.getTime()) || expireDate < fromDate || expireDate > toDate) {
+              return false;
+            }
+          }
+        }
         // 검색어 적용
         if (sq) {
           var p = parseSearch(sq);
@@ -4207,6 +4306,15 @@
     }
 
     document.getElementById('SI2').addEventListener('input', function (e) { fS = e.target.value; applyAll(); });
+    ['SI-dong','SI-ho','SI-type'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('input', function(e) {
+        if (id==='SI-dong') fDong = e.target.value.trim();
+        else if (id==='SI-ho') fHo = e.target.value.trim();
+        else fTypeCol = e.target.value.trim();
+        applyAll();
+      });
+    });
 
     // ══════════ 주요특징 태그 ══════════
     var _editTags = [];
@@ -4301,7 +4409,7 @@
 
     // ── 상가 상태 ─────────────────────────────────────
     var _sgRaw = [], _sgFD = [];
-    var _sgTypes = new Set(), _sgBlds = new Set(), _sgSearch = '';
+    var _sgTypes = new Set(), _sgBlds = new Set(), _sgSearch = '', _sgDong = '', _sgHo = '', _sgTypeCol = '';
     var _sgCurIdx = -1;
     var SG_CACHE_KEY = 'sangga_cache_v1';
 
@@ -4577,6 +4685,10 @@
         if (_sgTypes.size > 0 && !_sgTypes.has(r['유형'])) return false;
         if (_sgBlds.size > 0 && !_sgBlds.has(r['건물명'])) return false;
         if (_sgProcs.size > 0 && !_sgProcs.has(r['프로세스'])) return false;
+        // 개별열 검색 적용
+        if (_sgDong && (r['동'] || '').replace(/[^0-9]/g, '') !== _sgDong) return false;
+        if (_sgHo && (r['호'] || '').replace(/[^0-9]/g, '').indexOf(_sgHo) === -1) return false;
+        if (_sgTypeCol && (r['측'] || '').indexOf(_sgTypeCol) === -1) return false;
         if (_sgSizeMin !== null || _sgSizeMax !== null) {
           var py = parseFloat(r['전용(평)'] || '');
           if (isNaN(py)) return false;
@@ -4642,6 +4754,19 @@
         si._sgBound = true;
         si.addEventListener('input', function(){ _sgSearch = this.value.trim(); SG_PAGE = 1; sgApplyAll(); });
       }
+      // 개별 검색 이벤트
+      ['sg-SI-dong','sg-SI-ho','sg-SI-type'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el && !el._sgBound) {
+          el._sgBound = true;
+          el.addEventListener('input', function(e) {
+            if (id==='sg-SI-dong') _sgDong = e.target.value.trim();
+            else if (id==='sg-SI-ho') _sgHo = e.target.value.trim();
+            else _sgTypeCol = e.target.value.trim();
+            SG_PAGE = 1; sgApplyAll();
+          });
+        }
+      });
     }
     function sgRenderPager() {
       var tot = Math.ceil(_sgFD.length / SG_PER);
@@ -5017,10 +5142,11 @@
       sgApplyAll();
     }
     function sgResetAll() {
-      _sgTypes.clear(); _sgBlds.clear(); _sgSearch = '';
+      _sgTypes.clear(); _sgBlds.clear(); _sgSearch = ''; _sgDong = ''; _sgHo = ''; _sgTypeCol = '';
       _sgProcs.clear(); _sgSizeMin = null; _sgSizeMax = null;
       _sg1Select = null; _sg2Select = null; _sgBldItemsOpen = false;
       var si = document.getElementById('sg-SI2'); if (si) si.value = '';
+      ['sg-SI-dong','sg-SI-ho','sg-SI-type'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
       var szMin = document.getElementById('sg-size-min'); if (szMin) szMin.value = '';
       var szMax = document.getElementById('sg-size-max'); if (szMax) szMax.value = '';
       sgUpdateTypeUI();
@@ -5099,8 +5225,49 @@
     }
     function applyDbSearch() {
       var sq = (document.getElementById('db-search') || { value: '' }).value.toLowerCase().trim();
+      var activeProcs = getDbCfProcs();
+      var activeTypes = getDbCfTypes();
+      var activeDeals = getDbCfDeals();
+      var budgetMin = parseBudgetMan(document.getElementById('db-cf-price-min') && document.getElementById('db-cf-price-min').value);
+      var budgetMax = parseBudgetMan(document.getElementById('db-cf-price-max') && document.getElementById('db-cf-price-max').value);
+      var moveinFrom = document.getElementById('db-cf-movein-from') ? document.getElementById('db-cf-movein-from').value : '';
+      var moveinTo = document.getElementById('db-cf-movein-to') ? document.getElementById('db-cf-movein-to').value : '';
+      var mfDate = moveinFrom ? new Date(moveinFrom) : null;
+      var mtDate = moveinTo ? new Date(moveinTo) : null;
+
       _dbListFiltered = _dbList.filter(function(r) {
+        // 검색어 필터
         if (sq && [(r['고객명(전화번호)'] || ''), (r['찾는 매물'] || ''), (r['상담 내용'] || ''), (r['제안 매물'] || '')].join(' ').toLowerCase().indexOf(sq) === -1) return false;
+        // 프로세스 필터
+        if (activeProcs.length && activeProcs.indexOf(r['프로세스'] || '') === -1) return false;
+        // 부동산유형 필터
+        if (activeTypes.length && activeTypes.indexOf(r['부동산유형'] || '') === -1) return false;
+        // 거래유형 필터
+        if (activeDeals.length && activeDeals.indexOf(r['거래유형'] || '') === -1) return false;
+        // 예산 범위 필터 (첫 번째 예산 필드 기준)
+        if (budgetMin !== null || budgetMax !== null) {
+          var dealType = r['거래유형'] || '';
+          var budget = null;
+          if (dealType === '매매' || dealType === '매월세' || dealType === '매전세' || dealType === '매전월') {
+            budget = parseBudgetMan(r['매매가(예산)']);
+          } else if (dealType === '전세' || dealType === '매전세' || dealType === '전월세' || dealType === '매전월') {
+            budget = parseBudgetMan(r['보증금(예산)'] || r['매매가(예산)']);
+          } else if (dealType === '월세' || dealType === '매월세' || dealType === '전월세' || dealType === '매전월') {
+            budget = parseBudgetMan(r['월세(예산)'] || r['보증금(예산)'] || r['매매가(예산)']);
+          }
+          if (budget !== null) {
+            if (budgetMin !== null && budget < budgetMin) return false;
+            if (budgetMax !== null && budget > budgetMax) return false;
+          }
+        }
+        // 입주일 범위 필터
+        if (mfDate || mtDate) {
+          var md = parseMovein(r['입주일']);
+          if (md) {
+            if (mfDate && md < mfDate) return false;
+            if (mtDate && md > mtDate) return false;
+          }
+        }
         return true;
       });
       _dbListFiltered.sort(function(a, b) { return natCmp((a[_dbSC]||''), (b[_dbSC]||'')) * _dbSD; });
@@ -5316,6 +5483,41 @@
       renderBuyerClassify();
     }
 
+    // ══════════ DB탭 필터 ══════════
+    function dbCfProcToggle(btn) { btn.classList.toggle('active'); applyDbSearch(); }
+    function dbCfProcAll() {
+      var btns = document.querySelectorAll('.db-cf-proc-btn');
+      var anyActive = Array.from(btns).some(function(b) { return b.classList.contains('active'); });
+      btns.forEach(function(b) { anyActive ? b.classList.remove('active') : b.classList.add('active'); });
+      applyDbSearch();
+    }
+    function dbCfTypeToggle(btn) { btn.classList.toggle('active'); applyDbSearch(); }
+    function dbCfDealToggle(btn, group) {
+      var map = { '매매s': ['매매','매월세','매전세','매전월'], '전세s': ['전세','매전세','전월세','매전월'], '월세s': ['월세','매월세','전월세','매전월'] };
+      var targets = map[group] || [];
+      var isActive = btn.classList.contains('active');
+      btn.classList.toggle('active');
+      targets.forEach(function(v) {
+        document.querySelectorAll('.db-cf-dealex-btn').forEach(function(b) {
+          if (b.dataset.dex === v) { isActive ? b.classList.remove('active') : b.classList.add('active'); }
+        });
+      });
+      applyDbSearch();
+    }
+    function dbCfDealExToggle(btn) { btn.classList.toggle('active'); applyDbSearch(); }
+    function dbCfDealExpand() {
+      var ex = document.getElementById('db-cf-deal-expand');
+      if (ex) ex.style.display = 'flex';
+      var btn = document.getElementById('db-cf-deal-more-btn');
+      if (btn) btn.style.display = 'none';
+    }
+    function dbCfDealCollapse() {
+      var ex = document.getElementById('db-cf-deal-expand');
+      if (ex) ex.style.display = 'none';
+      var btn = document.getElementById('db-cf-deal-more-btn');
+      if (btn) btn.style.display = 'block';
+    }
+
     // 만원 단위 숫자 파싱 (억/만원 문자열 → 만원 정수)
     function parseBudgetMan(s) {
       if (!s) return null;
@@ -5362,6 +5564,22 @@
       return Array.from(result);
     }
 
+    // DB탭 필터 — 활성 프로세스, 유형, 거래유형 수집
+    function getDbCfProcs() { return Array.from(document.querySelectorAll('.db-cf-proc-btn.active')).map(function(b) { return b.dataset.proc; }); }
+    function getDbCfTypes() { return Array.from(document.querySelectorAll('.db-cf-type-btn.active')).map(function(b) { return b.dataset.type; }); }
+    function getDbCfDeals() {
+      var ex = document.getElementById('db-cf-deal-expand');
+      if (ex && ex.style.display !== 'none') {
+        return Array.from(document.querySelectorAll('.db-cf-dealex-btn.active')).map(function(b) { return b.dataset.dex; });
+      }
+      var active = Array.from(document.querySelectorAll('.db-cf-deal-btn.active')).map(function(b) { return b.dataset.deal; });
+      var result = new Set();
+      if (active.indexOf('매매s') !== -1) ['매매','매월세','매전세','매전월'].forEach(function(v) { result.add(v); });
+      if (active.indexOf('전세s') !== -1) ['전세','매전세','전월세','매전월'].forEach(function(v) { result.add(v); });
+      if (active.indexOf('월세s') !== -1) ['월세','매월세','전월세','매전월'].forEach(function(v) { result.add(v); });
+      return Array.from(result);
+    }
+
     // 열별 고정 너비 (px) — 구입자 분류탭 하단 테이블 통일
     var ROW_COL_W = {
       '실거주여부':   '52px',
@@ -5378,7 +5596,7 @@
       var dataCols = cols.slice(1);
       var headerRow = '<tr>' + dataCols.map(function(c){
         var w = ROW_COL_W[c] ? 'width:' + ROW_COL_W[c] + ';' : '';
-        return '<th style="font-size:10px;font-weight:600;color:var(--text3);padding:2px 6px;border-bottom:1px solid var(--border);white-space:nowrap;' + w + '">' + esc(c) + '</th>';
+        return '<th style="font-size:10px;font-weight:600;color:var(--text2);padding:2px 6px;border-bottom:1px solid var(--border);white-space:nowrap;' + w + '">' + esc(c) + '</th>';
       }).join('') + '</tr>';
       var dataRow = '<tr>' + dataCols.map(function(c){
         var v = r[c] || '';
@@ -5492,7 +5710,7 @@
           grpKeys.forEach(function(k) {
             var lo = k === '기타' ? '' : k + '억';
             var hi = k === '기타' ? '' : (parseInt(k) + 1) + '억';
-            html += '<div style="font-size:10px;color:var(--text3);margin:6px 0 3px;font-weight:600;">- ' + (k === '기타' ? '기타' : lo + '~' + hi) + '</div>';
+            html += '<div style="font-size:10px;color:var(--text2);margin:6px 0 3px;font-weight:600;">- ' + (k === '기타' ? '기타' : lo + '~' + hi) + '</div>';
             priceGroups[k].forEach(function(r) {
               var idx = _buyerListFiltered.indexOf(r);
               if (idx === -1) { _buyerListFiltered.push(r); idx = _buyerListFiltered.length - 1; }
@@ -5548,7 +5766,7 @@
         var yr = parseInt(parts[0]), mo = parseInt(parts[1]);
         var nextYr = mo === 12 ? yr + 1 : yr; var nextMo = mo % 12 + 1;
         var lbl = yr + '.' + mo + '~' + String(nextYr).slice(2) + '.' + nextMo;
-        h += '<div style="font-size:10px;color:var(--text3);margin:6px 0 3px;font-weight:600;">- ' + lbl + '</div>';
+        h += '<div style="font-size:10px;color:var(--text2);margin:6px 0 3px;font-weight:600;">- ' + lbl + '</div>';
         groups[key].forEach(function(r) {
           var idx = _buyerListFiltered.indexOf(r);
           if (idx === -1) { _buyerListFiltered.push(r); idx = _buyerListFiltered.length - 1; }
@@ -5556,7 +5774,7 @@
         });
       });
       if (noDate.length) {
-        h += '<div style="font-size:10px;color:var(--text3);margin:6px 0 3px;font-weight:600;">- 입주일 미정</div>';
+        h += '<div style="font-size:10px;color:var(--text2);margin:6px 0 3px;font-weight:600;">- 입주일 미정</div>';
         noDate.forEach(function(r) {
           var idx = _buyerListFiltered.indexOf(r);
           if (idx === -1) { _buyerListFiltered.push(r); idx = _buyerListFiltered.length - 1; }
@@ -5827,6 +6045,11 @@
         <div class="search-wrap">
           <span class="search-icon">🔍</span>
           <input class="search-input" id="sg-SI2" type="text" placeholder="동 · 호 · 상호 · 소유자 (전체 검색)">
+        </div>
+        <div class="search-cols">
+          <input id="sg-SI-dong" class="col-search-input" type="text" placeholder="동">
+          <input id="sg-SI-ho" class="col-search-input" type="text" placeholder="호">
+          <input id="sg-SI-type" class="col-search-input" type="text" placeholder="타입">
         </div>
         <button class="reset-btn" onclick="sgResetAll()">초기화</button>
       </div>
@@ -6109,6 +6332,68 @@
         <button onclick="loadBuyerDb()" style="flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:12px;padding:8px 12px;cursor:pointer;">🔄</button>
         <button id="db-add-btn" onclick="toggleDbForm()" style="flex-shrink:0;background:#b45309;border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;">✏️ 상담 등록</button>
       </div>
+      <!-- ═══ DB탭 필터 ═══ -->
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
+        <!-- 0. 프로세스 -->
+        <div style="margin-bottom:10px;">
+          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">프로세스</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
+            <button id="db-cf-btn-all-proc" onclick="dbCfProcAll()" style="padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:11px;cursor:pointer;">전체해제</button>
+            <button class="db-cf-proc-btn active" data-proc="예비고객" onclick="dbCfProcToggle(this)">예비고객</button>
+            <button class="db-cf-proc-btn active" data-proc="초기상담" onclick="dbCfProcToggle(this)">초기상담</button>
+            <button class="db-cf-proc-btn active" data-proc="매물제안" onclick="dbCfProcToggle(this)">매물제안</button>
+            <button class="db-cf-proc-btn active" data-proc="임장" onclick="dbCfProcToggle(this)">임장</button>
+            <button class="db-cf-proc-btn active" data-proc="계약" onclick="dbCfProcToggle(this)">계약</button>
+            <button class="db-cf-proc-btn" data-proc="종료" onclick="dbCfProcToggle(this)">종료</button>
+          </div>
+        </div>
+        <!-- 1. 부동산 유형 -->
+        <div style="margin-bottom:10px;">
+          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">부동산 유형</div>
+          <div style="display:flex;gap:4px;">
+            <button class="db-cf-type-btn active" data-type="아파트" onclick="dbCfTypeToggle(this)">아파트</button>
+            <button class="db-cf-type-btn active" data-type="상가" onclick="dbCfTypeToggle(this)">상가</button>
+            <button class="db-cf-type-btn active" data-type="토지" onclick="dbCfTypeToggle(this)">토지</button>
+          </div>
+        </div>
+        <!-- 2. 거래유형 -->
+        <div style="margin-bottom:10px;">
+          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">거래유형</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;">
+            <button class="db-cf-deal-btn active" data-deal="매매s" onclick="dbCfDealToggle(this,'매매s')">매매s</button>
+            <button class="db-cf-deal-btn active" data-deal="전세s" onclick="dbCfDealToggle(this,'전세s')">전세s</button>
+            <button class="db-cf-deal-btn active" data-deal="월세s" onclick="dbCfDealToggle(this,'월세s')">월세s</button>
+            <button class="db-cf-deal-btn" data-deal="더보기" id="db-cf-deal-more-btn" onclick="dbCfDealExpand()" style="padding:4px 10px;">더보기 ▼</button>
+            <div id="db-cf-deal-expand" style="display:none;width:100%;flex-basis:100%;display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
+              <button class="db-cf-dealex-btn" data-dex="매매" onclick="dbCfDealExToggle(this)">매매</button>
+              <button class="db-cf-dealex-btn" data-dex="매전세" onclick="dbCfDealExToggle(this)">매전세</button>
+              <button class="db-cf-dealex-btn" data-dex="매월세" onclick="dbCfDealExToggle(this)">매월세</button>
+              <button class="db-cf-dealex-btn" data-dex="전세" onclick="dbCfDealExToggle(this)">전세</button>
+              <button class="db-cf-dealex-btn" data-dex="전월세" onclick="dbCfDealExToggle(this)">전월세</button>
+              <button class="db-cf-dealex-btn" data-dex="월세" onclick="dbCfDealExToggle(this)">월세</button>
+              <button class="db-cf-dealex-btn" data-dex="매전월" onclick="dbCfDealExToggle(this)">매전월</button>
+              <button onclick="dbCfDealCollapse()" style="padding:4px 10px;">접기 ▲</button>
+            </div>
+          </div>
+        </div>
+        <!-- 3. 예산 범위 -->
+        <div style="margin-bottom:10px;">
+          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">예산 범위 (만원)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
+            <div><input id="db-cf-price-min" type="number" placeholder="최소" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);" oninput="applyDbSearch()"></div>
+            <div><input id="db-cf-price-max" type="number" placeholder="최대" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);" oninput="applyDbSearch()"></div>
+          </div>
+        </div>
+        <!-- 4. 입주일 -->
+        <div>
+          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">입주일 범위</div>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+            <input id="db-cf-movein-from" type="date" style="padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);font-size:11px;flex:1;min-width:120px;" oninput="applyDbSearch()">
+            <span style="color:var(--text2);">~</span>
+            <input id="db-cf-movein-to" type="date" style="padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);font-size:11px;flex:1;min-width:120px;" oninput="applyDbSearch()">
+          </div>
+        </div>
+      </div>
       <!-- 상담 등록 폼 (접기/펼치기) -->
       <div id="db-form-wrap" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;">
         <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:10px;">✏️ 상담 등록</div>
@@ -6190,7 +6475,7 @@
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
         <!-- 0. 프로세스 -->
         <div style="margin-bottom:10px;">
-          <div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:5px;">프로세스</div>
+          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">프로세스</div>
           <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
             <button id="cf-btn-all-proc" onclick="cfProcAll()" style="padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:11px;cursor:pointer;">전체해제</button>
             <button class="cf-proc-btn active" data-proc="예비고객" onclick="cfProcToggle(this)">예비고객</button>
@@ -6203,7 +6488,7 @@
         </div>
         <!-- 1. 부동산 유형 -->
         <div style="margin-bottom:10px;">
-          <div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:5px;">부동산 유형</div>
+          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">부동산 유형</div>
           <div style="display:flex;gap:4px;">
             <button class="cf-type-btn active" data-type="아파트" onclick="cfTypeToggle(this)">아파트</button>
             <button class="cf-type-btn active" data-type="상가" onclick="cfTypeToggle(this)">상가</button>
@@ -6212,7 +6497,7 @@
         </div>
         <!-- 2. 거래유형 -->
         <div style="margin-bottom:10px;">
-          <div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:5px;">거래유형</div>
+          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">거래유형</div>
           <div style="display:flex;flex-wrap:wrap;gap:4px;">
             <button class="cf-deal-btn active" data-deal="매매s" onclick="cfDealToggle(this,'매매s')">매매s</button>
             <button class="cf-deal-btn active" data-deal="전세s" onclick="cfDealToggle(this,'전세s')">전세s</button>
@@ -6231,7 +6516,7 @@
         </div>
         <!-- 3. 예산 범위 -->
         <div style="margin-bottom:10px;">
-          <div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:5px;">예산 범위 (만원)</div>
+          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">예산 범위 (만원)</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
             <div><div style="color:var(--text3);margin-bottom:3px;">매매가 초과~이하</div><div style="display:flex;gap:3px;align-items:center;flex-wrap:wrap;"><input id="cf-price-min" class="ef-input" type="number" placeholder="초과" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-price-min-hint')"><span id="cf-price-min-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span><span>~</span><input id="cf-price-max" class="ef-input" type="number" placeholder="이하" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-price-max-hint')"><span id="cf-price-max-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span></div></div>
             <div><div style="color:var(--text3);margin-bottom:3px;">보증금 초과~이하</div><div style="display:flex;gap:3px;align-items:center;flex-wrap:wrap;"><input id="cf-dep-min" class="ef-input" type="number" placeholder="초과" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-dep-min-hint')"><span id="cf-dep-min-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span><span>~</span><input id="cf-dep-max" class="ef-input" type="number" placeholder="이하" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-dep-max-hint')"><span id="cf-dep-max-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span></div></div>
@@ -6240,7 +6525,7 @@
         </div>
         <!-- 4. 입주일 -->
         <div>
-          <div style="font-size:10px;color:var(--text3);font-weight:600;margin-bottom:5px;">입주일 범위</div>
+          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">입주일 범위</div>
           <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
             <input id="cf-movein-from" class="ef-input" type="date" style="padding:4px 6px;font-size:11px;flex:1;" oninput="renderBuyerClassify()">
             <span style="color:var(--text3);">~</span>
