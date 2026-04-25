@@ -3137,13 +3137,18 @@
     // ── 상세 패널 ─────────────────────────────────────
     function detByRow(rowNum) {
       var idx = -1;
-      for (var i = 0; i < RAW.length; i++) { if (RAW[i]['__row__'] === rowNum) { idx = i; break; } }
+      for (var i = 0; i < FD.length; i++) { if (FD[i]['__row__'] === rowNum) { idx = i; break; } }
       if (idx === -1) return;
       det(idx);
     }
     function det(idx) {
       CUR_IDX = idx; cancelEdit();
       var r = FD[idx];
+      // RAW에서 최신 데이터 가져오기 (데이터 신선도 보장)
+      if (r['__row__']) {
+        var rLatest = RAW.find(function(row) { return row['__row__'] === r['__row__']; });
+        if (rLatest) r = rLatest;
+      }
       // 계약손님 라벨
       var isContract = (r['소유자'] || '').indexOf('계약') !== -1 || (r['소유자2'] || '').indexOf('계약') !== -1 || (r['이름'] || '').indexOf('계약') !== -1;
       var badge = isContract ? ' <span style="background:#fee2e2;border:1px solid #dc2626;color:#dc2626;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;vertical-align:middle;">계약손님</span>' : '';
@@ -4727,6 +4732,11 @@
     function sgDet(idx) {
       _sgCurIdx = idx; sgCancelEdit();
       var r = _sgFD[idx];
+      // RAW에서 최신 데이터 가져오기 (데이터 신선도 보장)
+      if (r['__row__']) {
+        var rLatest = SG_RAW.find(function(row) { return row['__row__'] === r['__row__']; });
+        if (rLatest) r = rLatest;
+      }
       var side = r['측'] ? r['측'] + ' ' : '';
       document.getElementById('sg-DT').textContent = (r['건물명']||'') + ' ' + side + (r['동']||'') + ' ' + (r['호']||'');
       document.getElementById('sg-DS').textContent = (r['유형']||'') + (r['프로세스'] ? ' · ' + r['프로세스'] : '') + (r['실행일'] ? ' · ' + r['실행일'] : '') + (r['손님구분'] ? ' · ' + r['손님구분'] : '');
@@ -5613,6 +5623,11 @@
       _curBuyerIdx = i; cancelBuyerEdit();
       var r = _buyerListFiltered[i];
       if (!r) return;
+      // _buyerList에서 최신 데이터 가져오기 (데이터 신선도 보장)
+      if (r['__row__']) {
+        var rLatest = _buyerList.find(function(row) { return row['__row__'] === r['__row__']; });
+        if (rLatest) r = rLatest;
+      }
       document.getElementById('buyer-det-title').textContent = fmtBuyerName(r['고객명(전화번호)']);
       document.getElementById('buyer-det-sub').textContent = (r['거래유형'] || '') + ' · ' + (r['프로세스'] || '') + ' · ' + (r['기입일'] || '');
       var h = '';
