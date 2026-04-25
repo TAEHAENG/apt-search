@@ -3137,7 +3137,7 @@
     // ── 상세 패널 ─────────────────────────────────────
     function detByRow(rowNum) {
       var idx = -1;
-      for (var i = 0; i < FD.length; i++) { if (FD[i]['__row__'] === rowNum) { idx = i; break; } }
+      for (var i = 0; i < RAW.length; i++) { if (RAW[i]['__row__'] === rowNum) { idx = i; break; } }
       if (idx === -1) return;
       det(idx);
     }
@@ -4678,6 +4678,7 @@
         '<td>' + esc(r['입주구분']||'-') + '</td>' +
         '<td>' + esc(r['프로세스']||'-') + '</td>' +
         '<td class="td-wrap"><div class="cell-clamp">' + esc(lastLines(r['상담 내용'], 3) || '-') + '</div></td>' +
+        '<td>' + esc(r['만기일']||'-') + '</td>' +
         '</tr>';
     }
 
@@ -4768,7 +4769,7 @@
       }
 
       // 기본 정보
-      h += detSec('기본 정보', [['건물명', r['건물명']], ['유형', r['유형']], ['측', r['측']], ['동', r['동']], ['호', r['호']], ['현재상호', r['현재상호']], ['과거입점상호', r['과거입점상호']]]);
+      h += detSec('기본 정보', [['건물명', r['건물명']], ['유형', r['유형']], ['측', r['측']], ['동', r['동']], ['호', r['호']], ['현재상호', r['현재상호']], ['과거입점상호', r['과거입점상호']], ['만기일', r['만기일'], 'always']]);
       // 면적
       h += detSec('면적', [['전용(㎡)', r['전용(㎡)']], ['전용(평)', r['전용(평)']], ['분양(㎡)', r['분양(㎡)']], ['분양(평)', r['분양(평)']]]);
       // 가격
@@ -5861,6 +5862,7 @@
             <th style="width:58px;" onclick="sgSrt('입주구분',this)">입주구분 ↕</th>
             <th style="width:70px;" onclick="sgSrt('프로세스',this)">프로세스 ↕</th>
             <th style="width:140px;" onclick="sgSrt('상담 내용',this)">상담 내용 ↕</th>
+            <th style="width:70px;" onclick="sgSrt('만기일',this)">만기일 ↕</th>
           </tr>
         </thead>
         <tbody id="sg-TB"></tbody>
