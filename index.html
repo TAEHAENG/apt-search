@@ -774,6 +774,14 @@
       color: #9a3412;
     }
 
+    /* 구입자 프로세스 배지 색상 */
+    .proc-b-pre      { background: #f1f5f9; color: #475569; }
+    .proc-b-init     { background: #dbeafe; color: #1d4ed8; }
+    .proc-b-propose  { background: #ffedd5; color: #9a3412; }
+    .proc-b-visit    { background: #f3e8ff; color: #7c3aed; }
+    .proc-b-contract { background: #dcfce7; color: #166534; }
+    .proc-b-done     { background: #e2e8f0; color: #334155; }
+
     /* 상세 패널 */
     .detail-overlay {
       display: none;
@@ -1933,16 +1941,19 @@
         <div style="font-size:11px;color:#94a3b8;margin-bottom:8px;">↔ 열너비 설정 (기기별)</div>
         <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
           <label id="slot-lbl-1" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1.5px solid rgba(148,163,184,0.3);background:rgba(148,163,184,0.08);font-size:11px;color:#94a3b8;">
-            <input type="radio" name="pwSlot" value="1" style="display:none;" onchange="updateSlotLabel()"> S1<span style="font-size:9px;color:#64748b;">와이드QHD</span>
+            <input type="radio" name="pwSlot" value="1" style="display:none;" onchange="updateSlotLabel()"> S1<span style="font-size:9px;color:#64748b;">FHD</span>
           </label>
           <label id="slot-lbl-2" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1.5px solid rgba(148,163,184,0.3);background:rgba(148,163,184,0.08);font-size:11px;color:#94a3b8;">
-            <input type="radio" name="pwSlot" value="2" style="display:none;" onchange="updateSlotLabel()"> S2<span style="font-size:9px;color:#64748b;">FHD모니터</span>
+            <input type="radio" name="pwSlot" value="2" style="display:none;" onchange="updateSlotLabel()"> S2<span style="font-size:9px;color:#64748b;">QHD모니터</span>
           </label>
           <label id="slot-lbl-3" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1.5px solid rgba(148,163,184,0.3);background:rgba(148,163,184,0.08);font-size:11px;color:#94a3b8;">
-            <input type="radio" name="pwSlot" value="3" style="display:none;" onchange="updateSlotLabel()"> S3<span style="font-size:9px;color:#64748b;">태블릿13인치</span>
+            <input type="radio" name="pwSlot" value="3" style="display:none;" onchange="updateSlotLabel()"> S3<span style="font-size:9px;color:#64748b;">QHD와이드</span>
           </label>
           <label id="slot-lbl-4" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1.5px solid rgba(148,163,184,0.3);background:rgba(148,163,184,0.08);font-size:11px;color:#94a3b8;">
-            <input type="radio" name="pwSlot" value="4" style="display:none;" onchange="updateSlotLabel()"> S4<span style="font-size:9px;color:#64748b;">폴더블폰</span>
+            <input type="radio" name="pwSlot" value="4" style="display:none;" onchange="updateSlotLabel()"> S4<span style="font-size:9px;color:#64748b;">갤럭시폴드8</span>
+          </label>
+          <label id="slot-lbl-5" style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 10px;border-radius:6px;border:1.5px solid rgba(148,163,184,0.3);background:rgba(148,163,184,0.08);font-size:11px;color:#94a3b8;">
+            <input type="radio" name="pwSlot" value="5" style="display:none;" onchange="updateSlotLabel()"> S5<span style="font-size:9px;color:#64748b;">아이패드미니</span>
           </label>
         </div>
       </div>
@@ -2012,6 +2023,8 @@
       <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',3)">⬆ S3</button>
       <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',4)">💾 S4</button>
       <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',4)">⬆ S4</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',5)">💾 S5</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',5)">⬆ S5</button>
     </div>
     <div style="margin:3px 0 6px;">
       <button class="slot-btn" style="font-size:11px;width:100%;text-align:left;" onclick="toggleColHidePanel('apt')">👁 열 표시/숨기기 ▾</button>
@@ -2027,6 +2040,8 @@
       <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',3)">⬆ S3</button>
       <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',4)">💾 S4</button>
       <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',4)">⬆ S4</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',5)">💾 S5</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',5)">⬆ S5</button>
     </div>
     <div style="margin:3px 0 6px;">
       <button class="slot-btn" style="font-size:11px;width:100%;text-align:left;" onclick="toggleColHidePanel('sg')">👁 열 표시/숨기기 ▾</button>
@@ -2042,6 +2057,8 @@
       <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',3)">⬆ S3</button>
       <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',4)">💾 S4</button>
       <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',4)">⬆ S4</button>
+      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',5)">💾 S5</button>
+      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',5)">⬆ S5</button>
     </div>
     <div style="margin:3px 0 6px;">
       <button class="slot-btn" style="font-size:11px;width:100%;text-align:left;" onclick="toggleColHidePanel('buyer')">👁 열 표시/숨기기 ▾</button>
@@ -2715,7 +2732,7 @@
     var CACHE_TIME_KEY = 'apt_cache_time_v1';
 
     // ── 상태 ─────────────────────────────────────────
-    var RAW = [], FD = [], SC = '실행일', SD = -1, SCROLL_END = 50;
+    var RAW = [], FD = [], SC = '건물명', SD = 1, SCROLL_END = 50;
     var fTypes = new Set(), fBlds = new Set(), fP = null, fProcs = new Set(), fS = '', fDong = '', fHo = '', fTypeCol = '';
     var fExpireActive = false, fExpireFrom = '', fExpireMonths = null, fExpireIncludeEmpty = false;
     var CUR_IDX = -1, _editMsgIdx = -1, _curMsgBody = '';
@@ -2755,7 +2772,7 @@
       RAW = raw;
       document.getElementById('TC').textContent = RAW.length.toLocaleString();
       FD = RAW.slice();
-      FD.sort(function (a, b) { return natCmp((b['실행일'] || ''), (a['실행일'] || '')); });
+      FD.sort(function(a,b){ var v=natCmp(a['건물명']||'',b['건물명']||''); if(v!==0) return v; var d=natCmp(a['동']||'',b['동']||''); if(d!==0) return d; return natCmp(a['호']||'',b['호']||''); });
       SCROLL_END = 50;
       render();
       applyColHide('apt');
@@ -2780,7 +2797,7 @@
     }
     function updateSlotLabel() {
       var sel = getSelectedSlot();
-      for (var i = 1; i <= 4; i++) {
+      for (var i = 1; i <= 5; i++) {
         var lbl = document.getElementById('slot-lbl-' + i);
         if (lbl) {
           lbl.style.borderColor = i === sel ? 'var(--accent)' : 'rgba(148,163,184,0.3)';
@@ -3181,7 +3198,11 @@
       asr();
     }
     function asr() {
-      FD.sort(function (a, b) { return natCmp((a[SC] || ''), (b[SC] || '')) * SD; });
+      if (SC === '건물명') {
+        FD.sort(function(a,b){ var v=natCmp(a['건물명']||'',b['건물명']||'')*SD; if(v!==0) return v; var d=natCmp(a['동']||'',b['동']||''); if(d!==0) return d; return natCmp(a['호']||'',b['호']||''); });
+      } else {
+        FD.sort(function (a, b) { return natCmp((a[SC] || ''), (b[SC] || '')) * SD; });
+      }
       if (fTypes.size > 0) {
         var seen = new Set();
         FD = FD.filter(function (r) {
@@ -3246,6 +3267,7 @@
     }
     function gtc(t) { return ({ '매매': 'badge-mae', '전세': 'badge-jun', '월세': 'badge-wol', '전월세': 'badge-mix', '매전세': 'badge-mix', '매전월': 'badge-mix', '매월세': 'badge-mix' })[t] || ''; }
     function gpc(p) { return ({ '완료': 'proc-done', '매매완료': 'proc-done', '계약': 'proc-cont', '재계약': 'proc-cont', '재계약확인': 'proc-cont', '보류': 'proc-hold', '대기': 'proc-hold', '통오더': 'proc-ord', '매물 확보': 'proc-wait', '잔금': 'proc-pay', '잔금정산': 'proc-pay', '타부동산': 'proc-other', '제안가능(물건등록)': 'proc-prop', '제안가능(미등록)': 'proc-prop' })[p] || ''; }
+    function gpbc(p) { return ({ '예비고객': 'proc-b-pre', '초기상담': 'proc-b-init', '매물제안': 'proc-b-propose', '임장': 'proc-b-visit', '계약': 'proc-b-contract', '종료': 'proc-b-done' })[p] || 'proc-b-pre'; }
     var _selected = new Set(); // 선택된 매물 인덱스
     function makeCard(r, i) {
       var ph = xph([(r['소유자'] || ''), (r['소유자2'] || ''), (r['이름'] || '')].join(' '));
@@ -3257,7 +3279,11 @@
         '<input type="checkbox" class="card-check" ' + checked + ' onclick="event.stopPropagation();toggleSelect(' + i + ',this)">' +
         '<div class="card-top"><div><div class="card-address">' + esc(r['동'] || '-') + '동 ' + esc(r['호'] || '-') + '호</div><div class="card-building">' + esc(r['건물명'] || '-') + '</div></div>' +
         '<div class="card-badges"><span class="badge ' + gtc(r['유형'] || '') + '">' + esc(r['유형'] || '-') + '</span><span class="badge ' + gpc(r['프로세스'] || '') + '">' + esc(r['프로세스'] || '-') + '</span></div></div>' +
-        '<div class="card-mid"><span class="card-price">' + esc(r['가격'] || '-') + '</span><span class="card-meta">' + esc(r['타입(전용)'] || r['타입(공용)'] || '') + (r['방'] ? ' · 방' + r['방'] : '') + (r['전용면적(㎡)'] ? ' · ' + r['전용면적(㎡)'] + '㎡' : '') + '</span></div>' +
+        (function(){
+          var typeStr = (r['타입(전용)'] || r['타입(공용)']) ? (r['타입(전용)']||'-') + '/' + (r['타입(공용)']||'-') : '';
+          var metaParts = []; if (typeStr) metaParts.push(typeStr); if (r['에']) metaParts.push('에' + r['에']); if (r['방']) metaParts.push('방' + r['방']); if (r['융자']) metaParts.push('융자 ' + r['융자']);
+          return '<div class="card-mid"><span class="card-price">' + esc(r['가격'] || '-') + '</span><span class="card-meta">' + esc(metaParts.join(' · ')) + '</span></div>';
+        })() +
         (phHtml ? '<div class="card-phones">' + phHtml + '</div>' : '') +
         featHtml +
         (r['상담 내용'] ? '<div class="card-memo">' + esc(r['상담 내용']) + '</div>' : '') +
@@ -4538,8 +4564,9 @@
       if (isBuyer && !_dbList.length) {
         loadBuyerDb().then(function() { renderBuyerClassify(); });
       } else if (isBuyer && _dbList.length) {
-        // syncSheets에서 이미 로드된 경우 분류탭 렌더링만 실행
-        renderBuyerClassify();
+        // DB 서브탭이 활성화된 경우 _buyerListFiltered 재동기화 (오염 방지)
+        var _dbTabActive = document.getElementById('btab-register') && document.getElementById('btab-register').classList.contains('active');
+        if (_dbTabActive) { applyDbSearch(); } else { renderBuyerClassify(); }
       }
       // 열너비 모드가 켜진 상태에서 APT 탭 전환 시
       if (_colResizeModeOn && isSearch) {
@@ -4807,7 +4834,8 @@
     // ── 상가 프로세스/평형 필터 상태 ───────────────────
     var _sgProcs = new Set();
     var _sgSizeMin = null, _sgSizeMax = null;
-    var SG_PROC_MAIN = ['연락처확보','제안가능(등록)','제안가능(미등록)','타부동산(독점)','타부동산(공동)','임대','분쟁'];
+    var SG_PROC_MAIN = ['공실','제안가능(등록)','제안가능(미등록)','타부동산(독점)','타부동산(공동)'];
+    var SG_PROC_EXPAND = ['연락처확보','임대','분쟁'];
     function sgSelProc(v) {
       _sgProcs.clear();
       document.querySelectorAll('.sg-proc-btn').forEach(function(b){ b.classList.remove('active'); });
@@ -4868,14 +4896,15 @@
         }
         return true;
       });
-      // 기타 프로세스 값을 '더보기' 영역에 동적 추가
+      // 더보기 영역에 고정 항목 + 기타 동적 추가
       var moreEl = document.getElementById('sg-proc-more');
       if (moreEl && !moreEl._initialized) {
         moreEl._initialized = true;
         var allProcs = [];
         _sgRaw.forEach(function(r){ if (r['프로세스'] && allProcs.indexOf(r['프로세스'])===-1) allProcs.push(r['프로세스']); });
-        var extras = allProcs.filter(function(p){ return SG_PROC_MAIN.indexOf(p) === -1; });
-        extras.forEach(function(p){
+        var shownProcs = SG_PROC_MAIN.concat(SG_PROC_EXPAND);
+        var extras = allProcs.filter(function(p){ return shownProcs.indexOf(p) === -1; });
+        SG_PROC_EXPAND.concat(extras).forEach(function(p){
           var btn = document.createElement('button');
           btn.className = 'sel-btn sg-proc-btn';
           btn.textContent = p;
@@ -4883,12 +4912,16 @@
           moreEl.appendChild(btn);
         });
       }
-      _sgFD.sort(function(a, b) { return natCmp((a[_sgSC]||''), (b[_sgSC]||'')) * _sgSD; });
+      if (_sgSC === '건물명') {
+        _sgFD.sort(function(a,b){ var v=natCmp(a['건물명']||'',b['건물명']||'')*_sgSD; if(v!==0) return v; var d=natCmp(a['동']||'',b['동']||''); if(d!==0) return d; return natCmp(a['호']||'',b['호']||''); });
+      } else {
+        _sgFD.sort(function(a, b) { return natCmp((a[_sgSC]||''), (b[_sgSC]||'')) * _sgSD; });
+      }
       SG_PAGE = 1; SG_SCROLL_END = 30;
       sgRender();
     }
 
-    var _sgSC = '실행일', _sgSD = -1;
+    var _sgSC = '건물명', _sgSD = 1;
     var SG_PAGE = 1, SG_PER = 200, SG_SCROLL_END = 30;
     function sgSrt(col, th) {
       if (_sgSC === col) _sgSD *= -1; else { _sgSC = col; _sgSD = 1; }
@@ -4904,7 +4937,7 @@
       if (rc) rc.textContent = _sgFD.length + '건';
       if (!_sgFD.length) {
         if (cl) cl.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text3);">매물이 없습니다</div>';
-        if (tb) tb.innerHTML = '<tr><td colspan="15" style="text-align:center;padding:30px;color:var(--text3);">매물이 없습니다</td></tr>';
+        if (tb) tb.innerHTML = '<tr><td colspan="16" style="text-align:center;padding:30px;color:var(--text3);">매물이 없습니다</td></tr>';
         var pg = document.getElementById('sg-PAGER'); if (pg) pg.innerHTML = '';
         return;
       }
@@ -4973,6 +5006,7 @@
         '<td class="td-wrap"><div class="cell-clamp">' + esc(ownerFmt) + '</div></td>' +
         '<td>' + esc(r['입주구분']||'-') + '</td>' +
         '<td>' + esc(r['프로세스']||'-') + '</td>' +
+        '<td class="td-wrap"><div class="cell-clamp">' + esc(r['주요특징']||'-') + '</div></td>' +
         '<td class="td-wrap"><div class="cell-clamp">' + esc(lastLines(r['상담 내용'], 3) || '-') + '</div></td>' +
         '<td>' + esc(r['만기일']||'-') + '</td>' +
         '</tr>';
@@ -4982,23 +5016,29 @@
       var ph = xph([(r['소유자']||''), (r['임차인']||'')].join(' '));
       var phHtml = ph.map(function(p){ return '<a class="phone-link" href="tel:' + p + '" onclick="event.stopPropagation()">📞 ' + fph(p) + '</a>'; }).join('');
       var prices = [];
-      if (r['매매가']) prices.push('<span class="sg-price-label">매매</span><span class="sg-price-val">' + esc(sgFmtPrice(r['매매가'])) + '</span>');
-      if (r['보증금']) prices.push('<span class="sg-price-label">보증금</span><span class="sg-price-val">' + esc(sgFmtPrice(r['보증금'])) + '</span>');
-      if (r['월세'])   prices.push('<span class="sg-price-label">월세</span><span class="sg-price-val">' + esc(sgFmtPrice(r['월세'])) + '</span>');
+      if (r['매매가']) prices.push('<span class="sg-price-label">매매</span><span class="sg-price-val">' + esc(sgFmtPriceNum(r['매매가'])) + '만</span>');
+      if (r['보증금']) prices.push('<span class="sg-price-label">보증금</span><span class="sg-price-val">' + esc(sgFmtPriceNum(r['보증금'])) + '만</span>');
+      if (r['월세'])   prices.push('<span class="sg-price-label">월세</span><span class="sg-price-val">' + esc(sgFmtPriceNum(r['월세'])) + '만</span>');
       var priceHtml = prices.length ? '<div class="sg-card-prices">' + prices.map(function(p){ return '<span class="sg-price-item">' + p + '</span>'; }).join('') + '</div>' : '';
       var side = r['측'] ? r['측'] + ' ' : '';
       var typeClass = gtc(r['유형']||'');
+      var procBadge = r['프로세스'] ? '<span class="badge proc-prop" style="font-size:10px;margin-right:3px;">' + esc(r['프로세스']) + '</span>' : '';
+      var featTags = '';
+      if (r['주요특징']) {
+        var sgtags = r['주요특징'].split(/[,，\n]/).map(function(t){ return t.trim().replace(/^#/,''); }).filter(Boolean);
+        if (sgtags.length) featTags = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin:5px 0;">' + sgtags.map(function(t){ return '<span class="feat-tag-display">#' + esc(t) + '</span>'; }).join('') + '</div>';
+      }
       return '<div class="sg-card" onclick="sgDet(' + i + ')">' +
         '<div class="sg-card-top">' +
           '<div><div class="sg-card-addr">' + side + (r['동'] ? esc(r['동']) + ' ' : '') + esc(r['호']||'-') + '</div>' +
           '<div class="sg-card-bld">' + esc(r['건물명']||'-') + (r['현재상호'] ? ' · ' + esc(r['현재상호']) : '') + '</div></div>' +
-          '<div class="sg-card-badges"><span class="badge ' + typeClass + '">' + esc(r['유형']||'-') + '</span></div>' +
+          '<div class="sg-card-badges">' + procBadge + '<span class="badge ' + typeClass + '">' + esc(r['유형']||'-') + '</span></div>' +
         '</div>' +
         priceHtml +
         (phHtml ? '<div class="card-phones">' + phHtml + '</div>' : '') +
-        (r['주요특징'] ? '<div class="sg-card-memo">' + esc(r['주요특징']) + '</div>' : '') +
+        featTags +
         (r['상담 내용'] ? '<div class="sg-card-memo">' + esc(r['상담 내용']) + '</div>' : '') +
-        '<div class="sg-card-date">' + esc(r['실행일']||'') + (r['프로세스'] ? ' · ' + esc(r['프로세스']) : '') + '</div>' +
+        '<div class="sg-card-date">' + esc(r['실행일']||'') + '</div>' +
         '</div>';
     }
 
@@ -5500,7 +5540,7 @@
           '<td>' + esc(r['찾는 매물'] || '-') + '</td>' +
           '<td class="td-wrap"><div class="cell-clamp">' + esc(listing || '-') + '</div></td>' +
           '<td class="td-wrap"><div class="cell-clamp">' + esc(memo || '-') + '</div></td>' +
-          '<td>' + (r['프로세스'] ? '<span class="badge proc-prop" style="font-size:10px;">' + esc(r['프로세스']) + '</span>' : '-') + '</td>' +
+          '<td>' + (r['프로세스'] ? '<span class="badge ' + gpbc(r['프로세스']) + '" style="font-size:10px;">' + esc(r['프로세스']) + '</span>' : '-') + '</td>' +
           '<td style="font-size:11px;">' + esc(r['주요특징'] || '-') + '</td>' +
           '<td style="color:var(--text2);font-size:11px;">' + esc(r['매매가(예산)'] || '-') + '</td>' +
           '<td style="color:var(--text2);font-size:11px;">' + esc(r['보증금(예산)'] || '-') + '</td>' +
@@ -5514,14 +5554,24 @@
         var name = fmtBuyerName(r['고객명(전화번호)']);
         var deal = r['거래유형'] || '';
         var proc = r['프로세스'] || '';
-        var budget = r['매매가(예산)'] || r['보증금(예산)'] || r['월세(예산)'] || '';
+        var proptype = r['부동산유형'] || r['부동산 유형'] || '';
+        var ph = xph([r['고객명(전화번호)'] || '']);
+        var phHtml = ph.map(function(p){ return '<a class="phone-link" href="tel:' + p + '" onclick="event.stopPropagation()">📞 ' + fph(p) + '</a>'; }).join('');
+        var budgetParts = [];
+        var fmtBudget = function(v){ var n = parseFloat(String(v||'').replace(/,/g,'')); return isNaN(n)||n<=0 ? v : n.toLocaleString()+'만'; };
+        if (r['매매가(예산)']) budgetParts.push('매매 ' + fmtBudget(r['매매가(예산)']));
+        if (r['보증금(예산)']) budgetParts.push('보증금 ' + fmtBudget(r['보증금(예산)']));
+        if (r['월세(예산)']) budgetParts.push('월세 ' + fmtBudget(r['월세(예산)']));
         var memo = r['상담 내용'] || '';
+        var procBadge = proc ? '<span class="badge ' + gpbc(proc) + '" style="font-size:10px;">' + esc(proc) + '</span>' : '';
         return '<div class="buyer-db-card" onclick="openBuyerDet(' + i + ')">' +
           '<div class="buyer-db-card-top">' +
             '<div><div class="buyer-db-card-name">' + esc(name) + '</div>' +
-            '<div class="buyer-db-card-sub">' + esc(deal) + (proc ? ' · ' + esc(proc) : '') + (r['입주일'] ? ' · ' + esc(r['입주일']) : '') + '</div></div>' +
-            (budget ? '<div class="buyer-db-card-price">' + esc(budget) + '</div>' : '') +
+            '<div class="buyer-db-card-sub">' + esc(deal) + (proptype ? ' · ' + esc(proptype) : '') + (r['입주일'] ? ' · ' + esc(r['입주일']) : '') + '</div></div>' +
+            procBadge +
           '</div>' +
+          (budgetParts.length ? '<div class="buyer-db-card-price">' + esc(budgetParts.join(' / ')) + '</div>' : '') +
+          (phHtml ? '<div class="card-phones" style="margin:4px 0;">' + phHtml + '</div>' : '') +
           (r['찾는 매물'] ? '<div style="font-size:11px;color:var(--text2);margin-top:3px;">' + esc(r['찾는 매물']) + '</div>' : '') +
           (memo ? '<div class="buyer-db-card-memo">' + esc(memo) + '</div>' : '') +
           '<div class="buyer-db-card-date">' + esc(r['기입일'] || '') + '</div>' +
@@ -6101,7 +6151,7 @@
           '<td style="font-family:monospace;color:#b45309;">' + esc(r['예산'] || '-') + '</td>' +
           '<td>' + esc(r['거래유형'] || '-') + '</td>' +
           '<td>' + esc(r['찾는 매물'] || '-') + '</td>' +
-          '<td>' + (r['프로세스'] ? '<span class="badge proc-prop" style="font-size:10px;">' + esc(r['프로세스']) + '</span>' : '-') + '</td>' +
+          '<td>' + (r['프로세스'] ? '<span class="badge ' + gpbc(r['프로세스']) + '" style="font-size:10px;">' + esc(r['프로세스']) + '</span>' : '-') + '</td>' +
           '<td style="color:var(--text2);font-size:11px;">' + esc(listing || '-') + '</td>' +
           '</tr>';
       }).join('');
@@ -6166,8 +6216,8 @@
       var feat = r['주요특징'] || '';
       if (memo || feat) {
         h += '<div class="detail-section"><div class="detail-section-title">상담</div>';
+        if (feat) { var btags = feat.split(/[,，\n]/).map(function(t){ return t.trim().replace(/^#/,''); }).filter(Boolean); if (btags.length) h += '<div style="margin-bottom:8px;"><div class="di-label" style="margin-bottom:4px;">주요특징</div><div style="display:flex;flex-wrap:wrap;gap:6px;">' + btags.map(function(t){ return '<span class="feat-tag-display">#' + esc(t) + '</span>'; }).join('') + '</div></div>'; }
         if (memo) { h += '<div style="margin-bottom:8px;"><div class="di-label">상담 내용</div><div class="memo-box" style="margin-top:4px;">' + esc(memo) + '</div></div>'; }
-        if (feat) { h += '<div><div class="di-label">주요특징</div><div class="memo-box" style="margin-top:4px;">' + esc(feat) + '</div></div>'; }
         h += '</div>';
       }
 
@@ -6288,13 +6338,11 @@
         <div class="filter-row-label">③ 프로세스</div>
         <div class="btn-group" id="sg-proc-group">
           <button class="sel-btn proc-all active sg-proc-btn" id="sg-proc-all" onclick="sgSelProc('전체')">전체</button>
-          <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('연락처확보',this)">연락처확보</button>
+          <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('공실',this)">공실</button>
           <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('제안가능(등록)',this)">제안가능(등록)</button>
           <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('제안가능(미등록)',this)">제안가능(미등록)</button>
           <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('타부동산(독점)',this)">타부동산(독점)</button>
           <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('타부동산(공동)',this)">타부동산(공동)</button>
-          <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('임대',this)">임대</button>
-          <button class="sel-btn sg-proc-btn" onclick="sgSelProcItem('분쟁',this)">분쟁</button>
           <button class="bld-expand-btn" id="sg-proc-more-btn" onclick="sgToggleProcMore()">＋ 더보기</button>
         </div>
         <div class="bld-extra" id="sg-proc-more">
@@ -6380,6 +6428,7 @@
             <th style="width:100px;" onclick="sgSrt('소유자',this)">소유자 ↕</th>
             <th style="width:58px;" onclick="sgSrt('입주구분',this)">입주구분 ↕</th>
             <th style="width:70px;" onclick="sgSrt('프로세스',this)">프로세스 ↕</th>
+            <th style="width:110px;" onclick="sgSrt('주요특징',this)">주요특징 ↕</th>
             <th style="width:140px;" onclick="sgSrt('상담 내용',this)">상담 내용 ↕</th>
             <th style="width:70px;" onclick="sgSrt('만기일',this)">만기일 ↕</th>
           </tr>
