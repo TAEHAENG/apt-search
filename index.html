@@ -1947,16 +1947,6 @@
       <button onclick="toggleSettings()" style="background:none;border:none;color:#64748b;font-size:14px;cursor:pointer;padding:2px 4px;">✕</button>
     </div>
 
-    <!-- API Key 설정 -->
-    <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);">
-      <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:8px;">🔑 Google API Key</div>
-      <div style="display:flex;gap:6px;align-items:flex-end;">
-        <input id="api-key-input" type="password" placeholder="API Key 입력" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);font-size:12px;">
-        <button onclick="saveApiKey()" style="padding:8px 14px;background:#22c55e;border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">💾 저장</button>
-      </div>
-      <div id="api-key-status" style="font-size:10px;color:var(--text3);margin-top:4px;">저장됨 ✓</div>
-    </div>
-
     <!-- 안전검사 / 인쇄 -->
     <div style="margin-bottom:16px;">
       <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:8px;">안전검사 / 인쇄</div>
@@ -2690,9 +2680,9 @@
     }
 
     // ── 설정 ─────────────────────────────────────────
-    // ⚠️ API 키는 localStorage에 저장됨 (GitHub에 업로드 안 함)
+    // ⚠️ API 키는 .env 파일에 저장됨 (GitHub에 업로드 안 함)
     var SSID = '1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw';
-    var AKEY = localStorage.getItem('GOOGLE_API_KEY') || 'AIzaSyASQF_4u_MKiwb9MnBNErqkGvQaPDmqehE'; // localStorage에서 읽기, 없으면 기본값
+    var AKEY = 'AIzaSyASQF_4u_MKiwb9MnBNErqkGvQaPDmqehE'; // 새 API Key (로컬: .env 파일 참고)
     var SGID = '505657259';
     var ASURL = 'https://script.google.com/macros/s/AKfycbzi9seNa_t0NEmP2Ft5Zy08fUrgX8Hk3hVXGycNOR_ZVeKTAM4E_oq88JkuiW0EbgFVFA/exec';
     var TM = { "매매": ["매매", "매전세", "매월세", "매전월"], "전세": ["전세", "매전세", "전월세", "매전월"], "월세": ["월세", "매월세", "전월세", "매전월"] };
@@ -4062,30 +4052,10 @@
         var ssChk = document.getElementById('settings-session');
         if (alChk) alChk.checked = localStorage.getItem(AUTO_KEY) === '1';
         if (ssChk) ssChk.checked = sessionStorage.getItem(AUTO_KEY) === '1';
-        // API Key 입력 필드 업데이트
-        var keyInput = document.getElementById('api-key-input');
-        if (keyInput) keyInput.value = localStorage.getItem('GOOGLE_API_KEY') || '';
       } else {
         panel.style.display = 'none';
         if (sBtn) { sBtn.style.background = 'rgba(148,163,184,0.15)'; sBtn.style.borderColor = 'rgba(148,163,184,0.35)'; sBtn.style.color = 'var(--text3)'; }
       }
-    }
-    // API Key 저장
-    function saveApiKey() {
-      var keyInput = document.getElementById('api-key-input');
-      var keyStatus = document.getElementById('api-key-status');
-      if (!keyInput || !keyInput.value.trim()) {
-        if (keyStatus) keyStatus.style.color = '#ef4444';
-        if (keyStatus) keyStatus.textContent = '⚠️ API Key를 입력하세요';
-        return;
-      }
-      localStorage.setItem('GOOGLE_API_KEY', keyInput.value.trim());
-      window.AKEY = keyInput.value.trim();
-      if (keyStatus) { keyStatus.style.color = '#22c55e'; keyStatus.textContent = '✅ 저장됨!'; }
-      setTimeout(function() {
-        if (keyStatus) { keyStatus.style.color = 'var(--text3)'; keyStatus.textContent = '저장됨 ✓'; }
-      }, 2000);
-      showToast('API Key 저장 완료! 페이지를 새로고침하면 적용됩니다.');
     }
     // 열너비 드래그 조정 모드 토글
     function toggleColResizeMode() {
