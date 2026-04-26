@@ -2084,6 +2084,7 @@
         href="https://docs.google.com/spreadsheets/d/19KWBXPiK-qXycopkNRHNMddmux2cKohtm7fLLyfiZGw/edit"
         target="_blank">📋 상가매물장</a>
       <button class="hdr-btn hdr-btn-add" id="hdr-sg-add" style="display:none;" onclick="sgOpenAddNew()">＋ 새 상가매물</button>
+      <button class="hdr-btn" id="hdr-buyer-add" style="display:none;background:rgba(180,83,9,0.15);border:1.5px solid rgba(180,83,9,0.35);color:#b45309;" onclick="openBuyerDetailModal('new')">➕ 구입자 등록</button>
       <button class="sync-btn" id="SB" onclick="syncSheets()"><span id="SI">🔄</span></button>
       <div class="total-badge">총 <span id="TC">-</span>건</div>
     </div>
@@ -4501,6 +4502,9 @@
       });
       var sgSafetyWrap = document.getElementById('sgSafetyWrap');
       if (sgSafetyWrap) sgSafetyWrap.style.display = isSangga ? 'inline-block' : 'none';
+      ['hdr-buyer-add'].forEach(function(id) {
+        var el = document.getElementById(id); if (el) el.style.display = isBuyer ? '' : 'none';
+      });
       var buyerSafetyWrap = document.getElementById('buyerSafetyWrap');
       if (buyerSafetyWrap) buyerSafetyWrap.style.display = isBuyer ? 'inline-block' : 'none';
 
@@ -6668,10 +6672,6 @@
       <button class="buyer-tab-btn" id="btab-btn-register" onclick="buyerSwitchTab('register',this)">📋 구입자 DB</button>
     </div>
     <div class="buyer-tab-content" id="btab-register">
-      <!-- 구입자 등록 버튼 -->
-      <div style="margin-bottom:12px;">
-        <button onclick="openBuyerDetailModal('new')" style="width:100%;background:#b45309;border:none;color:#fff;padding:10px;font-size:13px;border-radius:8px;cursor:pointer;font-weight:600;">➕ 구입자 등록</button>
-      </div>
       <!-- ═══ DB탭 필터 ═══ -->
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
         <!-- 0. 프로세스 -->
@@ -6995,8 +6995,8 @@
           <button class="detail-close" onclick="closeBuyerDetailModal()">✕</button>
         </div>
       </div>
-      <div class="detail-body" style="padding:0;">
-        <div class="edit-form" style="padding:16px;">
+      <div class="detail-body">
+        <div class="edit-form">
           <div class="buyer-form-grid">
             <div class="ef-group"><label class="ef-label">기입일</label><div style="display:flex;gap:5px;"><input id="bd-date" class="ef-input" type="text" placeholder="YYYY-MM-DD" style="flex:1;"><button type="button" onclick="document.getElementById('bd-date').value=todayStr()" style="flex-shrink:0;padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;cursor:pointer;">오늘</button></div></div>
             <div class="ef-group"><label class="ef-label" style="visibility:hidden;">-</label></div>
