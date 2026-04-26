@@ -2189,10 +2189,6 @@
     </div>
     <div class="filter-divider"></div>
     <div class="search-row">
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input class="search-input" id="SI2" type="text" placeholder="동 · 호 · 전화번호 · 소유자 (전체 건물 검색)">
-      </div>
       <div class="search-cols">
         <div class="col-search-wrap">
           <input id="SI-dong" class="col-search-input" type="text" placeholder="">
@@ -2206,6 +2202,10 @@
           <input id="SI-type" class="col-search-input" type="text" placeholder="">
           <span class="col-search-label">타입(공용)</span>
         </div>
+      </div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" id="SI2" type="text" placeholder="동 · 호 · 전화번호 · 소유자 (전체 건물 검색)">
       </div>
       <button class="reset-btn" onclick="resetAll()">초기화</button>
     </div>
@@ -5042,9 +5042,8 @@
         if (_sgBlds.size > 0 && !_sgBlds.has(r['건물명'])) return false;
         if (_sgProcs.size > 0 && !_sgProcs.has(r['프로세스'])) return false;
         // 개별열 검색 적용
-        if (_sgDong && (r['동'] || '').replace(/[^0-9]/g, '') !== _sgDong) return false;
+        if (_sgDong && (r['동'] || '').toLowerCase().indexOf(_sgDong.toLowerCase()) === -1) return false;
         if (_sgHo && (r['호'] || '').replace(/[^0-9]/g, '').indexOf(_sgHo) === -1) return false;
-        if (_sgTypeCol && (r['측'] || '').indexOf(_sgTypeCol) === -1) return false;
         if (_sgSizeMin !== null || _sgSizeMax !== null) {
           var py = parseFloat(r['전용(평)'] || '');
           if (isNaN(py)) return false;
@@ -5117,14 +5116,13 @@
         si.addEventListener('input', function(){ _sgSearch = this.value.trim(); SG_PAGE = 1; sgApplyAll(); });
       }
       // 개별 검색 이벤트
-      ['sg-SI-dong','sg-SI-ho','sg-SI-type'].forEach(function(id) {
+      ['sg-SI-dong','sg-SI-ho'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el && !el._sgBound) {
           el._sgBound = true;
           el.addEventListener('input', function(e) {
             if (id==='sg-SI-dong') _sgDong = e.target.value.trim();
-            else if (id==='sg-SI-ho') _sgHo = e.target.value.trim();
-            else _sgTypeCol = e.target.value.trim();
+            else _sgHo = e.target.value.trim();
             SG_PAGE = 1; sgApplyAll();
           });
         }
@@ -5534,7 +5532,7 @@
       _sgProcs.clear(); _sgSizeMin = null; _sgSizeMax = null;
       _sg1Select = null; _sg2Select = null; _sgBldItemsOpen = false;
       var si = document.getElementById('sg-SI2'); if (si) si.value = '';
-      ['sg-SI-dong','sg-SI-ho','sg-SI-type'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      ['sg-SI-dong','sg-SI-ho'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
       var szMin = document.getElementById('sg-size-min'); if (szMin) szMin.value = '';
       var szMax = document.getElementById('sg-size-max'); if (szMax) szMax.value = '';
       sgUpdateTypeUI();
@@ -5706,9 +5704,9 @@
           '<td class="td-wrap"><div class="cell-clamp">' + esc(memo || '-') + '</div></td>' +
           '<td>' + (r['프로세스'] ? '<span class="badge ' + gpbc(r['프로세스']) + '" style="font-size:10px;">' + esc(r['프로세스']) + '</span>' : '-') + '</td>' +
           '<td style="font-size:11px;">' + esc(r['주요특징'] || '-') + '</td>' +
-          '<td style="color:var(--text2);font-size:11px;">' + esc(r['매매가(예산)'] || '-') + '</td>' +
-          '<td style="color:var(--text2);font-size:11px;">' + esc(r['보증금(예산)'] || '-') + '</td>' +
-          '<td style="color:var(--text2);font-size:11px;">' + esc(r['월세(예산)'] || '-') + '</td>' +
+          '<td style="color:var(--accent);font-weight:700;font-size:11px;text-align:right;">' + esc(r['매매가(예산)'] || '-') + '</td>' +
+          '<td style="color:var(--accent);font-weight:700;font-size:11px;text-align:right;">' + esc(r['보증금(예산)'] || '-') + '</td>' +
+          '<td style="color:var(--accent);font-weight:700;font-size:11px;text-align:right;">' + esc(r['월세(예산)'] || '-') + '</td>' +
           '<td style="font-size:11px;">' + esc(r['입주일'] || '-') + '</td>' +
           '</tr>';
       }).join('');
@@ -5721,22 +5719,29 @@
         var proptype = r['부동산유형'] || r['부동산 유형'] || '';
         var ph = xph([r['고객명(전화번호)'] || '']);
         var phHtml = ph.map(function(p){ return '<a class="phone-link" href="tel:' + p + '" onclick="event.stopPropagation()">📞 ' + fph(p) + '</a>'; }).join('');
+        // 예산: 숫자 그대로, 만 표기 없음
         var budgetParts = [];
-        var fmtBudget = function(v){ var n = parseFloat(String(v||'').replace(/,/g,'')); return isNaN(n)||n<=0 ? v : n.toLocaleString()+'만'; };
-        if (r['매매가(예산)']) budgetParts.push('매매 ' + fmtBudget(r['매매가(예산)']));
-        if (r['보증금(예산)']) budgetParts.push('보증금 ' + fmtBudget(r['보증금(예산)']));
-        if (r['월세(예산)']) budgetParts.push('월세 ' + fmtBudget(r['월세(예산)']));
+        if (r['매매가(예산)']) budgetParts.push('매매 ' + esc(r['매매가(예산)']));
+        if (r['보증금(예산)']) budgetParts.push('보증금 ' + esc(r['보증금(예산)']));
+        if (r['월세(예산)']) budgetParts.push('월세 ' + esc(r['월세(예산)']));
         var memo = r['상담 내용'] || '';
-        var procBadge = proc ? '<span class="badge ' + gpbc(proc) + '" style="font-size:10px;">' + esc(proc) + '</span>' : '';
+        var procBadge = proc ? '<span class="badge ' + gpbc(proc) + '" style="font-size:10px;margin-left:3px;">' + esc(proc) + '</span>' : '';
+        var dealBadge = deal ? '<span class="badge ' + gtc(deal) + '" style="font-size:10px;">' + esc(deal) + '</span>' : '';
+        // 주요특징 파란 라벨
+        var featTags = '';
+        if (r['주요특징']) {
+          var ftags = r['주요특징'].split(/[,，\n]/).map(function(t){ return t.trim().replace(/^#/,''); }).filter(Boolean);
+          if (ftags.length) featTags = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin:5px 0;">' + ftags.map(function(t){ return '<span class="feat-tag-display">#' + esc(t) + '</span>'; }).join('') + '</div>';
+        }
         return '<div class="buyer-db-card" onclick="openBuyerDet(' + i + ')">' +
           '<div class="buyer-db-card-top">' +
-            '<div><div class="buyer-db-card-name">' + esc(name) + '</div>' +
-            '<div class="buyer-db-card-sub">' + esc(deal) + (proptype ? ' · ' + esc(proptype) : '') + (r['입주일'] ? ' · ' + esc(r['입주일']) : '') + '</div></div>' +
-            procBadge +
+            '<div><div class="buyer-db-card-name">' + esc(name) + '</div></div>' +
+            '<div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">' + dealBadge + procBadge + '</div>' +
           '</div>' +
-          (budgetParts.length ? '<div class="buyer-db-card-price">' + esc(budgetParts.join(' / ')) + '</div>' : '') +
-          (phHtml ? '<div class="card-phones" style="margin:4px 0;">' + phHtml + '</div>' : '') +
-          (r['찾는 매물'] ? '<div style="font-size:11px;color:var(--text2);margin-top:3px;">' + esc(r['찾는 매물']) + '</div>' : '') +
+          (phHtml ? '<div class="card-phones" style="margin:3px 0 4px;">' + phHtml + '</div>' : '') +
+          ((proptype || budgetParts.length) ? '<div class="buyer-db-card-sub" style="margin-bottom:3px;">' + (proptype ? esc(proptype) : '') + (budgetParts.length ? (proptype ? ' · ' : '') + '<span style="color:var(--accent);font-weight:700;">' + budgetParts.join(' ') + '</span>' : '') + '</div>' : '') +
+          (r['찾는 매물'] ? '<div style="font-size:11px;color:var(--text2);margin-top:2px;">' + esc(r['찾는 매물']) + '</div>' : '') +
+          featTags +
           (memo ? '<div class="buyer-db-card-memo">' + esc(memo) + '</div>' : '') +
           '<div class="buyer-db-card-date">' + esc(r['기입일'] || '') + '</div>' +
           '</div>';
@@ -6527,10 +6532,6 @@
       </div>
       <div class="filter-divider"></div>
       <div class="search-row">
-        <div class="search-wrap">
-          <span class="search-icon">🔍</span>
-          <input class="search-input" id="sg-SI2" type="text" placeholder="동 · 호 · 상호 · 소유자 (전체 검색)">
-        </div>
         <div class="search-cols">
           <div class="col-search-wrap">
             <input id="sg-SI-dong" class="col-search-input" type="text" placeholder="">
@@ -6540,10 +6541,10 @@
             <input id="sg-SI-ho" class="col-search-input" type="text" placeholder="">
             <span class="col-search-label">호</span>
           </div>
-          <div class="col-search-wrap">
-            <input id="sg-SI-type" class="col-search-input" type="text" placeholder="">
-            <span class="col-search-label">타입(공용)</span>
-          </div>
+        </div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" id="sg-SI2" type="text" placeholder="동 · 호 · 상호 · 소유자 (전체 검색)">
         </div>
         <button class="reset-btn" onclick="sgResetAll()">초기화</button>
       </div>
