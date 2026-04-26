@@ -2084,7 +2084,7 @@
         href="https://docs.google.com/spreadsheets/d/19KWBXPiK-qXycopkNRHNMddmux2cKohtm7fLLyfiZGw/edit"
         target="_blank">📋 상가매물장</a>
       <button class="hdr-btn hdr-btn-add" id="hdr-sg-add" style="display:none;" onclick="sgOpenAddNew()">＋ 새 상가매물</button>
-      <button class="hdr-btn" id="hdr-buyer-add" style="display:none;background:rgba(180,83,9,0.15);border:1.5px solid rgba(180,83,9,0.35);color:#b45309;" onclick="openBuyerDetailModal('new')">➕ 구입자 등록</button>
+      <button class="hdr-btn hdr-btn-add" id="hdr-buyer-add" style="display:none;" onclick="openBuyerDetailModal('new')">➕ 구입자 등록</button>
       <button class="sync-btn" id="SB" onclick="syncSheets()"><span id="SI">🔄</span></button>
       <div class="total-badge">총 <span id="TC">-</span>건</div>
     </div>
@@ -4460,12 +4460,21 @@
     function removeEditTag(i) { _editTags.splice(i, 1); renderEditTags(); }
     document.addEventListener('keydown', function (e) { if (e.key === 'Enter' && document.activeElement && document.activeElement.id === 'edit-tag-input') { e.preventDefault(); addEditTag(); } });
 
-    // ── 상가 매물 주요특징 태그 ──
+    // ── 상가 매물 주요특징 태그 (수정폼) ──
     var _sgEditTags = [];
     function renderSgEditTags() { var w = document.getElementById('sge-tags-display'); if (!w) return; w.innerHTML = _sgEditTags.map(function (t, i) { return '<span class="feature-tag">#' + esc(t) + '<button class="tag-del" onclick="removeSgEditTag(' + i + ')">×</button></span>'; }).join(''); }
     function addSgEditTag() { var inp = document.getElementById('sge-tag-input'); if (!inp) return; inp.value.split(/[,،\n]/).forEach(function (t) { t = t.trim().replace(/^#/, ''); if (t && _sgEditTags.indexOf(t) === -1) _sgEditTags.push(t); }); inp.value = ''; renderSgEditTags(); }
     function removeSgEditTag(i) { _sgEditTags.splice(i, 1); renderSgEditTags(); }
-    document.addEventListener('keydown', function (e) { if (e.key === 'Enter' && document.activeElement && document.activeElement.id === 'sge-tag-input') { e.preventDefault(); addSgEditTag(); } });
+    // ── 상가 매물 주요특징 태그 (새 매물 등록폼) ──
+    var _sgNewTags = [];
+    function renderSgNewTags() { var w = document.getElementById('sgn-tags-display'); if (!w) return; w.innerHTML = _sgNewTags.map(function (t, i) { return '<span class="feature-tag">#' + esc(t) + '<button class="tag-del" onclick="removeSgNewTag(' + i + ')">×</button></span>'; }).join(''); }
+    function addSgNewTag() { var inp = document.getElementById('sgn-tag-input'); if (!inp) return; inp.value.split(/[,،\n]/).forEach(function (t) { t = t.trim().replace(/^#/, ''); if (t && _sgNewTags.indexOf(t) === -1) _sgNewTags.push(t); }); inp.value = ''; renderSgNewTags(); }
+    function removeSgNewTag(i) { _sgNewTags.splice(i, 1); renderSgNewTags(); }
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      if (document.activeElement && document.activeElement.id === 'sge-tag-input') { e.preventDefault(); addSgEditTag(); }
+      if (document.activeElement && document.activeElement.id === 'sgn-tag-input') { e.preventDefault(); addSgNewTag(); }
+    });
 
     // ══════════ 뷰 전환 ══════════
     var _curView = 'search', _proposalMode = false, _proposalBuyerIdx = -1;
@@ -5071,8 +5080,8 @@
       h += detSec('가격', [sgPriceRow('매매가', r['매매가']), sgPriceRow('보증금', r['보증금']), sgPriceRow('월세', r['월세'])]);
       // 소유자
       h += detSec('소유자 정보', [['소유자', r['소유자']], ['임차인', r['임차인']], ['손님구분', r['손님구분']], ['입주구분', r['입주구분']]]);
-      // 주요특징
-      if (r['주요특징']) h += '<div class="detail-section"><div class="detail-section-title">주요특징</div><div class="memo-box">' + esc(r['주요특징']) + '</div></div>';
+      // 주요특징 (태그 형태)
+      if (r['주요특징']) { var sgtags = r['주요특징'].split(/[,，\n]/).map(function(t){ return t.trim().replace(/^#/,''); }).filter(Boolean); if (sgtags.length) h += '<div class="detail-section"><div class="detail-section-title">주요특징</div><div style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0;">' + sgtags.map(function(t){ return '<span class="feat-tag-display">#' + esc(t) + '</span>'; }).join('') + '</div></div>'; }
       // 상담 내용
       if (r['상담 내용']) h += '<div class="detail-section"><div class="detail-section-title">상담 내용</div><div class="memo-box">' + esc(r['상담 내용']) + '</div></div>';
       // 계약 정보 (접힘)
@@ -5222,6 +5231,8 @@
       // 실행일 기본값
       var di = document.getElementById('sgn-exec-date');
       if (di && !di.value) di.value = new Date().toISOString().slice(0,10).replace(/-/g,'.');
+      // 주요특징 태그 초기화
+      _sgNewTags = []; renderSgNewTags();
     }
     function sgCloseAddNew() {
       document.getElementById('SGAM').classList.remove('open');
@@ -5247,7 +5258,7 @@
         '계약금중일부': g('sgn-deposit1'), '계약일': g('sgn-contract-date'), '중도금': g('sgn-intermediate'),
         '잔금일': g('sgn-final-date'), '독점': g('sgn-exclusive'), '갱신청구권': g('sgn-renewal'),
         '발생수익매도임대': g('sgn-revenue-sale'), '발생수익매수임차': g('sgn-revenue-purchase'),
-        '주요특징': g('sgn-features'),
+        '주요특징': _sgNewTags.length ? _sgNewTags.join(', ') : g('sgn-features'),
         '지정업종': g('sgn-designated-biz'), '건축물용도': g('sgn-building-use'), '부가세': g('sgn-vat'),
         '분양가(1차)': g('sgn-sales-price-1'), '분양가(최종)': g('sgn-sales-price-final'),
         '분양평단가': g('sgn-sales-unit-price'), '평단가': g('sgn-unit-price'), '명목수익률': g('sgn-nominal-yield')
@@ -6632,7 +6643,14 @@
           <!-- 주요특징 -->
           <div style="margin-bottom:12px;">
             <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">주요특징</div>
-            <div class="ef-group" style="margin-bottom:0;"><textarea id="sgn-features" class="ef-textarea" rows="2" placeholder="쉼표 또는 줄바꿈으로 구분"></textarea></div>
+            <div class="ef-group" style="margin-bottom:0;">
+              <div id="sgn-tags-display" style="display:flex;flex-wrap:wrap;gap:4px;min-height:22px;margin-bottom:6px;"></div>
+              <div style="display:flex;gap:6px;">
+                <input id="sgn-tag-input" class="ef-input" type="text" placeholder="#태그 입력 후 Enter 또는 쉼표" style="flex:1;">
+                <button type="button" onclick="addSgNewTag()" style="padding:0 14px;background:rgba(79,156,249,0.15);border:1px solid rgba(79,156,249,0.4);border-radius:7px;color:#4f9cf9;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">추가</button>
+              </div>
+              <input type="hidden" id="sgn-features">
+            </div>
           </div>
 
           <!-- 분양 정보 (접힘) -->
@@ -6996,7 +7014,7 @@
         </div>
       </div>
       <div class="detail-body">
-        <div class="edit-form">
+        <div style="padding:14px 18px;border-top:2px solid var(--border);background:#fff;">
           <div class="buyer-form-grid">
             <div class="ef-group"><label class="ef-label">기입일</label><div style="display:flex;gap:5px;"><input id="bd-date" class="ef-input" type="text" placeholder="YYYY-MM-DD" style="flex:1;"><button type="button" onclick="document.getElementById('bd-date').value=todayStr()" style="flex-shrink:0;padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;cursor:pointer;">오늘</button></div></div>
             <div class="ef-group"><label class="ef-label" style="visibility:hidden;">-</label></div>
