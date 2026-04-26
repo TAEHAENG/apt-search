@@ -1996,15 +1996,6 @@
       </div>
     </div>
 
-    <!-- 새 매물 등록 -->
-    <div style="margin-bottom:16px;">
-      <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:8px;">📝 새 매물 등록</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;">
-        <button onclick="openAddNew()" style="background:#1d4ed8;border:none;color:#fff;padding:6px 12px;font-size:12px;border-radius:4px;cursor:pointer;font-weight:600;">➕ APT 새 매물</button>
-        <button onclick="sgOpenAddNew()" style="background:#1d4ed8;border:none;color:#fff;padding:6px 12px;font-size:12px;border-radius:4px;cursor:pointer;font-weight:600;">➕ 상가 새 매물</button>
-        <button onclick="openBuyerDetailModal('new')" style="background:#b45309;border:none;color:#fff;padding:6px 12px;font-size:12px;border-radius:4px;cursor:pointer;font-weight:600;">➕ 구입자 등록</button>
-      </div>
-    </div>
 
     <!-- 열너비 조정 -->
     <div class="cwp-section" style="margin-bottom:6px;">↔ 열너비 조정</div>
@@ -5647,7 +5638,7 @@
       var subtitle = document.getElementById('BUYER-SUBTITLE');
       modal.classList.add('open');
       subtitle.textContent = '신규 구입자 등록';
-      ['bd-namephone','bd-movein','bd-want','bd-price-budget','bd-deposit-budget','bd-monthly-budget','bd-propose','bd-memo'].forEach(function(id) {
+      ['bd-date','bd-namephone','bd-movein','bd-want','bd-price-budget','bd-deposit-budget','bd-monthly-budget','bd-propose','bd-memo','bd-feature'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.value = '';
       });
@@ -5663,20 +5654,23 @@
     async function saveBuyerDetailModal() {
       var namephone = document.getElementById('bd-namephone').value.trim();
       if (!namephone) { showToast('⚠️ 고객명(전화번호)은 필수입니다'); return; }
-      var ymd = new Date().toISOString().slice(0, 10);
+      var dateVal = document.getElementById('bd-date').value.trim();
+      if (!dateVal) dateVal = new Date().toISOString().slice(0, 10);
       var vals = {
-        '기입일': ymd, '고객명(전화번호)': namephone,
-        '입주일': document.getElementById('bd-movein').value.trim(),
-        '거래유형': document.getElementById('bd-type').value,
-        '프로세스': document.getElementById('bd-status').value,
+        '기입일': dateVal,
+        '고객명(전화번호)': namephone,
         '부동산유형': (document.getElementById('bd-proptype') || {value:''}).value,
-        '실거주여부': (document.getElementById('bd-selfuse') || {value:''}).value,
+        '거래유형': (document.getElementById('bd-type') || {value:''}).value,
+        '찾는 매물': document.getElementById('bd-want').value.trim(),
+        '제안 매물': document.getElementById('bd-propose').value.trim(),
+        '상담 내용': document.getElementById('bd-memo').value.trim(),
+        '프로세스': (document.getElementById('bd-status') || {value:''}).value,
+        '주요특징': (document.getElementById('bd-feature') || {value:''}).value.trim(),
         '매매가(예산)': (document.getElementById('bd-price-budget') || {value:''}).value.trim(),
         '보증금(예산)': (document.getElementById('bd-deposit-budget') || {value:''}).value.trim(),
         '월세(예산)': (document.getElementById('bd-monthly-budget') || {value:''}).value.trim(),
-        '찾는 매물': document.getElementById('bd-want').value.trim(),
-        '제안 매물': document.getElementById('bd-propose').value.trim(),
-        '상담 내용': document.getElementById('bd-memo').value.trim()
+        '입주일': document.getElementById('bd-movein').value.trim(),
+        '실거주여부': (document.getElementById('bd-selfuse') || {value:''}).value
       };
       showToast('⏳ 저장 중...');
       try {
@@ -6674,46 +6668,50 @@
       <button class="buyer-tab-btn" id="btab-btn-register" onclick="buyerSwitchTab('register',this)">📋 구입자 DB</button>
     </div>
     <div class="buyer-tab-content" id="btab-register">
+      <!-- 구입자 등록 버튼 -->
+      <div style="margin-bottom:12px;">
+        <button onclick="openBuyerDetailModal('new')" style="width:100%;background:#b45309;border:none;color:#fff;padding:10px;font-size:13px;border-radius:8px;cursor:pointer;font-weight:600;">➕ 구입자 등록</button>
+      </div>
       <!-- ═══ DB탭 필터 ═══ -->
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
         <!-- 0. 프로세스 -->
         <div style="margin-bottom:10px;">
           <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">프로세스</div>
           <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
-            <button id="db-cf-btn-all-proc" onclick="dbCfProcAll()" style="padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:11px;cursor:pointer;">전체</button>
-            <button class="db-cf-proc-btn active" data-proc="예비고객" onclick="dbCfProcToggle(this)">예비고객</button>
-            <button class="db-cf-proc-btn active" data-proc="초기상담" onclick="dbCfProcToggle(this)">초기상담</button>
-            <button class="db-cf-proc-btn active" data-proc="매물제안" onclick="dbCfProcToggle(this)">매물제안</button>
-            <button class="db-cf-proc-btn active" data-proc="임장" onclick="dbCfProcToggle(this)">임장</button>
-            <button class="db-cf-proc-btn active" data-proc="계약" onclick="dbCfProcToggle(this)">계약</button>
-            <button class="db-cf-proc-btn" data-proc="종료" onclick="dbCfProcToggle(this)">종료</button>
+            <button id="db-cf-btn-all-proc" onclick="dbCfProcAll()" class="sel-btn" style="padding:4px 10px;border-radius:5px;">전체</button>
+            <button class="sel-btn db-cf-proc-btn active" data-proc="예비고객" onclick="dbCfProcToggle(this)">예비고객</button>
+            <button class="sel-btn db-cf-proc-btn active" data-proc="초기상담" onclick="dbCfProcToggle(this)">초기상담</button>
+            <button class="sel-btn db-cf-proc-btn active" data-proc="매물제안" onclick="dbCfProcToggle(this)">매물제안</button>
+            <button class="sel-btn db-cf-proc-btn active" data-proc="임장" onclick="dbCfProcToggle(this)">임장</button>
+            <button class="sel-btn db-cf-proc-btn active" data-proc="계약" onclick="dbCfProcToggle(this)">계약</button>
+            <button class="sel-btn db-cf-proc-btn" data-proc="종료" onclick="dbCfProcToggle(this)">종료</button>
           </div>
         </div>
         <!-- 1. 부동산 유형 -->
         <div style="margin-bottom:10px;">
           <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">부동산 유형</div>
           <div style="display:flex;gap:4px;">
-            <button class="db-cf-type-btn active" data-type="아파트" onclick="dbCfTypeToggle(this)">아파트</button>
-            <button class="db-cf-type-btn active" data-type="상가" onclick="dbCfTypeToggle(this)">상가</button>
-            <button class="db-cf-type-btn active" data-type="토지" onclick="dbCfTypeToggle(this)">토지</button>
+            <button class="sel-btn db-cf-type-btn active" data-type="아파트" onclick="dbCfTypeToggle(this)">아파트</button>
+            <button class="sel-btn db-cf-type-btn active" data-type="상가" onclick="dbCfTypeToggle(this)">상가</button>
+            <button class="sel-btn db-cf-type-btn active" data-type="토지" onclick="dbCfTypeToggle(this)">토지</button>
           </div>
         </div>
         <!-- 2. 거래유형 -->
         <div style="margin-bottom:10px;">
           <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">거래유형</div>
           <div style="display:flex;flex-wrap:wrap;gap:4px;">
-            <button class="db-cf-deal-btn active" data-deal="매매s" onclick="dbCfDealToggle(this,'매매s')">매매s</button>
-            <button class="db-cf-deal-btn active" data-deal="전세s" onclick="dbCfDealToggle(this,'전세s')">전세s</button>
-            <button class="db-cf-deal-btn active" data-deal="월세s" onclick="dbCfDealToggle(this,'월세s')">월세s</button>
-            <button class="db-cf-deal-btn" data-deal="더보기" id="db-cf-deal-more-btn" onclick="dbCfDealExpand()" style="padding:4px 10px;">더보기 ▼</button>
+            <button class="sel-btn db-cf-deal-btn active" data-deal="매매s" onclick="dbCfDealToggle(this,'매매s')">매매s</button>
+            <button class="sel-btn db-cf-deal-btn active" data-deal="전세s" onclick="dbCfDealToggle(this,'전세s')">전세s</button>
+            <button class="sel-btn db-cf-deal-btn active" data-deal="월세s" onclick="dbCfDealToggle(this,'월세s')">월세s</button>
+            <button id="db-cf-deal-more-btn" onclick="dbCfDealExpand()" class="sel-btn" style="padding:4px 10px;border-radius:5px;">더보기 ▼</button>
             <div id="db-cf-deal-expand" style="display:none;width:100%;flex-basis:100%;display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
-              <button class="db-cf-dealex-btn" data-dex="매매" onclick="dbCfDealExToggle(this)">매매</button>
-              <button class="db-cf-dealex-btn" data-dex="매전세" onclick="dbCfDealExToggle(this)">매전세</button>
-              <button class="db-cf-dealex-btn" data-dex="매월세" onclick="dbCfDealExToggle(this)">매월세</button>
-              <button class="db-cf-dealex-btn" data-dex="전세" onclick="dbCfDealExToggle(this)">전세</button>
-              <button class="db-cf-dealex-btn" data-dex="전월세" onclick="dbCfDealExToggle(this)">전월세</button>
-              <button class="db-cf-dealex-btn" data-dex="월세" onclick="dbCfDealExToggle(this)">월세</button>
-              <button class="db-cf-dealex-btn" data-dex="매전월" onclick="dbCfDealExToggle(this)">매전월</button>
+              <button class="sel-btn db-cf-dealex-btn" data-dex="매매" onclick="dbCfDealExToggle(this)">매매</button>
+              <button class="sel-btn db-cf-dealex-btn" data-dex="매전세" onclick="dbCfDealExToggle(this)">매전세</button>
+              <button class="sel-btn db-cf-dealex-btn" data-dex="매월세" onclick="dbCfDealExToggle(this)">매월세</button>
+              <button class="sel-btn db-cf-dealex-btn" data-dex="전세" onclick="dbCfDealExToggle(this)">전세</button>
+              <button class="sel-btn db-cf-dealex-btn" data-dex="전월세" onclick="dbCfDealExToggle(this)">전월세</button>
+              <button class="sel-btn db-cf-dealex-btn" data-dex="월세" onclick="dbCfDealExToggle(this)">월세</button>
+              <button class="sel-btn db-cf-dealex-btn" data-dex="매전월" onclick="dbCfDealExToggle(this)">매전월</button>
               <button onclick="dbCfDealCollapse()" style="padding:4px 10px;">접기 ▲</button>
             </div>
           </div>
@@ -6747,50 +6745,6 @@
             <input id="db-cf-movein-from" type="date" style="padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);font-size:11px;flex:1;min-width:120px;" oninput="applyDbSearch()">
             <span style="color:var(--text2);">~</span>
             <input id="db-cf-movein-to" type="date" style="padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);font-size:11px;flex:1;min-width:120px;" oninput="applyDbSearch()">
-          </div>
-        </div>
-      </div>
-      <!-- 구입자 DB 필터링 -->
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
-        <!-- 프로세스 -->
-        <div style="margin-bottom:10px;">
-          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">프로세스</div>
-          <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
-            <button id="db-cf-btn-all-proc" onclick="dbCfProcAll()" class="sel-btn" style="padding:4px 10px;border-radius:5px;">전체</button>
-            <button class="sel-btn db-cf-proc-btn active" data-proc="예비고객" onclick="dbCfProcToggle(this)">예비고객</button>
-            <button class="sel-btn db-cf-proc-btn active" data-proc="초기상담" onclick="dbCfProcToggle(this)">초기상담</button>
-            <button class="sel-btn db-cf-proc-btn active" data-proc="매물제안" onclick="dbCfProcToggle(this)">매물제안</button>
-            <button class="sel-btn db-cf-proc-btn active" data-proc="임장" onclick="dbCfProcToggle(this)">임장</button>
-            <button class="sel-btn db-cf-proc-btn active" data-proc="계약" onclick="dbCfProcToggle(this)">계약</button>
-            <button class="sel-btn db-cf-proc-btn" data-proc="종료" onclick="dbCfProcToggle(this)">종료</button>
-          </div>
-        </div>
-        <!-- 부동산 유형 -->
-        <div style="margin-bottom:10px;">
-          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">부동산 유형</div>
-          <div style="display:flex;gap:4px;">
-            <button class="sel-btn db-cf-type-btn active" data-type="아파트" onclick="dbCfTypeToggle(this)">아파트</button>
-            <button class="sel-btn db-cf-type-btn active" data-type="상가" onclick="dbCfTypeToggle(this)">상가</button>
-            <button class="sel-btn db-cf-type-btn active" data-type="토지" onclick="dbCfTypeToggle(this)">토지</button>
-          </div>
-        </div>
-        <!-- 거래유형 -->
-        <div style="margin-bottom:10px;">
-          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">거래유형</div>
-          <div style="display:flex;flex-wrap:wrap;gap:4px;">
-            <button class="sel-btn db-cf-deal-btn active" data-deal="매매s" onclick="dbCfDealToggle(this,'매매s')">매매s</button>
-            <button class="sel-btn db-cf-deal-btn active" data-deal="전세s" onclick="dbCfDealToggle(this,'전세s')">전세s</button>
-            <button class="sel-btn db-cf-deal-btn active" data-deal="월세s" onclick="dbCfDealToggle(this,'월세s')">월세s</button>
-            <button id="db-cf-deal-expand-btn" onclick="dbCfDealAll()" class="sel-btn" style="padding:4px 10px;border-radius:5px;">+ 전체보기</button>
-          </div>
-          <div id="db-cf-deal-expand" style="display:none;flex-wrap:wrap;gap:4px;margin-top:5px;">
-            <button class="sel-btn db-cf-dealex-btn active" data-dex="매매" onclick="dbCfDealExToggle(this)">매매</button>
-            <button class="sel-btn db-cf-dealex-btn active" data-dex="전세" onclick="dbCfDealExToggle(this)">전세</button>
-            <button class="sel-btn db-cf-dealex-btn active" data-dex="월세" onclick="dbCfDealExToggle(this)">월세</button>
-            <button class="sel-btn db-cf-dealex-btn active" data-dex="매전세" onclick="dbCfDealExToggle(this)">매전세</button>
-            <button class="sel-btn db-cf-dealex-btn active" data-dex="매월세" onclick="dbCfDealExToggle(this)">매월세</button>
-            <button class="sel-btn db-cf-dealex-btn active" data-dex="전월세" onclick="dbCfDealExToggle(this)">전월세</button>
-            <button class="sel-btn db-cf-dealex-btn active" data-dex="매전월" onclick="dbCfDealExToggle(this)">매전월</button>
           </div>
         </div>
       </div>
@@ -7043,25 +6997,26 @@
       </div>
       <div class="detail-body" style="padding:0;">
         <div class="edit-form" style="padding:16px;">
-          <div class="edit-grid">
+          <div class="buyer-form-grid">
+            <div class="ef-group"><label class="ef-label">기입일</label><div style="display:flex;gap:5px;"><input id="bd-date" class="ef-input" type="text" placeholder="YYYY-MM-DD" style="flex:1;"><button type="button" onclick="document.getElementById('bd-date').value=todayStr()" style="flex-shrink:0;padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;cursor:pointer;">오늘</button></div></div>
+            <div class="ef-group"><label class="ef-label" style="visibility:hidden;">-</label></div>
             <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">고객명(전화번호) *</label><input id="bd-namephone" class="ef-input" type="text" placeholder="홍길동 010-1234-5678"></div>
-            <div class="ef-group"><label class="ef-label">입주 희망일</label><input id="bd-movein" class="ef-input" type="text" placeholder="예) 2025-06, 즉시"></div>
+            <div class="ef-group"><label class="ef-label">부동산유형</label><select id="bd-proptype" class="ef-select"><option value="">선택</option><option>아파트</option><option>상가</option><option>토지</option></select></div>
             <div class="ef-group"><label class="ef-label">거래유형</label><select id="bd-type" class="ef-select"><option value="">선택</option><option>매매</option><option>전세</option><option>월세</option><option>매전세</option><option>매월세</option><option>전월세</option><option>매전월</option></select></div>
-            <div class="ef-group"><label class="ef-label">프로세스</label><select id="bd-status" class="ef-select"><option value="">선택</option><option>예비고객</option><option>초기상담</option><option>매물제안</option><option>임장</option><option>계약</option><option>종료</option></select></div>
-            <div class="ef-group"><label class="ef-label">부동산 유형</label><select id="bd-proptype" class="ef-select"><option value="">선택</option><option>아파트</option><option>상가</option><option>토지</option></select></div>
-            <div class="ef-group"><label class="ef-label">실거주 여부</label><select id="bd-selfuse" class="ef-select"><option value="">선택</option><option>실거주</option><option>투자</option></select></div>
+            <div class="ef-group"><label class="ef-label">매매가(예산)</label><div class="amount-wrap"><input id="bd-price-budget" class="ef-input" type="number" placeholder="만원 단위 숫자" oninput="showAmountHint(this,'bd-price-budget-hint')"><span id="bd-price-budget-hint" class="amount-hint"></span></div></div>
+            <div class="ef-group"><label class="ef-label">보증금(예산)</label><div class="amount-wrap"><input id="bd-deposit-budget" class="ef-input" type="number" placeholder="만원 단위 숫자" oninput="showAmountHint(this,'bd-deposit-budget-hint')"><span id="bd-deposit-budget-hint" class="amount-hint"></span></div></div>
+            <div class="ef-group"><label class="ef-label">월세(예산)</label><div class="amount-wrap"><input id="bd-monthly-budget" class="ef-input" type="number" placeholder="만원 단위 숫자" oninput="showAmountHint(this,'bd-monthly-budget-hint')"><span id="bd-monthly-budget-hint" class="amount-hint"></span></div></div>
+            <div class="ef-group"><label class="ef-label">입주일</label><input id="bd-movein" class="ef-input" type="text" placeholder="예) 2025-06, 즉시"></div>
+            <div class="ef-group"><label class="ef-label">실거주여부</label><select id="bd-selfuse" class="ef-select"><option value="">선택</option><option>실거주</option><option>투자</option></select></div>
             <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">찾는 매물</label><input id="bd-want" class="ef-input" type="text" placeholder="예) 아이 전세 34평"></div>
+            <div class="ef-group"><label class="ef-label">프로세스</label><select id="bd-status" class="ef-select"><option value="">선택</option><option>예비고객</option><option>초기상담</option><option>매물제안</option><option>임장</option><option>계약</option><option>종료</option></select></div>
+            <div class="ef-group"><label class="ef-label">주요특징</label><input id="bd-feature" class="ef-input" type="text" placeholder="예) #급매 #역세권"></div>
           </div>
-          <div class="edit-grid" style="margin-top:8px;">
-            <div class="ef-group"><label class="ef-label">매매가(예산)</label><input id="bd-price-budget" class="ef-input" type="number" placeholder="만원 단위"></div>
-            <div class="ef-group"><label class="ef-label">보증금(예산)</label><input id="bd-deposit-budget" class="ef-input" type="number" placeholder="만원 단위"></div>
-            <div class="ef-group"><label class="ef-label">월세(예산)</label><input id="bd-monthly-budget" class="ef-input" type="number" placeholder="만원 단위"></div>
-          </div>
-          <div class="ef-group" style="margin-top:8px;"><label class="ef-label">제안 매물</label><textarea id="bd-propose" class="ef-textarea" rows="3"></textarea></div>
-          <div class="ef-group"><label class="ef-label">상담 내용</label><textarea id="bd-memo" class="ef-textarea" rows="3"></textarea></div>
-          <div style="display:flex;gap:8px;margin-top:16px;">
-            <button onclick="saveBuyerDetailModal()" style="flex:1;padding:11px;background:#b45309;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">💾 저장</button>
-            <button onclick="closeBuyerDetailModal()" style="flex:1;padding:11px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:14px;cursor:pointer;">취소</button>
+          <div class="ef-group" style="margin-bottom:8px;"><label class="ef-label">제안 매물</label><textarea id="bd-propose" class="ef-textarea" rows="3"></textarea></div>
+          <div class="ef-group" style="margin-bottom:12px;"><label class="ef-label">상담 내용</label><textarea id="bd-memo" class="ef-textarea" rows="3"></textarea></div>
+          <div class="ef-actions">
+            <button class="ef-save" onclick="saveBuyerDetailModal()">💾 저장</button>
+            <button class="ef-cancel" onclick="closeBuyerDetailModal()">취소</button>
           </div>
         </div>
       </div>
