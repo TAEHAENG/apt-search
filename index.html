@@ -331,6 +331,15 @@
       border-color: var(--accent);
     }
 
+    .col-search-wrap {
+      display: flex; align-items: center; flex: 1; min-width: 0;
+    }
+
+    .col-search-label {
+      font-size: 10px; color: var(--text3); white-space: nowrap;
+      padding: 0 3px; flex-shrink: 0;
+    }
+
     .search-input::placeholder {
       color: var(--text3);
     }
@@ -1938,6 +1947,48 @@
       <button onclick="toggleSettings()" style="background:none;border:none;color:#64748b;font-size:14px;cursor:pointer;padding:2px 4px;">✕</button>
     </div>
 
+    <!-- API Key 설정 -->
+    <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+      <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:8px;">🔑 Google API Key</div>
+      <div style="display:flex;gap:6px;align-items:flex-end;">
+        <input id="api-key-input" type="password" placeholder="API Key 입력" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);font-size:12px;">
+        <button onclick="saveApiKey()" style="padding:8px 14px;background:#22c55e;border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">💾 저장</button>
+      </div>
+      <div id="api-key-status" style="font-size:10px;color:var(--text3);margin-top:4px;">저장됨 ✓</div>
+    </div>
+
+    <!-- 안전검사 / 인쇄 -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:8px;">안전검사 / 인쇄</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <div style="position:relative;display:inline-block;">
+          <button onclick="toggleSafetyDrop('apt')" style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;padding:6px 10px;font-size:12px;border-radius:4px;cursor:pointer;">🔍 APT 안전검사 ▾</button>
+          <div id="safetyDrop-apt" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.18);z-index:300;min-width:160px;overflow:hidden;">
+            <button onclick="hideSafetyDrop('apt');runSafetyCheck(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔍 기본 (기준점→현재)</button>
+            <div style="height:1px;background:var(--border);margin:0 8px;"></div>
+            <button onclick="hideSafetyDrop('apt');runSafetyCheckReverse(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔄 역순 (현재→기준점)</button>
+          </div>
+        </div>
+        <div style="position:relative;display:inline-block;">
+          <button onclick="toggleSafetyDrop('sg')" style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;padding:6px 10px;font-size:12px;border-radius:4px;cursor:pointer;">🔍 상가 안전검사 ▾</button>
+          <div id="safetyDrop-sg" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.18);z-index:300;min-width:180px;overflow:hidden;">
+            <button onclick="hideSafetyDrop('sg');runSgSafetyCheck(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔍 기본 (기준점→현재)</button>
+            <div style="height:1px;background:var(--border);margin:0 8px;"></div>
+            <button onclick="hideSafetyDrop('sg');runSgSafetyCheckReverse(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔄 역순 (현재→기준점)</button>
+          </div>
+        </div>
+        <div style="position:relative;display:inline-block;">
+          <button onclick="toggleSafetyDrop('buyer')" style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;padding:6px 10px;font-size:12px;border-radius:4px;cursor:pointer;">🔍 구입자 안전검사 ▾</button>
+          <div id="safetyDrop-buyer" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.18);z-index:300;min-width:190px;overflow:hidden;">
+            <button onclick="hideSafetyDrop('buyer');runBuyerSafetyCheck(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔍 기본 (기준점→현재)</button>
+            <div style="height:1px;background:var(--border);margin:0 8px;"></div>
+            <button onclick="hideSafetyDrop('buyer');runBuyerSafetyCheckReverse(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔄 역순 (현재→기준점)</button>
+          </div>
+        </div>
+        <button onclick="window.print()" style="background:rgba(148,163,184,0.15);border:1px solid rgba(148,163,184,0.35);color:var(--text3);padding:6px 10px;font-size:12px;border-radius:4px;cursor:pointer;">🖨 인쇄</button>
+      </div>
+    </div>
+
     <!-- 열너비 조정 -->
     <div class="cwp-section" style="margin-bottom:6px;">↔ 열너비 조정</div>
     <div class="cwp-row" style="margin-bottom:6px;">
@@ -2020,36 +2071,11 @@
         target="_blank">📋 매물장</a>
       <button class="hdr-btn hdr-btn-add" id="hdr-apt-add" onclick="openAddNew()">＋ 새 매물</button>
       <button class="hdr-btn" id="settingsBtn" onclick="toggleSettings()" style="background:rgba(148,163,184,0.15);border:1.5px solid rgba(148,163,184,0.35);color:var(--text3);">⚙ 설정</button>
-      <div style="position:relative;display:inline-block;" id="safetyWrap">
-        <button class="hdr-btn" id="safetyCheckBtn" onclick="toggleSafetyDrop('apt')" style="background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24;">🔍 안전검사 ▾</button>
-        <div id="safetyDrop-apt" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.18);z-index:300;min-width:160px;overflow:hidden;">
-          <button onclick="hideSafetyDrop('apt');runSafetyCheck(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔍 기본 (기준점→현재)</button>
-          <div style="height:1px;background:var(--border);margin:0 8px;"></div>
-          <button onclick="hideSafetyDrop('apt');runSafetyCheckReverse(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔄 역순 (현재→기준점)</button>
-        </div>
-      </div>
       <!-- 상가 전용 버튼 -->
       <a class="hdr-btn hdr-btn-sheet" id="hdr-sg-sheet" style="display:none;"
         href="https://docs.google.com/spreadsheets/d/19KWBXPiK-qXycopkNRHNMddmux2cKohtm7fLLyfiZGw/edit"
         target="_blank">📋 상가매물장</a>
       <button class="hdr-btn hdr-btn-add" id="hdr-sg-add" style="display:none;" onclick="sgOpenAddNew()">＋ 새 상가매물</button>
-      <div style="position:relative;display:none;" id="sgSafetyWrap">
-        <button class="hdr-btn" id="sgSafetyCheckBtn" onclick="toggleSafetyDrop('sg')" style="background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24;">🔍 상가안전검사 ▾</button>
-        <div id="safetyDrop-sg" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.18);z-index:300;min-width:180px;overflow:hidden;">
-          <button onclick="hideSafetyDrop('sg');runSgSafetyCheck(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔍 기본 (기준점→현재)</button>
-          <div style="height:1px;background:var(--border);margin:0 8px;"></div>
-          <button onclick="hideSafetyDrop('sg');runSgSafetyCheckReverse(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔄 역순 (현재→기준점)</button>
-        </div>
-      </div>
-      <div style="position:relative;display:none;" id="buyerSafetyWrap">
-        <button class="hdr-btn" id="buyerSafetyCheckBtn" onclick="toggleSafetyDrop('buyer')" style="background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24;">🔍 구입자안전검사 ▾</button>
-        <div id="safetyDrop-buyer" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.18);z-index:300;min-width:190px;overflow:hidden;">
-          <button onclick="hideSafetyDrop('buyer');runBuyerSafetyCheck(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔍 기본 (기준점→현재)</button>
-          <div style="height:1px;background:var(--border);margin:0 8px;"></div>
-          <button onclick="hideSafetyDrop('buyer');runBuyerSafetyCheckReverse(false)" style="display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text);">🔄 역순 (현재→기준점)</button>
-        </div>
-      </div>
-      <button class="hdr-btn" onclick="window.print()" style="background:rgba(148,163,184,0.15);border:1.5px solid rgba(148,163,184,0.35);color:var(--text3);">🖨 인쇄</button>
       <button class="sync-btn" id="SB" onclick="syncSheets()"><span id="SI">🔄</span></button>
       <div class="total-badge">총 <span id="TC">-</span>건</div>
     </div>
@@ -2076,14 +2102,14 @@
         <button class="sel-btn type-mae" id="type-maejunwol" onclick="selTypeSingle('매전월')">매전월</button>
       </div>
       <div style="display:flex;align-items:center;gap:4px;margin-left:auto;flex-shrink:0;">
-        <button id="expire-filter-btn" onclick="toggleExpireFilter()" style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);border-radius:6px;color:#fbbf24;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;">📅 만기일</button>
+        <button id="expire-filter-btn" onclick="toggleExpireFilter()" style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.4);border-radius:6px;color:#22c55e;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;">만기일</button>
         <div id="expire-filter-panel" style="display:none;flex-shrink:0;display:flex;align-items:center;gap:6px;padding:0 8px;">
           <input type="date" id="expire-from" oninput="applyAll()" style="padding:6px;font-size:12px;border:1px solid var(--border);border-radius:4px;background:var(--surface2);color:var(--text);">
           <span style="color:var(--text3);">~</span>
           <input type="number" id="expire-months" min="1" max="24" placeholder="개월" oninput="applyAll()" style="width:60px;padding:6px;font-size:12px;border:1px solid var(--border);border-radius:4px;background:var(--surface2);color:var(--text);">
           <label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text2);white-space:nowrap;">
+            <span>미등록 포함</span>
             <input type="checkbox" id="expire-include-empty" onchange="applyAll()" style="width:14px;height:14px;cursor:pointer;">
-            <span>만기 미등록</span>
           </label>
           <button onclick="clearExpireFilter()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:4px;color:#f87171;padding:4px 8px;font-size:12px;cursor:pointer;flex-shrink:0;">✕</button>
         </div>
@@ -2172,9 +2198,18 @@
         <input class="search-input" id="SI2" type="text" placeholder="동 · 호 · 전화번호 · 소유자 (전체 건물 검색)">
       </div>
       <div class="search-cols">
-        <input id="SI-dong" class="col-search-input" type="text" placeholder="동">
-        <input id="SI-ho" class="col-search-input" type="text" placeholder="호">
-        <input id="SI-type" class="col-search-input" type="text" placeholder="타입">
+        <div class="col-search-wrap">
+          <input id="SI-dong" class="col-search-input" type="text" placeholder="">
+          <span class="col-search-label">동</span>
+        </div>
+        <div class="col-search-wrap">
+          <input id="SI-ho" class="col-search-input" type="text" placeholder="">
+          <span class="col-search-label">호</span>
+        </div>
+        <div class="col-search-wrap">
+          <input id="SI-type" class="col-search-input" type="text" placeholder="">
+          <span class="col-search-label">타입(공용)</span>
+        </div>
       </div>
       <button class="reset-btn" onclick="resetAll()">초기화</button>
     </div>
@@ -2382,99 +2417,164 @@
         <div class="modal-title">＋ 새 매물 추가</div>
         <button class="detail-close" onclick="closeAddNew()">✕</button>
       </div>
-      <div class="modal-body">
-        <div class="edit-grid">
-          <div class="ef-group"><label class="ef-label">건물명 *</label>
-            <input id="n-building" class="ef-input" list="bld-list" placeholder="선택 또는 직접 입력" autocomplete="off">
-            <datalist id="bld-list">
-              <option value="그린파크">그린파크</option>
-              <option value="꿈에">꿈에</option>
-              <option value="더샵">더샵</option>
-              <option value="더힐">더힐</option>
-              <option value="동천센자">동천센자</option>
-              <option value="래미안위례">래미안위례</option>
-              <option value="래미안이편한">래미안이편한</option>
-              <option value="롯데">롯데</option>
-              <option value="보미">보미</option>
-              <option value="센자">센자</option>
-              <option value="센트레">센트레</option>
-              <option value="센푸">센푸</option>
-              <option value="송파롯데캐슬파인힐">송파롯데캐슬파인힐</option>
-              <option value="송파시그니처롯데캐슬">송파시그니처롯데캐슬</option>
-              <option value="송파위례리슈빌">송파위례리슈빌</option>
-              <option value="송푸">송푸</option>
-              <option value="신안">신안</option>
-              <option value="아이">아이</option>
-              <option value="아이2">아이2</option>
-              <option value="아트리버">아트리버</option>
-              <option value="엠코플로리체">엠코플로리체</option>
-              <option value="위례센트로엘">위례센트로엘</option>
-              <option value="위례숲우미린">위례숲우미린</option>
-              <option value="위푸">위푸</option>
-              <option value="이택">이택</option>
-              <option value="자이">자이</option>
-              <option value="제일풍경채">제일풍경채</option>
-              <option value="주택">주택</option>
-              <option value="중푸">중푸</option>
-              <option value="지웰">지웰</option>
-              <option value="판교밸리자이">판교밸리자이</option>
-              <option value="포레나송파">포레나송파</option>
-              <option value="한화오벨리스크">한화오벨리스크</option>
-              <option value="호반베르디움">호반베르디움</option>
-              <option value="호반써밋">호반써밋</option>
-              <option value="호반써밋2">호반써밋2</option>
-              <option value="호반써밋애비뉴">호반써밋애비뉴</option>
-              <option value="힐스">힐스</option>
-              <option value="힐스북위례">힐스북위례</option>
-              <option value="힐스위례">힐스위례</option>
-            </datalist>
-          </div>
-          <div class="ef-group"><label class="ef-label">유형 *</label>
-            <select id="n-type" class="ef-select">
-              <option value="">선택</option>
-              <option>매매</option>
-              <option>전세</option>
-              <option>월세</option>
-              <option>매전세</option>
-              <option>매월세</option>
-              <option>전월세</option>
-              <option>매전월</option>
-            </select>
-          </div>
-          <div class="ef-group"><label class="ef-label">동 *</label><input id="n-dong" class="ef-input" type="text"
-              placeholder="예) 101"></div>
-          <div class="ef-group"><label class="ef-label">호 *</label><input id="n-ho" class="ef-input" type="text"
-              placeholder="예) 201"></div>
-          <div class="ef-group"><label class="ef-label">가격</label><input id="n-price" class="ef-input" type="text"
-              placeholder="예) 13.7억"></div>
-          <div class="ef-group"><label class="ef-label">프로세스</label>
-            <select id="n-proc" class="ef-select">
-              <option value="">선택</option>
-              <option>제안가능(물건등록)</option>
-              <option>제안가능(미등록)</option>
-              <option>타부동산</option>
-              <option>대기</option>
-              <option>보류</option>
-              <option>통오더</option>
-              <option>매물 확보</option>
-              <option>계약</option>
-              <option>잔금</option>
-              <option>잔금정산</option>
-              <option>재계약</option>
-              <option>재계약확인</option>
-              <option>완료</option>
-              <option>매매완료</option>
-            </select>
-          </div>
-          <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">소유자</label><input id="n-owner"
-              class="ef-input" type="text" placeholder="소유자명 / 연락처"></div>
-          <div class="ef-group"><label class="ef-label">실행일</label><input id="n-date" class="ef-input" type="text">
-          </div>
-          <div class="ef-group"><label class="ef-label">만기일</label><input id="n-expire2" class="ef-input" type="text">
+      <div class="modal-body" style="max-height:calc(100vh - 120px);overflow-y:auto;">
+        <!-- 기본 정보 -->
+        <div style="margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">기본 정보</div>
+          <div class="edit-grid">
+            <div class="ef-group"><label class="ef-label">건물명 *</label>
+              <input id="n-building" class="ef-input" list="bld-list" placeholder="선택 또는 직접 입력" autocomplete="off">
+              <datalist id="bld-list">
+                <option value="그린파크">그린파크</option>
+                <option value="꿈에">꿈에</option>
+                <option value="더샵">더샵</option>
+                <option value="더힐">더힐</option>
+                <option value="동천센자">동천센자</option>
+                <option value="래미안위례">래미안위례</option>
+                <option value="래미안이편한">래미안이편한</option>
+                <option value="롯데">롯데</option>
+                <option value="보미">보미</option>
+                <option value="센자">센자</option>
+                <option value="센트레">센트레</option>
+                <option value="센푸">센푸</option>
+                <option value="송파롯데캐슬파인힐">송파롯데캐슬파인힐</option>
+                <option value="송파시그니처롯데캐슬">송파시그니처롯데캐슬</option>
+                <option value="송파위례리슈빌">송파위례리슈빌</option>
+                <option value="송푸">송푸</option>
+                <option value="신안">신안</option>
+                <option value="아이">아이</option>
+                <option value="아이2">아이2</option>
+                <option value="아트리버">아트리버</option>
+                <option value="엠코플로리체">엠코플로리체</option>
+                <option value="위례센트로엘">위례센트로엘</option>
+                <option value="위례숲우미린">위례숲우미린</option>
+                <option value="위푸">위푸</option>
+                <option value="이택">이택</option>
+                <option value="자이">자이</option>
+                <option value="제일풍경채">제일풍경채</option>
+                <option value="주택">주택</option>
+                <option value="중푸">중푸</option>
+                <option value="지웰">지웰</option>
+                <option value="판교밸리자이">판교밸리자이</option>
+                <option value="포레나송파">포레나송파</option>
+                <option value="한화오벨리스크">한화오벨리스크</option>
+                <option value="호반베르디움">호반베르디움</option>
+                <option value="호반써밋">호반써밋</option>
+                <option value="호반써밋2">호반써밋2</option>
+                <option value="호반써밋애비뉴">호반써밋애비뉴</option>
+                <option value="힐스">힐스</option>
+                <option value="힐스북위례">힐스북위례</option>
+                <option value="힐스위례">힐스위례</option>
+              </datalist>
+            </div>
+            <div class="ef-group"><label class="ef-label">유형 *</label>
+              <select id="n-type" class="ef-select">
+                <option value="">선택</option>
+                <option>매매</option>
+                <option>전세</option>
+                <option>월세</option>
+                <option>매전세</option>
+                <option>매월세</option>
+                <option>전월세</option>
+                <option>매전월</option>
+              </select>
+            </div>
+            <div class="ef-group"><label class="ef-label">동 *</label><input id="n-dong" class="ef-input" type="text" placeholder="예) 101"></div>
+            <div class="ef-group"><label class="ef-label">호 *</label><input id="n-ho" class="ef-input" type="text" placeholder="예) 201"></div>
+            <div class="ef-group"><label class="ef-label">가격</label><input id="n-price" class="ef-input" type="text" placeholder="예) 13.7억"></div>
+            <div class="ef-group"><label class="ef-label">만기일</label><input id="n-expire2" class="ef-input" type="text"></div>
+            <div class="ef-group"><label class="ef-label">실행일</label><input id="n-date" class="ef-input" type="text"></div>
+            <div class="ef-group"><label class="ef-label">타입(공용)</label><input id="n-type-common" class="ef-input" type="text" placeholder="예) 26.5"></div>
+            <div class="ef-group"><label class="ef-label">타입(전용)</label><input id="n-type-excl" class="ef-input" type="text" placeholder="예) 19.5"></div>
+            <div class="ef-group"><label class="ef-label">에어컨</label><input id="n-ac" class="ef-input" type="text"></div>
+            <div class="ef-group"><label class="ef-label">방</label><input id="n-room" class="ef-input" type="text"></div>
+            <div class="ef-group"><label class="ef-label">융자</label><input id="n-loan" class="ef-input" type="text"></div>
+            <div class="ef-group"><label class="ef-label">층공개</label><input id="n-floor" class="ef-input" type="text"></div>
+            <div class="ef-group"><label class="ef-label">입주형태</label><input id="n-movetype" class="ef-input" type="text"></div>
+            <div class="ef-group"><label class="ef-label">독점</label><input id="n-exclusive" class="ef-input" type="text"></div>
+            <div class="ef-group"><label class="ef-label">광고주기</label><input id="n-adcycle" class="ef-input" type="text"></div>
+            <div class="ef-group"><label class="ef-label">프로세스</label>
+              <select id="n-proc" class="ef-select">
+                <option value="">선택</option>
+                <option>제안가능(물건등록)</option>
+                <option>제안가능(미등록)</option>
+                <option>타부동산</option>
+                <option>대기</option>
+                <option>보류</option>
+                <option>통오더</option>
+                <option>매물 확보</option>
+                <option>계약</option>
+                <option>잔금</option>
+                <option>잔금정산</option>
+                <option>재계약</option>
+                <option>재계약확인</option>
+                <option>완료</option>
+                <option>매매완료</option>
+              </select>
+            </div>
           </div>
         </div>
-        <div class="ef-group" style="margin-bottom:14px;"><label class="ef-label">상담 내용</label><textarea id="n-memo"
-            class="ef-textarea" rows="4"></textarea></div>
+
+        <!-- 소유자 정보 -->
+        <div style="margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">소유자 정보</div>
+          <div class="edit-grid">
+            <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">소유자</label><input id="n-owner" class="ef-input" type="text" placeholder="소유자명 / 연락처"></div>
+            <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">소유자2</label><input id="n-owner2" class="ef-input" type="text" placeholder="소유자명 / 연락처"></div>
+            <div class="ef-group"><label class="ef-label">이름</label><input id="n-ownername" class="ef-input" type="text"></div>
+            <div class="ef-group"><label class="ef-label">임차인</label><input id="n-tenant" class="ef-input" type="text"></div>
+            <div class="ef-group"><label class="ef-label">손님구분</label><input id="n-resident" class="ef-input" type="text"></div>
+            <div class="ef-group"><label class="ef-label">현재점유형태</label><input id="n-occupancy" class="ef-input" type="text"></div>
+          </div>
+        </div>
+
+        <!-- 주요특징 -->
+        <div style="margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">주요특징</div>
+          <div class="ef-group" style="margin-bottom:0;"><label class="ef-label">태그</label><textarea id="n-tag-input" class="ef-textarea" rows="2" placeholder="쉼표 또는 줄바꿈으로 구분"></textarea></div>
+        </div>
+
+        <!-- 상담 내용 -->
+        <div style="margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">상담 내용</div>
+          <div class="ef-group" style="margin-bottom:0;"><textarea id="n-memo" class="ef-textarea" rows="4"></textarea></div>
+        </div>
+
+        <!-- 계약 정보 (접힘) -->
+        <div style="margin-bottom:12px;">
+          <button onclick="toggleCollapse(this,'na-collapse')" style="background:none;border:none;padding:0;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);width:100%;text-align:left;">▶ 계약 정보</button>
+          <div id="na-collapse" style="display:none;">
+            <div class="edit-grid" style="margin-bottom:12px;">
+              <div class="ef-group"><label class="ef-label">계약금중일부</label><input id="na-deposit1" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">약정일</label><input id="na-promised-date" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">토허제</label><input id="na-deposit-period" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">계약일</label><input id="na-contract-date" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">중도금</label><input id="na-intermediate" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">잔금일</label><input id="na-final-date" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">갱신청구권</label><input id="na-renewal" class="ef-input" type="text"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 이실장 정보 (접힘) -->
+        <div style="margin-bottom:12px;">
+          <button onclick="toggleCollapse(this,'na-ls-collapse')" style="background:none;border:none;padding:0;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);width:100%;text-align:left;">▶ 이실장 정보</button>
+          <div id="na-ls-collapse" style="display:none;">
+            <div class="edit-grid" style="margin-bottom:12px;">
+              <div class="ef-group"><label class="ef-label">단지명</label><input id="na-ls-complex" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">동</label><input id="na-ls-dong" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">호</label><input id="na-ls-ho" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">공급면적</label><input id="na-ls-supply" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">전용면적</label><input id="na-ls-exclusive" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">소유형태</label><input id="na-ls-ownership" class="ef-input" type="text"></div>
+              <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">소유자명</label><input id="na-ls-owner" class="ef-input" type="text"></div>
+              <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">거주자명</label><input id="na-ls-resident" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">거래가</label><input id="na-ls-price" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">계약일</label><input id="na-ls-contract-date" class="ef-input" type="text"></div>
+              <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">등기열람일시</label><input id="na-ls-registry-date" class="ef-input" type="text"></div>
+            </div>
+          </div>
+        </div>
         <div class="ef-actions" style="padding-bottom:8px;">
           <button id="addSaveBtn" class="ef-save" style="background:var(--green);" onclick="saveNewRow()">＋ 매물장에
             추가</button>
@@ -2590,8 +2690,9 @@
     }
 
     // ── 설정 ─────────────────────────────────────────
+    // ⚠️ API 키는 localStorage에 저장됨 (GitHub에 업로드 안 함)
     var SSID = '1Csxt63V81HA3CG2n8aYy_F5VzFzIOravBs03Xh77Hsw';
-    var AKEY = 'AIzaSyD5YiNNP1d9cmnehlSLDViEOBdjZhealMw';
+    var AKEY = localStorage.getItem('GOOGLE_API_KEY') || 'AIzaSyASQF_4u_MKiwb9MnBNErqkGvQaPDmqehE'; // localStorage에서 읽기, 없으면 기본값
     var SGID = '505657259';
     var ASURL = 'https://script.google.com/macros/s/AKfycbzi9seNa_t0NEmP2Ft5Zy08fUrgX8Hk3hVXGycNOR_ZVeKTAM4E_oq88JkuiW0EbgFVFA/exec';
     var TM = { "매매": ["매매", "매전세", "매월세", "매전월"], "전세": ["전세", "매전세", "전월세", "매전월"], "월세": ["월세", "매월세", "전월세", "매전월"] };
@@ -2903,8 +3004,8 @@
       var wasHidden = panel.style.display === 'none';
       panel.style.display = wasHidden ? 'flex' : 'none';
       if (wasHidden) {
-        btn.style.background = 'rgba(251,191,36,0.25)';
-        btn.style.borderColor = 'rgba(251,191,36,0.5)';
+        btn.style.background = 'rgba(34,197,94,0.25)';
+        btn.style.borderColor = 'rgba(34,197,94,0.5)';
         fExpireActive = true;
       } else {
         clearExpireFilter();
@@ -2917,8 +3018,8 @@
       var expireMonths = document.getElementById('expire-months');
       var expireIncludeEmpty = document.getElementById('expire-include-empty');
       panel.style.display = 'none';
-      btn.style.background = 'rgba(251,191,36,0.15)';
-      btn.style.borderColor = 'rgba(251,191,36,0.4)';
+      btn.style.background = 'rgba(34,197,94,0.15)';
+      btn.style.borderColor = 'rgba(34,197,94,0.4)';
       fExpireActive = false;
       fExpireFrom = '';
       fExpireMonths = null;
@@ -3961,10 +4062,30 @@
         var ssChk = document.getElementById('settings-session');
         if (alChk) alChk.checked = localStorage.getItem(AUTO_KEY) === '1';
         if (ssChk) ssChk.checked = sessionStorage.getItem(AUTO_KEY) === '1';
+        // API Key 입력 필드 업데이트
+        var keyInput = document.getElementById('api-key-input');
+        if (keyInput) keyInput.value = localStorage.getItem('GOOGLE_API_KEY') || '';
       } else {
         panel.style.display = 'none';
         if (sBtn) { sBtn.style.background = 'rgba(148,163,184,0.15)'; sBtn.style.borderColor = 'rgba(148,163,184,0.35)'; sBtn.style.color = 'var(--text3)'; }
       }
+    }
+    // API Key 저장
+    function saveApiKey() {
+      var keyInput = document.getElementById('api-key-input');
+      var keyStatus = document.getElementById('api-key-status');
+      if (!keyInput || !keyInput.value.trim()) {
+        if (keyStatus) keyStatus.style.color = '#ef4444';
+        if (keyStatus) keyStatus.textContent = '⚠️ API Key를 입력하세요';
+        return;
+      }
+      localStorage.setItem('GOOGLE_API_KEY', keyInput.value.trim());
+      window.AKEY = keyInput.value.trim();
+      if (keyStatus) { keyStatus.style.color = '#22c55e'; keyStatus.textContent = '✅ 저장됨!'; }
+      setTimeout(function() {
+        if (keyStatus) { keyStatus.style.color = 'var(--text3)'; keyStatus.textContent = '저장됨 ✓'; }
+      }, 2000);
+      showToast('API Key 저장 완료! 페이지를 새로고침하면 적용됩니다.');
     }
     // 열너비 드래그 조정 모드 토글
     function toggleColResizeMode() {
@@ -4149,6 +4270,16 @@
       ['n-building', 'n-type', 'n-dong', 'n-ho', 'n-price', 'n-proc', 'n-owner', 'n-expire2', 'n-memo'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
       document.getElementById('AM').classList.add('open'); document.body.style.overflow = 'hidden';
     }
+    function toggleCollapse(btn, id) {
+      var div = document.getElementById(id);
+      if (div.style.display === 'none') {
+        div.style.display = 'block';
+        btn.textContent = btn.textContent.replace('▶', '▼');
+      } else {
+        div.style.display = 'none';
+        btn.textContent = btn.textContent.replace('▼', '▶');
+      }
+    }
     function closeAddNew() { document.getElementById('AM').classList.remove('open'); document.body.style.overflow = ''; }
     async function saveNewRow() {
       var bld = document.getElementById('n-building').value.trim();
@@ -4156,7 +4287,24 @@
       var dng = document.getElementById('n-dong').value.trim();
       var ho = document.getElementById('n-ho').value.trim();
       if (!bld || !typ || !dng || !ho) { showToast('⚠️ 건물명, 유형, 동, 호는 필수'); return; }
-      var vals = { '건물명': bld, '유형': typ, '동': dng, '호': ho, '가격': document.getElementById('n-price').value, '프로세스': document.getElementById('n-proc').value, '소유자': document.getElementById('n-owner').value, '실행일': document.getElementById('n-date').value, '만기일': document.getElementById('n-expire2').value, '상담 내용': document.getElementById('n-memo').value };
+      var getVal = function(id) { var el = document.getElementById(id); return el ? el.value : ''; };
+      var vals = {
+        '건물명': bld, '유형': typ, '동': dng, '호': ho,
+        '가격': getVal('n-price'), '프로세스': getVal('n-proc'), '소유자': getVal('n-owner'),
+        '실행일': getVal('n-date'), '만기일': getVal('n-expire2'), '상담 내용': getVal('n-memo'),
+        '타입(공용)': getVal('n-type-common'), '타입(전용)': getVal('n-type-excl'),
+        '에어컨': getVal('n-ac'), '방': getVal('n-room'), '융자': getVal('n-loan'), '층공개': getVal('n-floor'),
+        '입주형태': getVal('n-movetype'), '독점': getVal('n-exclusive'), '광고주기': getVal('n-adcycle'),
+        '소유자2': getVal('n-owner2'), '이름': getVal('n-ownername'), '임차인': getVal('n-tenant'),
+        '손님구분': getVal('n-resident'), '현재점유형태': getVal('n-occupancy'),
+        '주요특징': getVal('n-tag-input'),
+        '계약금중일부': getVal('na-deposit1'), '약정일': getVal('na-promised-date'), '토허제': getVal('na-deposit-period'),
+        '계약일': getVal('na-contract-date'), '중도금': getVal('na-intermediate'), '잔금일': getVal('na-final-date'), '갱신청구권': getVal('na-renewal'),
+        '단지명': getVal('na-ls-complex'), '이실장동': getVal('na-ls-dong'), '이실장호': getVal('na-ls-ho'),
+        '공급면적': getVal('na-ls-supply'), '이실전용면적': getVal('na-ls-exclusive'), '소유형태': getVal('na-ls-ownership'),
+        '이실소유자': getVal('na-ls-owner'), '거주자명': getVal('na-ls-resident'), '거래가': getVal('na-ls-price'),
+        '이실계약일': getVal('na-ls-contract-date'), '등기열람일시': getVal('na-ls-registry-date')
+      };
       var btn = document.getElementById('addSaveBtn'); btn.textContent = '추가 중...'; btn.disabled = true; showToast('⏳ 추가 중...');
       try {
         var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'append', values: vals }) });
@@ -4492,6 +4640,7 @@
     var _sgBldGroups = sgLoadBldGroups();
     var _sg1Select = null, _sg2Select = null, _sgBldItemsOpen = false;
 
+    var QUICK_BLDS = ['아이','더샵','중푸','중앙타워','오벨리스크','힐스','아이2'];
     function sgRenderBldGroups() {
       // 1단계: 고유 prefix (하이픈 앞)
       var L1set = [], seen1 = {};
@@ -4502,6 +4651,15 @@
       var L1el = document.getElementById('sg-bld-L1');
       if (!L1el) return;
       L1el.innerHTML = '<button class="sel-btn bld-all' + (_sg1Select ? '' : ' active') + '" onclick="sgSelL1(null)">전체</button>';
+      // 개별건물 단축버튼
+      QUICK_BLDS.forEach(function(bname){
+        var btn = document.createElement('button');
+        btn.className = 'sel-btn bld-one' + (_sgBlds.has(bname) ? ' active' : '');
+        btn.textContent = bname;
+        btn.setAttribute('onclick','sgSelBldItem(' + JSON.stringify(bname) + ')');
+        L1el.appendChild(btn);
+      });
+      // 그룹 버튼들
       L1set.forEach(function(p){
         var active = _sg1Select === p;
         var btn = document.createElement('button');
@@ -4855,13 +5013,16 @@
 
     // ── 상가 상세 ────────────────────────────────────
     function sgDet(idx) {
-      _sgCurIdx = idx; sgCancelEdit();
-      var r = _sgFD[idx];
-      // RAW에서 최신 데이터 가져오기 (데이터 신선도 보장)
-      if (r['__row__']) {
-        var rLatest = SG_RAW.find(function(row) { return row['__row__'] === r['__row__']; });
-        if (rLatest) r = rLatest;
-      }
+      try {
+        _sgCurIdx = idx; sgCancelEdit();
+        var r = _sgFD[idx];
+        if (!r) { console.error('sgDet: 데이터 없음, idx=' + idx); return; }
+        // RAW에서 최신 데이터 가져오기 (데이터 신선도 보장)
+        if (r['__row__'] && _sgRaw && Array.isArray(_sgRaw)) {
+          var rLatest = _sgRaw.find(function(row) { return row && row['__row__'] === r['__row__']; });
+          if (rLatest) r = rLatest;
+        }
+      } catch(e) { console.error('sgDet 오류:', e.message); return; }
       var side = r['측'] ? r['측'] + ' ' : '';
       document.getElementById('sg-DT').textContent = (r['건물명']||'') + ' ' + side + (r['동']||'') + ' ' + (r['호']||'');
       document.getElementById('sg-DS').textContent = (r['유형']||'') + (r['프로세스'] ? ' · ' + r['프로세스'] : '') + (r['실행일'] ? ' · ' + r['실행일'] : '') + (r['손님구분'] ? ' · ' + r['손님구분'] : '');
@@ -5011,7 +5172,9 @@
     async function sgSaveEdit() {
       if (!SG_ASURL) { showToast('상가 Apps Script URL이 설정되지 않았습니다. SG_ASURL을 설정하세요.'); return; }
       var r = _sgFD[_sgCurIdx];
-      var get = function(id) { var el = document.getElementById(id); return el ? el.value : ''; };
+      var get = function(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+      var bldName = get('sge-building');
+      if (!bldName) { showToast('⚠️ 건물명은 삭제할 수 없습니다'); return; }
       var vals = {};
       var fields = [
         ['건물명','sge-building'],['유형','sge-type'],['측','sge-side'],['동','sge-dong'],['호','sge-ho'],
@@ -5073,11 +5236,19 @@
       if (!g('sgn-ho'))       { showToast('호를 입력하세요'); return; }
       var vals = {
         '건물명': g('sgn-building'), '유형': g('sgn-type'), '측': g('sgn-side'),
-        '동': g('sgn-dong'), '호': g('sgn-ho'), '현재상호': g('sgn-current-name'),
-        '전용(평)': g('sgn-excl-py'), '분양(평)': g('sgn-sale-py'),
+        '동': g('sgn-dong'), '호': g('sgn-ho'), '현재상호': g('sgn-current-name'), '과거입점상호': g('sgn-past-name'),
+        '전용(평)': g('sgn-excl-py'), '전용(㎡)': g('sgn-excl-sqm'), '분양(평)': g('sgn-sale-py'), '분양(㎡)': g('sgn-sale-sqm'),
         '매매가': g('sgn-price'), '보증금': g('sgn-deposit'), '월세': g('sgn-monthly'),
-        '소유자': g('sgn-owner'), '입주구분': g('sgn-occupancy'), '프로세스': g('sgn-proc'),
-        '실행일': g('sgn-exec-date'), '상담 내용': g('sgn-memo')
+        '소유자': g('sgn-owner'), '임차인': g('sgn-tenant'), '손님구분': g('sgn-guest'),
+        '입주구분': g('sgn-occupancy'), '프로세스': g('sgn-proc'),
+        '실행일': g('sgn-exec-date'), '상담 내용': g('sgn-memo'),
+        '계약금중일부': g('sgn-deposit1'), '계약일': g('sgn-contract-date'), '중도금': g('sgn-intermediate'),
+        '잔금일': g('sgn-final-date'), '독점': g('sgn-exclusive'), '갱신청구권': g('sgn-renewal'),
+        '발생수익매도임대': g('sgn-revenue-sale'), '발생수익매수임차': g('sgn-revenue-purchase'),
+        '주요특징': g('sgn-features'),
+        '지정업종': g('sgn-designated-biz'), '건축물용도': g('sgn-building-use'), '부가세': g('sgn-vat'),
+        '분양가(1차)': g('sgn-sales-price-1'), '분양가(최종)': g('sgn-sales-price-final'),
+        '분양평단가': g('sgn-sales-unit-price'), '평단가': g('sgn-unit-price'), '명목수익률': g('sgn-nominal-yield')
       };
       _sgSaving = true;
       var saveBtn = document.querySelector('#SGAM .ef-save, #SGAM button[onclick*="sgSaveNewRow"]');
@@ -5228,8 +5399,12 @@
       var activeProcs = getDbCfProcs();
       var activeTypes = getDbCfTypes();
       var activeDeals = getDbCfDeals();
-      var budgetMin = parseBudgetMan(document.getElementById('db-cf-price-min') && document.getElementById('db-cf-price-min').value);
-      var budgetMax = parseBudgetMan(document.getElementById('db-cf-price-max') && document.getElementById('db-cf-price-max').value);
+      var priceMin = parseBudgetMan(document.getElementById('db-cf-price-min') && document.getElementById('db-cf-price-min').value);
+      var priceMax = parseBudgetMan(document.getElementById('db-cf-price-max') && document.getElementById('db-cf-price-max').value);
+      var depMin = parseBudgetMan(document.getElementById('db-cf-dep-min') && document.getElementById('db-cf-dep-min').value);
+      var depMax = parseBudgetMan(document.getElementById('db-cf-dep-max') && document.getElementById('db-cf-dep-max').value);
+      var rentMin = parseBudgetMan(document.getElementById('db-cf-rent-min') && document.getElementById('db-cf-rent-min').value);
+      var rentMax = parseBudgetMan(document.getElementById('db-cf-rent-max') && document.getElementById('db-cf-rent-max').value);
       var moveinFrom = document.getElementById('db-cf-movein-from') ? document.getElementById('db-cf-movein-from').value : '';
       var moveinTo = document.getElementById('db-cf-movein-to') ? document.getElementById('db-cf-movein-to').value : '';
       var mfDate = moveinFrom ? new Date(moveinFrom) : null;
@@ -5244,20 +5419,37 @@
         if (activeTypes.length && activeTypes.indexOf(r['부동산유형'] || '') === -1) return false;
         // 거래유형 필터
         if (activeDeals.length && activeDeals.indexOf(r['거래유형'] || '') === -1) return false;
-        // 예산 범위 필터 (첫 번째 예산 필드 기준)
-        if (budgetMin !== null || budgetMax !== null) {
+        // 매매가 범위 필터
+        if (priceMin !== null || priceMax !== null) {
           var dealType = r['거래유형'] || '';
-          var budget = null;
           if (dealType === '매매' || dealType === '매월세' || dealType === '매전세' || dealType === '매전월') {
-            budget = parseBudgetMan(r['매매가(예산)']);
-          } else if (dealType === '전세' || dealType === '매전세' || dealType === '전월세' || dealType === '매전월') {
-            budget = parseBudgetMan(r['보증금(예산)'] || r['매매가(예산)']);
-          } else if (dealType === '월세' || dealType === '매월세' || dealType === '전월세' || dealType === '매전월') {
-            budget = parseBudgetMan(r['월세(예산)'] || r['보증금(예산)'] || r['매매가(예산)']);
+            var pm = parseBudgetMan(r['매매가(예산)']);
+            if (pm !== null) {
+              if (priceMin !== null && pm < priceMin) return false;
+              if (priceMax !== null && pm > priceMax) return false;
+            }
           }
-          if (budget !== null) {
-            if (budgetMin !== null && budget < budgetMin) return false;
-            if (budgetMax !== null && budget > budgetMax) return false;
+        }
+        // 보증금 범위 필터
+        if (depMin !== null || depMax !== null) {
+          var dealType = r['거래유형'] || '';
+          if (dealType === '전세' || dealType === '매전세' || dealType === '전월세' || dealType === '매전월') {
+            var pd = parseBudgetMan(r['보증금(예산)']);
+            if (pd !== null) {
+              if (depMin !== null && pd < depMin) return false;
+              if (depMax !== null && pd > depMax) return false;
+            }
+          }
+        }
+        // 월세 범위 필터
+        if (rentMin !== null || rentMax !== null) {
+          var dealType = r['거래유형'] || '';
+          if (dealType === '월세' || dealType === '매월세' || dealType === '전월세' || dealType === '매전월') {
+            var pr = parseBudgetMan(r['월세(예산)']);
+            if (pr !== null) {
+              if (rentMin !== null && pr < rentMin) return false;
+              if (rentMax !== null && pr > rentMax) return false;
+            }
           }
         }
         // 입주일 범위 필터
@@ -6047,9 +6239,18 @@
           <input class="search-input" id="sg-SI2" type="text" placeholder="동 · 호 · 상호 · 소유자 (전체 검색)">
         </div>
         <div class="search-cols">
-          <input id="sg-SI-dong" class="col-search-input" type="text" placeholder="동">
-          <input id="sg-SI-ho" class="col-search-input" type="text" placeholder="호">
-          <input id="sg-SI-type" class="col-search-input" type="text" placeholder="타입">
+          <div class="col-search-wrap">
+            <input id="sg-SI-dong" class="col-search-input" type="text" placeholder="">
+            <span class="col-search-label">동</span>
+          </div>
+          <div class="col-search-wrap">
+            <input id="sg-SI-ho" class="col-search-input" type="text" placeholder="">
+            <span class="col-search-label">호</span>
+          </div>
+          <div class="col-search-wrap">
+            <input id="sg-SI-type" class="col-search-input" type="text" placeholder="">
+            <span class="col-search-label">타입(공용)</span>
+          </div>
         </div>
         <button class="reset-btn" onclick="sgResetAll()">초기화</button>
       </div>
@@ -6265,47 +6466,118 @@
           <div class="modal-title">🏪 상가 새 매물 추가</div>
           <button class="detail-close" onclick="sgCloseAddNew()">✕</button>
         </div>
-        <div class="modal-body">
-          <div class="edit-grid">
-            <div class="ef-group"><label class="ef-label">건물명 *</label>
-              <input id="sgn-building" class="ef-input" list="sg-bld-list" placeholder="선택 또는 직접 입력" autocomplete="off">
-              <datalist id="sg-bld-list"><!-- 동적 생성 --></datalist>
+        <div class="modal-body" style="max-height:calc(100vh - 120px);overflow-y:auto;">
+          <!-- 기본 정보 -->
+          <div style="margin-bottom:12px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">기본 정보</div>
+            <div class="edit-grid">
+              <div class="ef-group"><label class="ef-label">건물명 *</label>
+                <input id="sgn-building" class="ef-input" list="sg-bld-list" placeholder="선택 또는 직접 입력" autocomplete="off">
+                <datalist id="sg-bld-list"><!-- 동적 생성 --></datalist>
+              </div>
+              <div class="ef-group"><label class="ef-label">유형 *</label>
+                <select id="sgn-type" class="ef-select">
+                  <option value="">선택</option>
+                  <option>매매</option><option>전세</option><option>월세</option>
+                  <option>매전세</option><option>매월세</option><option>전월세</option><option>매전월</option>
+                </select>
+              </div>
+              <div class="ef-group"><label class="ef-label">측</label><input id="sgn-side" class="ef-input" type="text" placeholder="예) A측"></div>
+              <div class="ef-group"><label class="ef-label">동</label><input id="sgn-dong" class="ef-input" type="text" placeholder="예) 상가동"></div>
+              <div class="ef-group"><label class="ef-label">호 *</label><input id="sgn-ho" class="ef-input" type="text" placeholder="예) 101"></div>
+              <div class="ef-group"><label class="ef-label">현재상호</label><input id="sgn-current-name" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">과거입점상호</label><input id="sgn-past-name" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">전용(평)</label><input id="sgn-excl-py" class="ef-input" type="text" placeholder="예) 15.5"></div>
+              <div class="ef-group"><label class="ef-label">전용(㎡)</label><input id="sgn-excl-sqm" class="ef-input" type="text" placeholder="예) 51.2"></div>
+              <div class="ef-group"><label class="ef-label">분양(평)</label><input id="sgn-sale-py" class="ef-input" type="text" placeholder="예) 20.0"></div>
+              <div class="ef-group"><label class="ef-label">분양(㎡)</label><input id="sgn-sale-sqm" class="ef-input" type="text" placeholder="예) 66.0"></div>
             </div>
-            <div class="ef-group"><label class="ef-label">유형 *</label>
-              <select id="sgn-type" class="ef-select">
-                <option value="">선택</option>
-                <option>매매</option><option>전세</option><option>월세</option>
-                <option>매전세</option><option>매월세</option><option>전월세</option><option>매전월</option>
-              </select>
-            </div>
-            <div class="ef-group"><label class="ef-label">측</label><input id="sgn-side" class="ef-input" type="text" placeholder="예) A측"></div>
-            <div class="ef-group"><label class="ef-label">동</label><input id="sgn-dong" class="ef-input" type="text" placeholder="예) 상가동"></div>
-            <div class="ef-group"><label class="ef-label">호 *</label><input id="sgn-ho" class="ef-input" type="text" placeholder="예) 101"></div>
-            <div class="ef-group"><label class="ef-label">현재상호</label><input id="sgn-current-name" class="ef-input" type="text"></div>
-            <div class="ef-group"><label class="ef-label">전용(평)</label><input id="sgn-excl-py" class="ef-input" type="text" placeholder="예) 15.5"></div>
-            <div class="ef-group"><label class="ef-label">분양(평)</label><input id="sgn-sale-py" class="ef-input" type="text" placeholder="예) 20.0"></div>
-            <div class="ef-group"><label class="ef-label">매매가 (만원)</label>
-              <div class="amount-wrap"><input id="sgn-price" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sgn-price-hint')"><span id="sgn-price-hint" class="amount-hint" style="font-weight:700;"></span></div>
-            </div>
-            <div class="ef-group"><label class="ef-label">보증금 (만원)</label>
-              <div class="amount-wrap"><input id="sgn-deposit" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sgn-deposit-hint')"><span id="sgn-deposit-hint" class="amount-hint" style="font-weight:700;"></span></div>
-            </div>
-            <div class="ef-group"><label class="ef-label">월세 (만원)</label>
-              <div class="amount-wrap"><input id="sgn-monthly" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sgn-monthly-hint')"><span id="sgn-monthly-hint" class="amount-hint" style="font-weight:700;"></span></div>
-            </div>
-            <div class="ef-group"><label class="ef-label">입주구분</label>
-              <select id="sgn-occupancy" class="ef-select">
-                <option value="">선택</option>
-                <option>주인</option><option>임차</option><option>공실</option>
-              </select>
-            </div>
-            <div class="ef-group"><label class="ef-label">프로세스</label>
-              <input type="text" id="sgn-proc" class="ef-input" list="sg-proc-dl" placeholder="프로세스 선택/직접입력">
-            </div>
-            <div class="ef-group"><label class="ef-label">실행일</label><input id="sgn-exec-date" class="ef-input" type="text" placeholder="예) 2026-03-28"></div>
           </div>
-          <div class="ef-group" style="margin-top:8px;"><label class="ef-label">소유자 (전화)</label><input id="sgn-owner" class="ef-input" type="text" placeholder="010-XXXX-XXXX,이름"></div>
-          <div class="ef-group" style="margin-top:8px;"><label class="ef-label">상담 내용</label><textarea id="sgn-memo" class="ef-textarea" rows="3"></textarea></div>
+
+          <!-- 가격 정보 -->
+          <div style="margin-bottom:12px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">가격 정보</div>
+            <div class="edit-grid">
+              <div class="ef-group"><label class="ef-label">매매가 (만원)</label>
+                <div class="amount-wrap"><input id="sgn-price" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sgn-price-hint')"><span id="sgn-price-hint" class="amount-hint" style="font-weight:700;"></span></div>
+              </div>
+              <div class="ef-group"><label class="ef-label">보증금 (만원)</label>
+                <div class="amount-wrap"><input id="sgn-deposit" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sgn-deposit-hint')"><span id="sgn-deposit-hint" class="amount-hint" style="font-weight:700;"></span></div>
+              </div>
+              <div class="ef-group"><label class="ef-label">월세 (만원)</label>
+                <div class="amount-wrap"><input id="sgn-monthly" class="ef-input" type="number" placeholder="만원 단위" oninput="showAmountHint(this,'sgn-monthly-hint')"><span id="sgn-monthly-hint" class="amount-hint" style="font-weight:700;"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 소유자/임차인 정보 -->
+          <div style="margin-bottom:12px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">소유자 / 임차인 정보</div>
+            <div class="edit-grid">
+              <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">소유자</label><input id="sgn-owner" class="ef-input" type="text" placeholder="소유자명 / 연락처"></div>
+              <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">임차인</label><input id="sgn-tenant" class="ef-input" type="text" placeholder="임차인명 / 연락처"></div>
+              <div class="ef-group"><label class="ef-label">손님구분</label><input id="sgn-guest" class="ef-input" type="text"></div>
+              <div class="ef-group"><label class="ef-label">입주구분</label>
+                <select id="sgn-occupancy" class="ef-select">
+                  <option value="">선택</option>
+                  <option>주인</option><option>임차</option><option>공실</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 상담 정보 -->
+          <div style="margin-bottom:12px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">상담 정보</div>
+            <div class="edit-grid">
+              <div class="ef-group"><label class="ef-label">프로세스</label>
+                <input type="text" id="sgn-proc" class="ef-input" list="sg-proc-dl" placeholder="프로세스 선택/직접입력">
+              </div>
+              <div class="ef-group"><label class="ef-label">실행일</label><input id="sgn-exec-date" class="ef-input" type="text" placeholder="예) 2026-03-28"></div>
+            </div>
+            <div class="ef-group" style="margin-bottom:0;"><label class="ef-label">상담 내용</label><textarea id="sgn-memo" class="ef-textarea" rows="3"></textarea></div>
+          </div>
+
+          <!-- 계약 정보 (접힘) -->
+          <div style="margin-bottom:12px;">
+            <button onclick="toggleCollapse(this,'sgn-collapse')" style="background:none;border:none;padding:0;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);width:100%;text-align:left;">▶ 계약 정보</button>
+            <div id="sgn-collapse" style="display:none;">
+              <div class="edit-grid" style="margin-bottom:12px;">
+                <div class="ef-group"><label class="ef-label">계약금중일부</label><input id="sgn-deposit1" class="ef-input" type="text"></div>
+                <div class="ef-group"><label class="ef-label">계약일</label><input id="sgn-contract-date" class="ef-input" type="text"></div>
+                <div class="ef-group"><label class="ef-label">중도금</label><input id="sgn-intermediate" class="ef-input" type="text"></div>
+                <div class="ef-group"><label class="ef-label">잔금일</label><input id="sgn-final-date" class="ef-input" type="text"></div>
+                <div class="ef-group"><label class="ef-label">독점</label><input id="sgn-exclusive" class="ef-input" type="text"></div>
+                <div class="ef-group"><label class="ef-label">갱신청구권</label><input id="sgn-renewal" class="ef-input" type="text"></div>
+                <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매도·임대</label><input id="sgn-revenue-sale" class="ef-input" type="text"></div>
+                <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매수·임차</label><input id="sgn-revenue-purchase" class="ef-input" type="text"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 주요특징 -->
+          <div style="margin-bottom:12px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">주요특징</div>
+            <div class="ef-group" style="margin-bottom:0;"><textarea id="sgn-features" class="ef-textarea" rows="2" placeholder="쉼표 또는 줄바꿈으로 구분"></textarea></div>
+          </div>
+
+          <!-- 분양 정보 (접힘) -->
+          <div style="margin-bottom:12px;">
+            <button onclick="toggleCollapse(this,'sgn-sales-collapse')" style="background:none;border:none;padding:0;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);width:100%;text-align:left;">▶ 분양 정보</button>
+            <div id="sgn-sales-collapse" style="display:none;">
+              <div class="edit-grid" style="margin-bottom:12px;">
+                <div class="ef-group"><label class="ef-label">지정업종</label><input id="sgn-designated-biz" class="ef-input" type="text"></div>
+                <div class="ef-group"><label class="ef-label">건축물용도</label><input id="sgn-building-use" class="ef-input" type="text"></div>
+                <div class="ef-group"><label class="ef-label">부가세</label><input id="sgn-vat" class="ef-input" type="text"></div>
+                <div class="ef-group"><label class="ef-label">분양가(1차)</label><input id="sgn-sales-price-1" class="ef-input" type="text"></div>
+                <div class="ef-group"><label class="ef-label">분양가(최종)</label><input id="sgn-sales-price-final" class="ef-input" type="text"></div>
+                <div class="ef-group"><label class="ef-label">분양평단가</label><input id="sgn-sales-unit-price" class="ef-input" type="text"></div>
+                <div class="ef-group"><label class="ef-label">평단가</label><input id="sgn-unit-price" class="ef-input" type="text"></div>
+                <div class="ef-group"><label class="ef-label">명목수익률</label><input id="sgn-nominal-yield" class="ef-input" type="text"></div>
+              </div>
+            </div>
+          </div>
+
           <div style="margin-top:14px;display:flex;gap:8px;">
             <button onclick="sgSaveNewRow()"
               style="flex:1;padding:12px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">💾 추가</button>
@@ -6326,12 +6598,6 @@
       <button class="buyer-tab-btn" id="btab-btn-register" onclick="buyerSwitchTab('register',this)">📋 구입자 DB</button>
     </div>
     <div class="buyer-tab-content" id="btab-register">
-      <!-- 구입자 DB 목록 -->
-      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
-        <div style="position:relative;flex:1;"><span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;">🔍</span><input id="db-search" class="ef-input" style="padding-left:32px;" type="text" placeholder="이름·전화·찾는매물·상담내용" oninput="applyDbSearch()"></div>
-        <button onclick="loadBuyerDb()" style="flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:12px;padding:8px 12px;cursor:pointer;">🔄</button>
-        <button id="db-add-btn" onclick="toggleDbForm()" style="flex-shrink:0;background:#b45309;border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;">✏️ 상담 등록</button>
-      </div>
       <!-- ═══ DB탭 필터 ═══ -->
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
         <!-- 0. 프로세스 -->
@@ -6379,9 +6645,23 @@
         <!-- 3. 예산 범위 -->
         <div style="margin-bottom:10px;">
           <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">예산 범위 (만원)</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
-            <div><input id="db-cf-price-min" type="number" placeholder="최소" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);" oninput="applyDbSearch()"></div>
-            <div><input id="db-cf-price-max" type="number" placeholder="최대" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);" oninput="applyDbSearch()"></div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:2px;">매매가 초과-이하</div>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:4px;align-items:center;margin-bottom:5px;">
+            <input id="db-cf-price-min" type="number" placeholder="초과" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);" oninput="applyDbSearch()">
+            <span style="color:var(--text2);">~</span>
+            <input id="db-cf-price-max" type="number" placeholder="이하" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);" oninput="applyDbSearch()">
+          </div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:2px;">보증금 초과-이하</div>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:4px;align-items:center;margin-bottom:5px;">
+            <input id="db-cf-dep-min" type="number" placeholder="초과" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);" oninput="applyDbSearch()">
+            <span style="color:var(--text2);">~</span>
+            <input id="db-cf-dep-max" type="number" placeholder="이하" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);" oninput="applyDbSearch()">
+          </div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:2px;">월세 초과-이하</div>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:4px;align-items:center;">
+            <input id="db-cf-rent-min" type="number" placeholder="초과" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);" oninput="applyDbSearch()">
+            <span style="color:var(--text2);">~</span>
+            <input id="db-cf-rent-max" type="number" placeholder="이하" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);" oninput="applyDbSearch()">
           </div>
         </div>
         <!-- 4. 입주일 -->
@@ -6393,6 +6673,12 @@
             <input id="db-cf-movein-to" type="date" style="padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);font-size:11px;flex:1;min-width:120px;" oninput="applyDbSearch()">
           </div>
         </div>
+      </div>
+      <!-- 구입자 DB 목록 -->
+      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+        <div style="position:relative;flex:1;"><span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;">🔍</span><input id="db-search" class="ef-input" style="padding-left:32px;" type="text" placeholder="이름·전화·찾는매물·상담내용" oninput="applyDbSearch()"></div>
+        <button onclick="loadBuyerDb()" style="flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-size:12px;padding:8px 12px;cursor:pointer;">🔄</button>
+        <button id="db-add-btn" onclick="toggleDbForm()" style="flex-shrink:0;background:#b45309;border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;padding:8px 14px;cursor:pointer;">✏️ 상담 등록</button>
       </div>
       <!-- 상담 등록 폼 (접기/펼치기) -->
       <div id="db-form-wrap" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;">
