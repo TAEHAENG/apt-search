@@ -648,6 +648,10 @@
     .col-hide-panel.open { display:flex; }
     .col-hide-panel label { font-size:11px; color:#94a3b8; cursor:pointer; display:flex; align-items:center; gap:3px; white-space:nowrap; }
     .col-hide-panel label:hover { color:#cbd5e1; }
+    /* 열 순서 드래그 */
+    .col-order-mode { cursor: grab !important; }
+    .col-dragging { opacity: 0.4; background: rgba(96,165,250,0.15) !important; }
+    .col-drag-over { background: rgba(96,165,250,0.25) !important; outline: 2px solid #60a5fa; }
     .slot-btn:hover { background: rgba(148,163,184,0.2); }
     .slot-btn.slot-active { background: rgba(147,197,253,0.2); border-color: rgba(147,197,253,0.5); color: #93c5fd; }
     .slot-btn.slot-save { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.35); color: #34d399; }
@@ -2008,63 +2012,29 @@
     </div>
 
 
-    <!-- 열너비 조정 -->
-    <div class="cwp-section" style="margin-bottom:6px;">↔ 열너비 조정</div>
-    <div class="cwp-row" style="margin-bottom:6px;">
-      <button id="colResizeBtn" onclick="toggleColResizeMode()" style="font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid rgba(148,163,184,0.5);background:rgba(148,163,184,0.1);color:#94a3b8;font-weight:600;">↔ 드래그 조정 켜기</button>
+    <!-- 열너비/순서/숨기기 조정 -->
+    <div class="cwp-section" style="margin-bottom:6px;">↔ 열 설정</div>
+    <div class="cwp-row" style="margin-bottom:8px;flex-wrap:wrap;gap:5px;">
+      <button id="colResizeBtn" onclick="toggleColResizeMode()" style="font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid rgba(148,163,184,0.5);background:rgba(148,163,184,0.1);color:#94a3b8;font-weight:600;">↔ 너비 조정</button>
+      <button id="colOrderBtn" onclick="toggleColOrderMode()" style="font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid rgba(148,163,184,0.5);background:rgba(148,163,184,0.1);color:#94a3b8;font-weight:600;">⇄ 순서 조정</button>
+      <button onclick="saveAllSettings()" style="font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid rgba(79,156,249,0.5);background:rgba(79,156,249,0.12);color:#4f9cf9;font-weight:600;">💾 열설정 저장</button>
     </div>
     <div class="cwp-section">APT 매물</div>
-    <div class="cwp-row" style="flex-wrap:wrap;gap:4px;">
-      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',1)">💾 S1</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',1)">⬆ S1</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',2)">💾 S2</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',2)">⬆ S2</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',3)">💾 S3</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',3)">⬆ S3</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',4)">💾 S4</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',4)">⬆ S4</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('apt-main-table','apt',5)">💾 S5</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('apt-main-table','apt',5)">⬆ S5</button>
-    </div>
     <div style="margin:3px 0 6px;">
       <button class="slot-btn" style="font-size:11px;width:100%;text-align:left;" onclick="toggleColHidePanel('apt')">👁 열 표시/숨기기 ▾</button>
       <div id="col-hide-panel-apt" class="col-hide-panel"></div>
     </div>
     <div class="cwp-section">상가 매물</div>
-    <div class="cwp-row" style="flex-wrap:wrap;gap:4px;">
-      <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',1)">💾 S1</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',1)">⬆ S1</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',2)">💾 S2</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',2)">⬆ S2</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',3)">💾 S3</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',3)">⬆ S3</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',4)">💾 S4</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',4)">⬆ S4</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('sg-main-table','sg',5)">💾 S5</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('sg-main-table','sg',5)">⬆ S5</button>
-    </div>
     <div style="margin:3px 0 6px;">
       <button class="slot-btn" style="font-size:11px;width:100%;text-align:left;" onclick="toggleColHidePanel('sg')">👁 열 표시/숨기기 ▾</button>
       <div id="col-hide-panel-sg" class="col-hide-panel"></div>
     </div>
     <div class="cwp-section">구입자 DB</div>
-    <div class="cwp-row" style="flex-wrap:wrap;gap:4px;">
-      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',1)">💾 S1</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',1)">⬆ S1</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',2)">💾 S2</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',2)">⬆ S2</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',3)">💾 S3</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',3)">⬆ S3</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',4)">💾 S4</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',4)">⬆ S4</button>
-      <button class="slot-btn slot-save" onclick="saveSlot('buyer-main-table','buyer',5)">💾 S5</button>
-      <button class="slot-btn slot-load" onclick="loadSlot('buyer-main-table','buyer',5)">⬆ S5</button>
-    </div>
     <div style="margin:3px 0 6px;">
       <button class="slot-btn" style="font-size:11px;width:100%;text-align:left;" onclick="toggleColHidePanel('buyer')">👁 열 표시/숨기기 ▾</button>
       <div id="col-hide-panel-buyer" class="col-hide-panel"></div>
     </div>
-    <div class="cwp-hint">드래그 조정 후 💾 저장 / 접속 기기 변경 시 ⬆ 불러오기</div>
+    <div class="cwp-hint">열설정 저장: 현재 슬롯(S<span id="cwp-slot-indicator">1</span>)에 너비·순서·숨기기 저장 + 매물장 시트 동기화</div>
 
     <!-- 보안 설정 -->
     <div class="cwp-section" style="margin-top:10px;padding-top:8px;border-top:1px solid #334155;">🔒 보안 설정</div>
@@ -2269,27 +2239,27 @@
     <table id="apt-main-table">
       <thead>
         <tr>
-          <th class="col-check"><input type="checkbox" id="chk-all" onclick="toggleAllSelect(this)"
+          <th data-col-idx="0" class="col-check"><input type="checkbox" id="chk-all" onclick="toggleAllSelect(this)"
               style="width:15px;height:15px;cursor:pointer;accent-color:#1d4ed8;"></th>
-          <th class="col-date" onclick="srt('실행일',this)">실행일 ↕</th>
-          <th class="col-type" onclick="srt('유형',this)">유형 ↕</th>
-          <th class="col-building" onclick="srt('건물명',this)">건물명 ↕</th>
-          <th class="col-dong" onclick="srt('동',this)">동 ↕</th>
-          <th class="col-ho" onclick="srt('호',this)">호 ↕</th>
-          <th class="col-typev" onclick="srt('타입(공용)',this)">타입(공용) ↕</th>
-          <th class="col-typev2" onclick="srt('타입(전용)',this)">타입(전용) ↕</th>
-          <th class="col-owner" onclick="srt('소유자',this)">소유자 ↕</th>
-          <th class="col-price" onclick="srt('가격',this)">가격 ↕</th>
-          <th class="col-memo" onclick="srt('상담 내용',this)">상담 내용 ↕</th>
-          <th class="col-expire" onclick="srt('만기일',this)">만기일 ↕</th>
-          <th class="col-e" onclick="srt('에어컨',this)">에 ↕</th>
-          <th class="col-room" onclick="srt('방',this)">방 ↕</th>
-          <th class="col-loan" onclick="srt('융자',this)">융자 ↕</th>
-          <th class="col-adcycle" onclick="srt('광고주기',this)">광고주기 ↕</th>
-          <th class="col-process" onclick="srt('프로세스',this)">프로세스 ↕</th>
-          <th class="col-guest" onclick="srt('손님구분',this)">손님구분 ↕</th>
-          <th class="col-feat" onclick="srt('주요특징',this)">주요특징 ↕</th>
-          <th class="col-floor col-ext col-ext-first" onclick="srt('층공개',this)">층 ↕</th>
+          <th data-col-idx="1" class="col-date" onclick="srt('실행일',this)">실행일 ↕</th>
+          <th data-col-idx="2" class="col-type" onclick="srt('유형',this)">유형 ↕</th>
+          <th data-col-idx="3" class="col-building" onclick="srt('건물명',this)">건물명 ↕</th>
+          <th data-col-idx="4" class="col-dong" onclick="srt('동',this)">동 ↕</th>
+          <th data-col-idx="5" class="col-ho" onclick="srt('호',this)">호 ↕</th>
+          <th data-col-idx="6" class="col-typev" onclick="srt('타입(공용)',this)">타입(공용) ↕</th>
+          <th data-col-idx="7" class="col-typev2" onclick="srt('타입(전용)',this)">타입(전용) ↕</th>
+          <th data-col-idx="8" class="col-owner" onclick="srt('소유자',this)">소유자 ↕</th>
+          <th data-col-idx="9" class="col-price" onclick="srt('가격',this)">가격 ↕</th>
+          <th data-col-idx="10" class="col-memo" onclick="srt('상담 내용',this)">상담 내용 ↕</th>
+          <th data-col-idx="11" class="col-expire" onclick="srt('만기일',this)">만기일 ↕</th>
+          <th data-col-idx="12" class="col-e" onclick="srt('에어컨',this)">에 ↕</th>
+          <th data-col-idx="13" class="col-room" onclick="srt('방',this)">방 ↕</th>
+          <th data-col-idx="14" class="col-loan" onclick="srt('융자',this)">융자 ↕</th>
+          <th data-col-idx="15" class="col-adcycle" onclick="srt('광고주기',this)">광고주기 ↕</th>
+          <th data-col-idx="16" class="col-process" onclick="srt('프로세스',this)">프로세스 ↕</th>
+          <th data-col-idx="17" class="col-guest" onclick="srt('손님구분',this)">손님구분 ↕</th>
+          <th data-col-idx="18" class="col-feat" onclick="srt('주요특징',this)">주요특징 ↕</th>
+          <th data-col-idx="19" class="col-floor col-ext col-ext-first" onclick="srt('층공개',this)">층 ↕</th>
         </tr>
       </thead>
       <tbody id="TB"></tbody>
@@ -2775,6 +2745,7 @@
       FD.sort(function(a,b){ var v=natCmp(a['건물명']||'',b['건물명']||''); if(v!==0) return v; var d=natCmp(a['동']||'',b['동']||''); if(d!==0) return d; return natCmp(a['호']||'',b['호']||''); });
       SCROLL_END = 50;
       render();
+      applyColOrder('apt');
       applyColHide('apt');
       document.getElementById('RC').innerHTML = '검색결과: <b>' + RAW.length.toLocaleString() + '</b>건';
       document.getElementById('LO').classList.remove('show');
@@ -2822,11 +2793,17 @@
       applyColWidths('apt-main-table',   _slotKey('apt',   slot));
       applyColWidths('sg-main-table',    _slotKey('sg',    slot));
       applyColWidths('buyer-main-table', _slotKey('buyer', slot));
-      // 2. Sheets에서 최신 너비 가져와 localStorage 갱신 후 재적용 (기기 간 동기화)
+      applyColOrder('apt'); applyColOrder('sg'); applyColOrder('buyer');
+      applyColHide('apt');  applyColHide('sg');  applyColHide('buyer');
+      // 2. Sheets에서 최신 설정 가져와 localStorage 갱신 후 재적용 (기기 간 동기화)
       await syncColWidthsFromSheet();
       applyColWidths('apt-main-table',   _slotKey('apt',   slot));
       applyColWidths('sg-main-table',    _slotKey('sg',    slot));
       applyColWidths('buyer-main-table', _slotKey('buyer', slot));
+      applyColOrder('apt'); applyColOrder('sg'); applyColOrder('buyer');
+      applyColHide('apt');  applyColHide('sg');  applyColHide('buyer');
+      // cwp-slot-indicator 갱신
+      var ind = document.getElementById('cwp-slot-indicator'); if (ind) ind.textContent = slot;
     }
 
     function checkPw() {
@@ -2878,6 +2855,12 @@
         // 자동로그인 시 저장된 슬롯 자동 적용 (load 이벤트 후 처리)
         window.addEventListener('load', function() { applyLoginSlot(savedSlot); }, { once: true });
       }
+      // 열순서 드래그 초기화 (모든 3개 테이블)
+      _initColOrderDrag('apt-main-table', 'apt');
+      _initColOrderDrag('sg-main-table', 'sg');
+      _initColOrderDrag('buyer-main-table', 'buyer');
+      // cwp-slot-indicator 초기화
+      var ind = document.getElementById('cwp-slot-indicator'); if (ind) ind.textContent = savedSlot;
       loadMsgs();
       try {
         var cached = loadCache();
@@ -3967,30 +3950,51 @@
       } catch(e) {}
     }
 
-    // ── 열 숨기기 ─────────────────────────────────────
+    // ── 열 숨기기 / 순서 / 설정 통합 ──────────────────
     var _COL_HIDE_TABLE = { apt: 'apt-main-table', sg: 'sg-main-table', buyer: 'buyer-main-table' };
 
-    function loadColHide(tableType) {
-      try { return new Set(JSON.parse(localStorage.getItem('col_hide_' + tableType) || '[]')); } catch(e) { return new Set(); }
+    function getCurrentSlot() { return parseInt(localStorage.getItem(SLOT_KEY)) || 1; }
+
+    // col-hide: 슬롯별, 이름 기반 Set
+    function loadColHide(tableType, slot) {
+      var s = (slot !== undefined) ? slot : getCurrentSlot();
+      var key = 'col_hide_' + tableType + '_s' + s;
+      // 구버전 키(col_hide_apt) 마이그레이션
+      if (!localStorage.getItem(key)) {
+        var old = localStorage.getItem('col_hide_' + tableType);
+        if (old) {
+          // 구버전은 인덱스 배열 → 마이그레이션 생략, 빈 Set 반환
+        }
+      }
+      try { return new Set(JSON.parse(localStorage.getItem(key) || '[]')); } catch(e) { return new Set(); }
     }
-    function saveColHide(tableType, hidden) {
-      try { localStorage.setItem('col_hide_' + tableType, JSON.stringify(Array.from(hidden))); } catch(e) {}
+    function saveColHide(tableType, hidden, slot) {
+      var s = (slot !== undefined) ? slot : getCurrentSlot();
+      var key = 'col_hide_' + tableType + '_s' + s;
+      try { localStorage.setItem(key, JSON.stringify(Array.from(hidden))); } catch(e) {}
     }
+    // 이름 → 현재 DOM 위치로 CSS 생성
     function applyColHide(tableType) {
       var tableId = _COL_HIDE_TABLE[tableType];
-      var hidden = loadColHide(tableType);
+      var tbl = document.getElementById(tableId);
+      var hiddenNames = loadColHide(tableType);
       var styleId = 'col-hide-style-' + tableType;
       var el = document.getElementById(styleId);
       if (!el) { el = document.createElement('style'); el.id = styleId; document.head.appendChild(el); }
       var css = '';
-      hidden.forEach(function(idx) {
-        css += '#' + tableId + ' thead th:nth-child(' + idx + '), #' + tableId + ' tbody td:nth-child(' + idx + ') { display: none !important; }\n';
-      });
+      if (tbl) {
+        tbl.querySelectorAll('thead th').forEach(function(th, i) {
+          var name = _cwColName(th);
+          if (hiddenNames.has(name)) {
+            css += '#' + tableId + ' thead th:nth-child(' + (i+1) + '), #' + tableId + ' tbody td:nth-child(' + (i+1) + ') { display: none !important; }\n';
+          }
+        });
+      }
       el.textContent = css;
     }
-    function toggleColHide(tableType, colIdx, visible) {
+    function toggleColHide(tableType, colName, visible) {
       var hidden = loadColHide(tableType);
-      if (visible) hidden.delete(colIdx); else hidden.add(colIdx);
+      if (visible) hidden.delete(colName); else hidden.add(colName);
       saveColHide(tableType, hidden);
       applyColHide(tableType);
     }
@@ -4002,17 +4006,174 @@
       var tbl = document.getElementById(tableId);
       if (!tbl || tbl.offsetWidth === 0) { showToast('해당 탭에서 열어주세요'); return; }
       var ths = tbl.querySelectorAll('thead th');
-      var hidden = loadColHide(tableType);
+      var hiddenNames = loadColHide(tableType);
       var html = '';
-      ths.forEach(function(th, i) {
-        var label = th.textContent.replace(/\s*↕\s*/g, '').trim();
-        if (!label) return; // 체크박스 열 건너뜀
-        var colIdx = i + 1;
-        var checked = !hidden.has(colIdx) ? 'checked' : '';
-        html += '<label><input type="checkbox" ' + checked + ' onchange="toggleColHide(\'' + tableType + '\',' + colIdx + ',this.checked)" style="width:12px;height:12px;accent-color:#1d4ed8;">' + esc(label) + '</label>';
+      ths.forEach(function(th) {
+        var label = _cwColName(th);
+        if (!label) return;
+        var safe = label.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+        var checked = !hiddenNames.has(label) ? 'checked' : '';
+        html += '<label><input type="checkbox" ' + checked + ' onchange="toggleColHide(\'' + tableType + '\',\'' + safe + '\',this.checked)" style="width:12px;height:12px;accent-color:#1d4ed8;">' + esc(label) + '</label>';
       });
       panel.innerHTML = html;
       panel.classList.add('open');
+    }
+
+    // th 텍스트에서 컬럼명 추출 (↕/정렬기호 제거)
+    function _cwColName(th) {
+      return th.textContent.replace(/[↕▲▼↕▲▼]/g, '').trim();
+    }
+
+    // ── 열 순서 ─────────────────────────────────────────
+    function loadColOrder(tableType, slot) {
+      var s = (slot !== undefined) ? slot : getCurrentSlot();
+      try { var v = localStorage.getItem('col_order_' + tableType + '_s' + s); return v ? JSON.parse(v) : null; } catch(e) { return null; }
+    }
+    function saveColOrder(tableType, orderNames, slot) {
+      var s = (slot !== undefined) ? slot : getCurrentSlot();
+      try { localStorage.setItem('col_order_' + tableType + '_s' + s, JSON.stringify(orderNames)); } catch(e) {}
+    }
+    // 렌더 직후 저장된 열 순서 DOM 적용 (data-col-idx 기반)
+    function applyColOrder(tableType) {
+      var tableId = _COL_HIDE_TABLE[tableType];
+      var tbl = document.getElementById(tableId);
+      if (!tbl) return;
+      var orderNames = loadColOrder(tableType);
+      if (!orderNames || !orderNames.length) return;
+      var thead = tbl.querySelector('thead tr');
+      if (!thead) return;
+      var ths = Array.from(thead.children);
+      // originalIdx → th 맵
+      var idxToTh = {};
+      ths.forEach(function(th) { var i = parseInt(th.dataset.colIdx); if (!isNaN(i)) idxToTh[i] = th; });
+      // name → originalIdx 맵
+      var nameToIdx = {};
+      ths.forEach(function(th) { var n = _cwColName(th); var i = parseInt(th.dataset.colIdx); if (!isNaN(i)) nameToIdx[n] = i; });
+      // 저장된 순서대로 originalIdx 배열 구성
+      var used = new Set();
+      var desiredIdx = [];
+      orderNames.forEach(function(name) {
+        var i = nameToIdx[name];
+        if (i !== undefined && !used.has(i)) { desiredIdx.push(i); used.add(i); }
+      });
+      ths.forEach(function(th) { var i = parseInt(th.dataset.colIdx); if (!isNaN(i) && !used.has(i)) { desiredIdx.push(i); used.add(i); } });
+      // thead 재배치
+      desiredIdx.forEach(function(i) { var th = idxToTh[i]; if (th) thead.appendChild(th); });
+      // tbody 재배치
+      var rows = tbl.querySelectorAll('tbody tr');
+      rows.forEach(function(row) {
+        var tds = Array.from(row.children);
+        desiredIdx.forEach(function(i) { var td = tds[i]; if (td) row.appendChild(td); });
+      });
+    }
+
+    // ── 열 순서 드래그 모드 ──────────────────────────────
+    var _colOrderModeOn = false;
+    var _colDragSrc = null;
+
+    function toggleColOrderMode() {
+      _colOrderModeOn = !_colOrderModeOn;
+      var btn = document.getElementById('colOrderBtn');
+      if (btn) {
+        btn.style.color = _colOrderModeOn ? '#60a5fa' : '#94a3b8';
+        btn.style.borderColor = _colOrderModeOn ? '#60a5fa' : 'rgba(148,163,184,0.5)';
+        btn.style.background = _colOrderModeOn ? 'rgba(96,165,250,0.12)' : 'rgba(148,163,184,0.1)';
+      }
+      ['apt', 'sg', 'buyer'].forEach(function(type) {
+        var tbl = document.getElementById(_COL_HIDE_TABLE[type]);
+        if (!tbl) return;
+        tbl.querySelectorAll('thead th').forEach(function(th) {
+          th.draggable = _colOrderModeOn;
+          if (_colOrderModeOn) th.classList.add('col-order-mode');
+          else th.classList.remove('col-order-mode');
+        });
+      });
+      showToast(_colOrderModeOn ? '열 머리글을 드래그해 순서를 바꾸세요' : '열순서 조정 종료');
+    }
+
+    function _initColOrderDrag(tableId, tableType) {
+      var tbl = document.getElementById(tableId);
+      if (!tbl || tbl._colDragInited) return;
+      tbl._colDragInited = true;
+      var thead = tbl.querySelector('thead tr');
+      thead.addEventListener('dragstart', function(e) {
+        if (!_colOrderModeOn) return;
+        var th = e.target.closest('th'); if (!th) return;
+        _colDragSrc = { tableType: tableType, fromIdx: Array.from(thead.children).indexOf(th) };
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', _colDragSrc.fromIdx);
+        setTimeout(function() { th.classList.add('col-dragging'); }, 0);
+      });
+      thead.addEventListener('dragover', function(e) {
+        if (!_colOrderModeOn || !_colDragSrc || _colDragSrc.tableType !== tableType) return;
+        var th = e.target.closest('th'); if (!th) return;
+        e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+        thead.querySelectorAll('th').forEach(function(t){ t.classList.remove('col-drag-over'); });
+        th.classList.add('col-drag-over');
+      });
+      thead.addEventListener('dragleave', function(e) {
+        var th = e.target.closest('th'); if (th) th.classList.remove('col-drag-over');
+      });
+      thead.addEventListener('drop', function(e) {
+        if (!_colOrderModeOn || !_colDragSrc || _colDragSrc.tableType !== tableType) return;
+        var th = e.target.closest('th'); if (!th) return;
+        e.preventDefault();
+        thead.querySelectorAll('th').forEach(function(t){ t.classList.remove('col-drag-over','col-dragging'); });
+        var ths = Array.from(thead.children);
+        var from = _colDragSrc.fromIdx, to = ths.indexOf(th);
+        _colDragSrc = null;
+        if (from === to) return;
+        var moved = ths[from];
+        if (from < to) thead.insertBefore(moved, th.nextSibling);
+        else thead.insertBefore(moved, th);
+        var rows = tbl.querySelectorAll('tbody tr');
+        rows.forEach(function(row) {
+          var tds = Array.from(row.children);
+          if (from >= tds.length || to >= tds.length) return;
+          var movedTd = tds[from], refTd = tds[to];
+          if (from < to) row.insertBefore(movedTd, refTd.nextSibling);
+          else row.insertBefore(movedTd, refTd);
+        });
+        var newOrder = Array.from(thead.children).map(_cwColName);
+        saveColOrder(tableType, newOrder);
+      });
+      thead.addEventListener('dragend', function() {
+        thead.querySelectorAll('th').forEach(function(t){ t.classList.remove('col-drag-over','col-dragging'); });
+        _colDragSrc = null;
+      });
+    }
+
+    // ── 통합 열설정 저장 ─────────────────────────────────
+    async function saveAllSettings() {
+      var slot = getCurrentSlot();
+      var types = ['apt', 'sg', 'buyer'];
+      var tableIds = ['apt-main-table', 'sg-main-table', 'buyer-main-table'];
+      // 1. 너비 저장 (localStorage)
+      types.forEach(function(t, i) { saveColWidths(tableIds[i], _slotKey(t, slot)); });
+      // 2. 시트에 저장할 항목 수집
+      var items = [];
+      types.forEach(function(t) {
+        var wKey = _slotKey(t, slot);
+        var wv = localStorage.getItem(wKey); if (wv) items.push([wKey, wv]);
+        var hKey = 'col_hide_' + t + '_s' + slot;
+        var hv = localStorage.getItem(hKey); if (hv) items.push([hKey, hv]);
+        var oKey = 'col_order_' + t + '_s' + slot;
+        var ov = localStorage.getItem(oKey); if (ov) items.push([oKey, ov]);
+      });
+      // 3. 시트에 순차 저장
+      for (var i = 0; i < items.length; i++) {
+        var kv = items[i];
+        if (ASURL) {
+          try {
+            await fetch(ASURL, { method:'POST', headers:{'Content-Type':'text/plain'},
+              body: safeStringify({ action:'saveColWidths', slotKey: kv[0], widthsJson: kv[1] })
+            });
+          } catch(e) {}
+        }
+      }
+      // cwp-slot-indicator 갱신
+      var ind = document.getElementById('cwp-slot-indicator'); if (ind) ind.textContent = slot;
+      showToast('S' + slot + ' 열설정 저장 완료 (너비·순서·숨기기)');
     }
 
     // 리사이즈 핸들 추가 (숨겨진 테이블은 스킵 — offsetWidth=0이면 열너비 오염 방지)
@@ -4273,7 +4434,7 @@
           det(CUR_IDX);
           // 해당 행만 테이블에서 즉시 갱신
           var _tb = document.getElementById('TB');
-          if (_tb) { var _trs = _tb.querySelectorAll('tr'); for (var _ti=0; _ti<_trs.length; _ti++) { if (_trs[_ti].getAttribute('onclick') === 'detByRow('+r['__row__']+')') { var _tmp = document.createElement('tbody'); _tmp.innerHTML = makeRow(r, CUR_IDX); _trs[_ti].parentNode.replaceChild(_tmp.firstChild, _trs[_ti]); applyColHide('apt'); break; } } }
+          if (_tb) { var _trs = _tb.querySelectorAll('tr'); for (var _ti=0; _ti<_trs.length; _ti++) { if (_trs[_ti].getAttribute('onclick') === 'detByRow('+r['__row__']+')') { var _tmp = document.createElement('tbody'); _tmp.innerHTML = makeRow(r, CUR_IDX); _trs[_ti].parentNode.replaceChild(_tmp.firstChild, _trs[_ti]); applyColOrder('apt'); applyColHide('apt'); break; } } }
         } else { showToast('❌ 실패: ' + json.message); }
       } catch (e) { showToast('❌ 오류: ' + e.message); }
       finally { btn.textContent = '💾 저장'; btn.disabled = false; }
@@ -4647,6 +4808,7 @@
       var moreEl = document.getElementById('sg-proc-more');
       if (moreEl) { moreEl._initialized = false; moreEl.innerHTML = ''; }
       sgApplyAll();
+      applyColOrder('sg');
       applyColHide('sg');
     }
 
@@ -4946,6 +5108,7 @@
       // 테이블: 200행 페이지네이션
       var st = (SG_PAGE - 1) * SG_PER, slice = _sgFD.slice(st, st + SG_PER);
       if (tb) tb.innerHTML = slice.map(function(r, i){ return sgMakeRow(r, st + i); }).join('');
+      applyColOrder('sg'); applyColHide('sg');
       sgRenderPager();
       // search event
       var si = document.getElementById('sg-SI2');
@@ -4993,22 +5156,23 @@
       var ownerFmt = fmtBuyerName(r['소유자']||'') || '-';
       return '<tr onclick="sgDet(' + i + ')">' +
         '<td>' + esc(r['실행일']||'-') + '</td>' +
-        '<td><span class="badge ' + typeClass + '">' + esc(r['유형']||'-') + '</span></td>' +
         '<td>' + esc(r['건물명']||'-') + '</td>' +
+        '<td><span class="badge ' + typeClass + '">' + esc(r['유형']||'-') + '</span></td>' +
         '<td>' + esc(r['측']||'-') + '</td>' +
         '<td>' + esc(r['동']||'-') + '</td>' +
         '<td>' + esc(r['호']||'-') + '</td>' +
         '<td>' + esc(r['현재상호']||'-') + '</td>' +
+        '<td>' + esc(r['과거입점상호']||'-') + '</td>' +
         '<td style="text-align:right;">' + esc(r['전용(평)']||'-') + '</td>' +
         '<td style="color:var(--accent);font-weight:700;text-align:right;">' + esc(r['매매가'] ? sgFmtPriceNum(r['매매가']) : '-') + '</td>' +
         '<td style="color:var(--accent);font-weight:700;text-align:right;">' + esc(r['보증금'] ? sgFmtPriceNum(r['보증금']) : '-') + '</td>' +
         '<td style="color:var(--accent);font-weight:700;text-align:right;">' + esc(r['월세'] ? sgFmtPriceNum(r['월세']) : '-') + '</td>' +
         '<td class="td-wrap"><div class="cell-clamp">' + esc(ownerFmt) + '</div></td>' +
-        '<td>' + esc(r['입주구분']||'-') + '</td>' +
-        '<td>' + esc(r['프로세스']||'-') + '</td>' +
-        '<td class="td-wrap"><div class="cell-clamp">' + esc(r['주요특징']||'-') + '</div></td>' +
         '<td class="td-wrap"><div class="cell-clamp">' + esc(lastLines(r['상담 내용'], 3) || '-') + '</div></td>' +
         '<td>' + esc(r['만기일']||'-') + '</td>' +
+        '<td>' + esc(r['프로세스']||'-') + '</td>' +
+        '<td>' + esc(r['입주구분']||'-') + '</td>' +
+        '<td class="td-wrap"><div class="cell-clamp">' + esc(r['주요특징']||'-') + '</div></td>' +
         '</tr>';
     }
 
@@ -5259,7 +5423,7 @@
         // 해당 행만 테이블에서 즉시 갱신
         var _sSt = (SG_PAGE-1)*SG_PER, _sPos = _sgCurIdx - _sSt;
         var _sTbl = document.getElementById('sg-main-table');
-        if (_sTbl && _sPos >= 0) { var _sTb = _sTbl.querySelector('tbody'); if (_sTb) { var _sTrs = _sTb.querySelectorAll('tr'); if (_sPos < _sTrs.length) { var _sTmp = document.createElement('tbody'); _sTmp.innerHTML = sgMakeRow(r, _sgCurIdx); _sTrs[_sPos].parentNode.replaceChild(_sTmp.firstChild, _sTrs[_sPos]); applyColHide('sg'); } } }
+        if (_sTbl && _sPos >= 0) { var _sTb = _sTbl.querySelector('tbody'); if (_sTb) { var _sTrs = _sTb.querySelectorAll('tr'); if (_sPos < _sTrs.length) { var _sTmp = document.createElement('tbody'); _sTmp.innerHTML = sgMakeRow(r, _sgCurIdx); _sTrs[_sPos].parentNode.replaceChild(_sTmp.firstChild, _sTrs[_sPos]); applyColOrder('sg'); applyColHide('sg'); } } }
       } catch(e) { showToast('저장 오류: ' + e.message); }
       finally { if (btn) { btn.disabled = false; btn.textContent = '💾 저장'; } }
     }
@@ -5577,6 +5741,7 @@
           '<div class="buyer-db-card-date">' + esc(r['기입일'] || '') + '</div>' +
           '</div>';
       }).join('');
+      applyColOrder('buyer');
       applyColHide('buyer');
     }
 
@@ -6414,23 +6579,24 @@
       <table class="sg-table" id="sg-main-table">
         <thead>
           <tr>
-            <th style="width:70px;" onclick="sgSrt('실행일',this)">실행일 ↕</th>
-            <th style="width:55px;" onclick="sgSrt('유형',this)">유형 ↕</th>
-            <th style="width:90px;" onclick="sgSrt('건물명',this)">건물명 ↕</th>
-            <th style="width:30px;" onclick="sgSrt('측',this)">측 ↕</th>
-            <th style="width:40px;" onclick="sgSrt('동',this)">동 ↕</th>
-            <th style="width:40px;" onclick="sgSrt('호',this)">호 ↕</th>
-            <th style="width:90px;" onclick="sgSrt('현재상호',this)">현재상호 ↕</th>
-            <th style="width:55px;" onclick="sgSrt('전용(평)',this)">전용(평) ↕</th>
-            <th style="width:75px;" onclick="sgSrt('매매가',this)">매매가 ↕</th>
-            <th style="width:75px;" onclick="sgSrt('보증금',this)">보증금 ↕</th>
-            <th style="width:60px;" onclick="sgSrt('월세',this)">월세 ↕</th>
-            <th style="width:100px;" onclick="sgSrt('소유자',this)">소유자 ↕</th>
-            <th style="width:58px;" onclick="sgSrt('입주구분',this)">입주구분 ↕</th>
-            <th style="width:70px;" onclick="sgSrt('프로세스',this)">프로세스 ↕</th>
-            <th style="width:110px;" onclick="sgSrt('주요특징',this)">주요특징 ↕</th>
-            <th style="width:140px;" onclick="sgSrt('상담 내용',this)">상담 내용 ↕</th>
-            <th style="width:70px;" onclick="sgSrt('만기일',this)">만기일 ↕</th>
+            <th data-col-idx="0" style="width:70px;" onclick="sgSrt('실행일',this)">실행일 ↕</th>
+            <th data-col-idx="1" style="width:90px;" onclick="sgSrt('건물명',this)">건물명 ↕</th>
+            <th data-col-idx="2" style="width:55px;" onclick="sgSrt('유형',this)">유형 ↕</th>
+            <th data-col-idx="3" style="width:30px;" onclick="sgSrt('측',this)">측 ↕</th>
+            <th data-col-idx="4" style="width:40px;" onclick="sgSrt('동',this)">동 ↕</th>
+            <th data-col-idx="5" style="width:40px;" onclick="sgSrt('호',this)">호 ↕</th>
+            <th data-col-idx="6" style="width:90px;" onclick="sgSrt('현재상호',this)">현재상호 ↕</th>
+            <th data-col-idx="7" style="width:90px;" onclick="sgSrt('과거입점상호',this)">과거입점상호 ↕</th>
+            <th data-col-idx="8" style="width:55px;" onclick="sgSrt('전용(평)',this)">전용(평) ↕</th>
+            <th data-col-idx="9" style="width:75px;" onclick="sgSrt('매매가',this)">매매가 ↕</th>
+            <th data-col-idx="10" style="width:75px;" onclick="sgSrt('보증금',this)">보증금 ↕</th>
+            <th data-col-idx="11" style="width:60px;" onclick="sgSrt('월세',this)">월세 ↕</th>
+            <th data-col-idx="12" style="width:100px;" onclick="sgSrt('소유자',this)">소유자 ↕</th>
+            <th data-col-idx="13" style="width:140px;" onclick="sgSrt('상담 내용',this)">상담 내용 ↕</th>
+            <th data-col-idx="14" style="width:70px;" onclick="sgSrt('만기일',this)">만기일 ↕</th>
+            <th data-col-idx="15" style="width:70px;" onclick="sgSrt('프로세스',this)">프로세스 ↕</th>
+            <th data-col-idx="16" style="width:58px;" onclick="sgSrt('입주구분',this)">입주구분 ↕</th>
+            <th data-col-idx="17" style="width:110px;" onclick="sgSrt('주요특징',this)">주요특징 ↕</th>
           </tr>
         </thead>
         <tbody id="sg-TB"></tbody>
@@ -6660,6 +6826,19 @@
             </div>
           </div>
 
+          <!-- 주요특징 -->
+          <div style="margin-bottom:12px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">주요특징</div>
+            <div class="ef-group" style="margin-bottom:0;">
+              <div id="sgn-tags-display" style="display:flex;flex-wrap:wrap;gap:4px;min-height:22px;margin-bottom:6px;"></div>
+              <div style="display:flex;gap:6px;">
+                <input id="sgn-tag-input" class="ef-input" type="text" placeholder="#태그 입력 후 Enter 또는 쉼표" style="flex:1;">
+                <button type="button" onclick="addSgNewTag()" style="padding:0 14px;background:rgba(79,156,249,0.15);border:1px solid rgba(79,156,249,0.4);border-radius:7px;color:#4f9cf9;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">추가</button>
+              </div>
+              <input type="hidden" id="sgn-features">
+            </div>
+          </div>
+
           <!-- 상담 정보 -->
           <div style="margin-bottom:12px;">
             <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">상담 정보</div>
@@ -6667,7 +6846,9 @@
               <div class="ef-group"><label class="ef-label">프로세스</label>
                 <input type="text" id="sgn-proc" class="ef-input" list="sg-proc-dl" placeholder="프로세스 선택/직접입력">
               </div>
-              <div class="ef-group"><label class="ef-label">실행일</label><input id="sgn-exec-date" class="ef-input" type="text" placeholder="예) 2026-03-28"></div>
+              <div class="ef-group"><label class="ef-label">실행일</label>
+                <div style="display:flex;gap:5px;"><input id="sgn-exec-date" class="ef-input" type="text" placeholder="예) 2026-03-28" style="flex:1;"><button type="button" onclick="document.getElementById('sgn-exec-date').value=todayStr()" style="flex-shrink:0;padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;cursor:pointer;white-space:nowrap;">오늘</button></div>
+              </div>
             </div>
             <div class="ef-group" style="margin-bottom:0;"><label class="ef-label">상담 내용</label><textarea id="sgn-memo" class="ef-textarea" rows="3"></textarea></div>
           </div>
@@ -6686,19 +6867,6 @@
                 <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매도·임대</label><input id="sgn-revenue-sale" class="ef-input" type="text"></div>
                 <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">발생수익 매수·임차</label><input id="sgn-revenue-purchase" class="ef-input" type="text"></div>
               </div>
-            </div>
-          </div>
-
-          <!-- 주요특징 -->
-          <div style="margin-bottom:12px;">
-            <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">주요특징</div>
-            <div class="ef-group" style="margin-bottom:0;">
-              <div id="sgn-tags-display" style="display:flex;flex-wrap:wrap;gap:4px;min-height:22px;margin-bottom:6px;"></div>
-              <div style="display:flex;gap:6px;">
-                <input id="sgn-tag-input" class="ef-input" type="text" placeholder="#태그 입력 후 Enter 또는 쉼표" style="flex:1;">
-                <button type="button" onclick="addSgNewTag()" style="padding:0 14px;background:rgba(79,156,249,0.15);border:1px solid rgba(79,156,249,0.4);border-radius:7px;color:#4f9cf9;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">추가</button>
-              </div>
-              <input type="hidden" id="sgn-features">
             </div>
           </div>
 
@@ -6876,20 +7044,20 @@
         <table class="buyer-table" id="buyer-main-table">
           <thead>
             <tr>
-              <th style="width:76px;" onclick="dbSrt('기입일',this)">기입일 ↕</th>
-              <th style="width:120px;" onclick="dbSrt('고객명(전화번호)',this)">고객명(전화번호) ↕</th>
-              <th style="width:58px;" onclick="dbSrt('부동산유형',this)">부동산유형 ↕</th>
-              <th style="width:58px;" onclick="dbSrt('거래유형',this)">거래유형 ↕</th>
-              <th style="width:52px;" onclick="dbSrt('실거주여부',this)">실거주 ↕</th>
-              <th style="width:110px;" onclick="dbSrt('찾는 매물',this)">찾는 매물 ↕</th>
-              <th style="width:110px;" onclick="dbSrt('제안 매물',this)">제안 매물 ↕</th>
-              <th style="width:110px;" onclick="dbSrt('상담 내용',this)">상담 내용 ↕</th>
-              <th style="width:70px;" onclick="dbSrt('프로세스',this)">프로세스 ↕</th>
-              <th style="width:88px;" onclick="dbSrt('주요특징',this)">주요특징 ↕</th>
-              <th style="width:76px;" onclick="dbSrt('매매가(예산)',this)">매매가(예산) ↕</th>
-              <th style="width:76px;" onclick="dbSrt('보증금(예산)',this)">보증금(예산) ↕</th>
-              <th style="width:66px;" onclick="dbSrt('월세(예산)',this)">월세(예산) ↕</th>
-              <th style="width:72px;" onclick="dbSrt('입주일',this)">입주일 ↕</th>
+              <th data-col-idx="0" style="width:76px;" onclick="dbSrt('기입일',this)">기입일 ↕</th>
+              <th data-col-idx="1" style="width:120px;" onclick="dbSrt('고객명(전화번호)',this)">고객명(전화번호) ↕</th>
+              <th data-col-idx="2" style="width:58px;" onclick="dbSrt('부동산유형',this)">부동산유형 ↕</th>
+              <th data-col-idx="3" style="width:58px;" onclick="dbSrt('거래유형',this)">거래유형 ↕</th>
+              <th data-col-idx="4" style="width:52px;" onclick="dbSrt('실거주여부',this)">실거주 ↕</th>
+              <th data-col-idx="5" style="width:110px;" onclick="dbSrt('찾는 매물',this)">찾는 매물 ↕</th>
+              <th data-col-idx="6" style="width:110px;" onclick="dbSrt('제안 매물',this)">제안 매물 ↕</th>
+              <th data-col-idx="7" style="width:110px;" onclick="dbSrt('상담 내용',this)">상담 내용 ↕</th>
+              <th data-col-idx="8" style="width:70px;" onclick="dbSrt('프로세스',this)">프로세스 ↕</th>
+              <th data-col-idx="9" style="width:88px;" onclick="dbSrt('주요특징',this)">주요특징 ↕</th>
+              <th data-col-idx="10" style="width:76px;" onclick="dbSrt('매매가(예산)',this)">매매가(예산) ↕</th>
+              <th data-col-idx="11" style="width:76px;" onclick="dbSrt('보증금(예산)',this)">보증금(예산) ↕</th>
+              <th data-col-idx="12" style="width:66px;" onclick="dbSrt('월세(예산)',this)">월세(예산) ↕</th>
+              <th data-col-idx="13" style="width:72px;" onclick="dbSrt('입주일',this)">입주일 ↕</th>
             </tr>
           </thead>
           <tbody id="db-tbody"></tbody>
