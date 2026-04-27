@@ -3362,14 +3362,22 @@
       if (idx === -1) return;
       det(idx);
     }
-    function det(idx) {
-      CUR_IDX = idx; cancelEdit();
-      var r = FD[idx];
-      // RAW에서 최신 데이터 가져오기 (데이터 신선도 보장)
-      if (r['__row__']) {
-        var rLatest = RAW.find(function(row) { return row['__row__'] === r['__row__']; });
-        if (rLatest) r = rLatest;
-      }
+    function _detSec(t, d) {
+      var f = d.filter(function(x){ return x[1] || x[2]==='always'; }); if(!f.length) return '';
+      return '<div class="detail-section"><div class="detail-section-title">' + t + '</div><div class="detail-grid">' +
+        f.map(function(x){ return '<div class="detail-item"><span class="di-label">' + x[0] + '</span><span class="di-value' + (x[2]===1?' hl':'') + '">' + esc(x[1]||'') + '</span></div>'; }).join('') +
+        '</div></div>';
+    }
+    function _detSecToggle(id, t, d) {
+      var f = d.filter(function(x){ return x[1] || x[2]==='always'; });
+      var label = t + ' <span style="font-size:11px;opacity:0.6;" id="' + id + '-arr">▶</span>';
+      var content = f.length
+        ? '<div class="detail-grid">' + f.map(function(x){ return '<div class="detail-item"><span class="di-label">' + x[0] + '</span><span class="di-value' + (x[2]===1?' hl':'') + '">' + esc(x[1]||'') + '</span></div>'; }).join('') + '</div>'
+        : '<div style="font-size:12px;color:var(--text3);padding:4px 0;">데이터 없음</div>';
+      return '<div class="detail-section"><div class="detail-section-title" style="cursor:pointer;user-select:none;" onclick="toggleDetSec(\'' + id + '\')">' + label + '</div>' +
+        '<div id="' + id + '" style="display:none;">' + content + '</div></div>';
+    }
+    function refreshDetailDisplay(r, idx) {
       // 계약손님 라벨
       var isContract = (r['소유자'] || '').indexOf('계약') !== -1 || (r['소유자2'] || '').indexOf('계약') !== -1 || (r['이름'] || '').indexOf('계약') !== -1;
       var badge = isContract ? ' <span style="background:#fee2e2;border:1px solid #dc2626;color:#dc2626;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;vertical-align:middle;">계약손님</span>' : '';
@@ -3391,42 +3399,35 @@
             '<button class="vcf-btn" onclick="saveContactByIdx(' + ci + ')">👤</button>';
         }).join('') + '</div>';
       }
-      // 섹션 렌더 헬퍼
-      function detSec(t, d) {
-        var f = d.filter(function(x){ return x[1] || x[2]==='always'; }); if(!f.length) return '';
-        return '<div class="detail-section"><div class="detail-section-title">' + t + '</div><div class="detail-grid">' +
-          f.map(function(x){ return '<div class="detail-item"><span class="di-label">' + x[0] + '</span><span class="di-value' + (x[2]===1?' hl':'') + '">' + esc(x[1]||'') + '</span></div>'; }).join('') +
-          '</div></div>';
-      }
-      function detSecToggle(id, t, d) {
-        var f = d.filter(function(x){ return x[1] || x[2]==='always'; });
-        var label = t + ' <span style="font-size:11px;opacity:0.6;" id="' + id + '-arr">▶</span>';
-        var content = f.length
-          ? '<div class="detail-grid">' + f.map(function(x){ return '<div class="detail-item"><span class="di-label">' + x[0] + '</span><span class="di-value' + (x[2]===1?' hl':'') + '">' + esc(x[1]||'') + '</span></div>'; }).join('') + '</div>'
-          : '<div style="font-size:12px;color:var(--text3);padding:4px 0;">데이터 없음</div>';
-        return '<div class="detail-section"><div class="detail-section-title" style="cursor:pointer;user-select:none;" onclick="toggleDetSec(\'' + id + '\')">' + label + '</div>' +
-          '<div id="' + id + '" style="display:none;">' + content + '</div></div>';
-      }
-
       // 기본 정보
-      h += detSec('기본 정보', [['건물명', r['건물명']], ['동', r['동']], ['호', r['호']], ['유형', r['유형']], ['타입(공용)', r['타입(공용)']], ['타입(전용)', r['타입(전용)']], ['가격', r['가격'], 1], ['만기일', r['만기일'], 'always'], ['입주형태', r['입주형태']], ['에어컨', r['에']], ['방', r['방']], ['융자', r['융자']], ['광고주기', r['광고주기'], 'always'], ['프로세스', r['프로세스']], ['층공개', r['층공개']], ['독점', r['독점']]]);
+      h += _detSec('기본 정보', [['건물명', r['건물명']], ['동', r['동']], ['호', r['호']], ['유형', r['유형']], ['타입(공용)', r['타입(공용)']], ['타입(전용)', r['타입(전용)']], ['가격', r['가격'], 1], ['만기일', r['만기일'], 'always'], ['입주형태', r['입주형태']], ['에어컨', r['에']], ['방', r['방']], ['융자', r['융자']], ['광고주기', r['광고주기'], 'always'], ['프로세스', r['프로세스']], ['층공개', r['층공개']], ['독점', r['독점']]]);
       // 소유자 정보
-      h += detSec('소유자 정보', [['소유자', r['소유자']], ['소유자2', r['소유자2']], ['이름', r['이름']], ['임차인', r['임차인']], ['손님구분', r['손님구분']], ['현재점유형태', r['현재점유형태']]]);
+      h += _detSec('소유자 정보', [['소유자', r['소유자']], ['소유자2', r['소유자2']], ['이름', r['이름']], ['임차인', r['임차인']], ['손님구분', r['손님구분']], ['현재점유형태', r['현재점유형태']]]);
       // 주요특징
       if (r['주요특징']) { var dtags = (r['주요특징']).split(/[,，\n]/).map(function(t){ return t.trim().replace(/^#/,''); }).filter(Boolean); if (dtags.length) h += '<div class="detail-section"><div class="detail-section-title">주요특징</div><div style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0;">' + dtags.map(function(t){ return '<span class="feat-tag-display">#' + esc(t) + '</span>'; }).join('') + '</div></div>'; }
       // 상담 내용
       if (r['상담 내용']) h += '<div class="detail-section"><div class="detail-section-title">상담 내용</div><div class="memo-box">' + esc(r['상담 내용']) + '</div></div>';
       if (r['비고']) h += '<div class="detail-section"><div class="detail-section-title">비고</div><div class="memo-box">' + esc(r['비고']) + '</div></div>';
-      // 계약 정보 (8-7) — 기본 접힘
-      h += detSecToggle('det-contract', '계약 정보', [['계약금중일부', r['계약금중일부']], ['약정일', r['약정일']], ['토허제', r['토허제']], ['계약일', r['계약일']], ['중도금', r['중도금']], ['잔금일', r['잔금일']], ['발생수익 매도·임대(VAT포함)', r['발생수익-매도,임대(VAT포함)']], ['발생수익 매수·임차(VAT포함)', r['발생수익-매수,임차(VAT포함)']], ['갱신청구권', r['갱신청구권']]]);
-      // 이실장 정보 (8-8) — 기본 접힘
-      h += detSecToggle('det-ls', '이실장 정보', [['이실장 단지명', r['이실장 단지명']], ['이실장 동', r['이실장 동']], ['이실장 호', r['이실장 호']], ['공급면적(㎡)', r['공급면적(㎡)']], ['전용면적(㎡)', r['전용면적(㎡)']], ['소유형태', r['소유형태']], ['이실장소유자명', r['이실장소유자명']], ['거주자명', r['거주자명']], ['현재점유형태(이실장)', r['현재점유형태']], ['거래가(만원)', r['거래가(만원)']], ['이실장계약일', r['이실장계약일']], ['등기열람일시', r['등기열람일시']]]);
-      // 캘린더 등록 버튼 추가
+      // 계약 정보 (기본 접힘)
+      h += _detSecToggle('det-contract', '계약 정보', [['계약금중일부', r['계약금중일부']], ['약정일', r['약정일']], ['토허제', r['토허제']], ['계약일', r['계약일']], ['중도금', r['중도금']], ['잔금일', r['잔금일']], ['발생수익 매도·임대(VAT포함)', r['발생수익-매도,임대(VAT포함)']], ['발생수익 매수·임차(VAT포함)', r['발생수익-매수,임차(VAT포함)']], ['갱신청구권', r['갱신청구권']]]);
+      // 이실장 정보 (기본 접힘)
+      h += _detSecToggle('det-ls', '이실장 정보', [['이실장 단지명', r['이실장 단지명']], ['이실장 동', r['이실장 동']], ['이실장 호', r['이실장 호']], ['공급면적(㎡)', r['공급면적(㎡)']], ['전용면적(㎡)', r['전용면적(㎡)']], ['소유형태', r['소유형태']], ['이실장소유자명', r['이실장소유자명']], ['거주자명', r['거주자명']], ['현재점유형태(이실장)', r['현재점유형태']], ['거래가(만원)', r['거래가(만원)']], ['이실장계약일', r['이실장계약일']], ['등기열람일시', r['등기열람일시']]]);
+      // 캘린더 등록 버튼
       h += '<div style="padding:14px 18px 6px;">' +
         '<button onclick="openCalendar()" style="width:100%;padding:11px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;color:#15803d;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">' +
         '📅 구글 캘린더에 일정 등록' +
         '</button></div>';
       document.getElementById('DB').innerHTML = h;
+    }
+    function det(idx) {
+      CUR_IDX = idx; cancelEdit();
+      var r = FD[idx];
+      // RAW에서 최신 데이터 가져오기 (데이터 신선도 보장)
+      if (r['__row__']) {
+        var rLatest = RAW.find(function(row) { return row['__row__'] === r['__row__']; });
+        if (rLatest) r = rLatest;
+      }
+      refreshDetailDisplay(r, idx);
       document.getElementById('DO').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -4355,7 +4356,11 @@
         btn.disabled = true;
         if (r['__row__']) {
           var fresh = await fetchLatestRow(r['__row__']);
-          if (fresh) { Object.keys(fresh).forEach(function (k) { r[k] = fresh[k]; }); FD[CUR_IDX] = r; }
+          if (fresh) {
+            Object.keys(fresh).forEach(function (k) { r[k] = fresh[k]; });
+            FD[CUR_IDX] = r;
+            refreshDetailDisplay(r, CUR_IDX); // 상세 패널을 최신 데이터로 즉시 갱신
+          }
         }
         fillEditForm(r);
         ef.style.display = 'block';
