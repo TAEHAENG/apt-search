@@ -321,7 +321,7 @@
     }
 
     .col-search-input {
-      flex: 0 0 50px; min-width: 0;
+      width: 50px;
       background: var(--surface2); border: 1px solid var(--border);
       border-radius: 8px; padding: 9px 8px; color: var(--text);
       font-size: 13px; outline: none; font-family: 'Noto Sans KR', sans-serif;
@@ -332,12 +332,13 @@
     }
 
     .col-search-wrap {
-      display: flex; gap: 4px; align-items: center; flex: 0 0 auto;
+      position: relative; flex: 0 0 auto;
     }
 
     .col-search-label {
-      font-size: 10px; color: var(--text3); white-space: nowrap;
-      padding: 2px 8px; flex-shrink: 0;
+      position: absolute; bottom: 3px; right: 4px;
+      font-size: 9px; color: var(--text3); white-space: nowrap;
+      pointer-events: none; line-height: 1;
     }
 
     .search-input::placeholder {
@@ -354,6 +355,25 @@
       font-size: 13px;
       cursor: pointer;
       white-space: nowrap;
+    }
+
+    .reset-btn-mobile-only {
+      display: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text3);
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 599px) {
+      .search-row .reset-btn { display: none; }
+      .reset-btn-mobile-only { display: block; }
+      .search-input { font-size: 12px; }
     }
 
     /* 결과바 */
@@ -2165,7 +2185,10 @@
 
     <div class="filter-divider"></div>
     <div class="filter-row">
-      <div class="filter-row-label">③ 프로세스</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+        <div class="filter-row-label">③ 프로세스</div>
+        <button class="reset-btn-mobile-only" onclick="resetAll()">초기화</button>
+      </div>
       <div class="btn-group">
         <button class="sel-btn proc-all" id="proc-all" onclick="selProc('A')">전체</button>
         <button class="sel-btn proc-propose" id="proc-propose" onclick="selProc('P')">제안가능s</button>
@@ -2202,15 +2225,15 @@
           <span class="col-search-label">호</span>
         </div>
         <div class="col-search-wrap">
-          <input id="SI-type" class="col-search-input" type="text" placeholder="">
+          <input id="SI-type" class="col-search-input" type="text" placeholder="" style="width:62px;">
           <span class="col-search-label">타입(공용)</span>
         </div>
       </div>
+      <button class="reset-btn" onclick="resetAll()">초기화</button>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
         <input class="search-input" id="SI2" type="text" placeholder="동 · 호 · 전화번호 · 소유자 (전체 건물 검색)">
       </div>
-      <button class="reset-btn" onclick="resetAll()">초기화</button>
     </div>
   </div>
 
@@ -6530,7 +6553,10 @@
       <div class="filter-divider"></div>
       <!-- ④ 평형 -->
       <div class="filter-row">
-        <div class="filter-row-label">④ 평형 (전용(평) 기준)</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+          <div class="filter-row-label">④ 평형(전용)</div>
+          <button class="reset-btn-mobile-only" onclick="sgResetAll()">초기화</button>
+        </div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
           <input id="sg-size-min" class="search-input" type="number" placeholder="N평 이상" style="width:90px;padding:6px 8px;" oninput="sgApplySizeFilter()">
           <span style="color:var(--text3);font-size:13px;">~</span>
@@ -6550,11 +6576,11 @@
             <span class="col-search-label">호</span>
           </div>
         </div>
+        <button class="reset-btn" onclick="sgResetAll()">초기화</button>
         <div class="search-wrap">
           <span class="search-icon">🔍</span>
           <input class="search-input" id="sg-SI2" type="text" placeholder="동 · 호 · 상호 · 소유자 (전체 검색)">
         </div>
-        <button class="reset-btn" onclick="sgResetAll()">초기화</button>
       </div>
     </div>
 
