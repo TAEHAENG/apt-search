@@ -3267,7 +3267,7 @@
         '<div class="card-badges"><span class="badge ' + gtc(r['유형'] || '') + '">' + esc(r['유형'] || '-') + '</span><span class="badge ' + gpc(r['프로세스'] || '') + '">' + esc(r['프로세스'] || '-') + '</span></div></div>' +
         (function(){
           var typeStr = (r['타입(전용)'] || r['타입(공용)']) ? (r['타입(전용)']||'-') + '/' + (r['타입(공용)']||'-') : '';
-          var metaParts = []; if (typeStr) metaParts.push(typeStr); if (r['에']) metaParts.push('에' + r['에']); if (r['방']) metaParts.push('방' + r['방']); if (r['융자']) metaParts.push('융자 ' + r['융자']);
+          var metaParts = []; if (typeStr) metaParts.push(typeStr); if (r['에어컨']) metaParts.push('에' + r['에어컨']); if (r['방']) metaParts.push('방' + r['방']); if (r['융자']) metaParts.push('융자 ' + r['융자']);
           return '<div class="card-mid"><span class="card-price">' + esc(r['가격'] || '-') + '</span><span class="card-meta">' + esc(metaParts.join(' · ')) + '</span></div>';
         })() +
         (phHtml ? '<div class="card-phones">' + phHtml + '</div>' : '') +
@@ -3290,7 +3290,7 @@
         '<td class="col-price" style="color:var(--accent);font-family:monospace;font-weight:700;">' + esc(r['가격'] || '-') + '</td>' +
         '<td class="col-memo"><div class="cell-clamp">' + esc(lastLines(r['상담 내용'], 3) || '-') + '</div></td>' +
         '<td class="col-expire">' + esc(r['만기일'] || '-') + '</td>' +
-        '<td class="col-e" style="text-align:center">' + esc(r['에'] || '-') + '</td>' +
+        '<td class="col-e" style="text-align:center">' + esc(r['에어컨'] || '-') + '</td>' +
         '<td class="col-room" style="text-align:center">' + esc(r['방'] || '-') + '</td>' +
         '<td class="col-loan">' + esc(r['융자'] || '-') + '</td>' +
         '<td class="col-adcycle">' + esc(r['광고주기'] || '-') + '</td>' +
@@ -3400,7 +3400,7 @@
         }).join('') + '</div>';
       }
       // 기본 정보
-      h += _detSec('기본 정보', [['건물명', r['건물명']], ['동', r['동']], ['호', r['호']], ['유형', r['유형']], ['타입(공용)', r['타입(공용)']], ['타입(전용)', r['타입(전용)']], ['가격', r['가격'], 1], ['만기일', r['만기일'], 'always'], ['입주형태', r['입주형태']], ['에어컨', r['에']], ['방', r['방']], ['융자', r['융자']], ['광고주기', r['광고주기'], 'always'], ['프로세스', r['프로세스']], ['층공개', r['층공개']], ['독점', r['독점']]]);
+      h += _detSec('기본 정보', [['건물명', r['건물명']], ['동', r['동']], ['호', r['호']], ['유형', r['유형']], ['타입(공용)', r['타입(공용)']], ['타입(전용)', r['타입(전용)']], ['가격', r['가격'], 1], ['만기일', r['만기일'], 'always'], ['입주형태', r['입주형태']], ['에어컨', r['에어컨']], ['방', r['방']], ['융자', r['융자']], ['광고주기', r['광고주기'], 'always'], ['프로세스', r['프로세스']], ['층공개', r['층공개']], ['독점', r['독점']]]);
       // 소유자 정보
       h += _detSec('소유자 정보', [['소유자', r['소유자']], ['소유자2', r['소유자2']], ['이름', r['이름']], ['임차인', r['임차인']], ['손님구분', r['손님구분']], ['현재점유형태', r['현재점유형태']]]);
       // 주요특징
