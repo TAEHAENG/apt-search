@@ -1058,6 +1058,17 @@
       border-color: var(--accent);
     }
 
+    .ef-occ-btn {
+      padding: 4px 11px; border-radius: 6px;
+      border: 1px solid var(--border); background: var(--surface2);
+      color: var(--text2); font-size: 12px;
+      font-family: 'Noto Sans KR', sans-serif; cursor: pointer;
+    }
+    .ef-occ-btn.active {
+      background: rgba(79,156,249,0.2); border-color: rgba(79,156,249,0.5);
+      color: #4f9cf9; font-weight: 600;
+    }
+
     .ef-textarea {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -2375,7 +2386,17 @@
           <div class="ef-group"><label class="ef-label">이름</label><textarea id="e-ownername" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
           <div class="ef-group"><label class="ef-label">임차인</label><textarea id="e-tenant" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
           <div class="ef-group"><label class="ef-label">손님구분</label><textarea id="e-resident" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
-          <div class="ef-group"><label class="ef-label">현재점유형태</label><textarea id="e-occupancy" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group" style="grid-column:span 2;">
+            <label class="ef-label">입주구분</label>
+            <div id="e-occ-btns" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;">
+              <button type="button" class="ef-occ-btn" data-val="" onclick="setOccupancy(this,'e-occupancy','e-occ-btns')">없음</button>
+              <button type="button" class="ef-occ-btn" data-val="주인거주" onclick="setOccupancy(this,'e-occupancy','e-occ-btns')">주인거주</button>
+              <button type="button" class="ef-occ-btn" data-val="전세" onclick="setOccupancy(this,'e-occupancy','e-occ-btns')">전세</button>
+              <button type="button" class="ef-occ-btn" data-val="월세" onclick="setOccupancy(this,'e-occupancy','e-occ-btns')">월세</button>
+              <button type="button" class="ef-occ-btn" data-val="공실" onclick="setOccupancy(this,'e-occupancy','e-occ-btns')">공실</button>
+            </div>
+            <input type="hidden" id="e-occupancy">
+          </div>
         </div>
 
         <!-- ── 주요 특징 ── -->
@@ -2546,7 +2567,17 @@
             <div class="ef-group"><label class="ef-label">이름</label><input id="n-ownername" class="ef-input" type="text"></div>
             <div class="ef-group"><label class="ef-label">임차인</label><input id="n-tenant" class="ef-input" type="text"></div>
             <div class="ef-group"><label class="ef-label">손님구분</label><input id="n-resident" class="ef-input" type="text"></div>
-            <div class="ef-group"><label class="ef-label">현재점유형태</label><input id="n-occupancy" class="ef-input" type="text"></div>
+            <div class="ef-group" style="grid-column:span 2;">
+              <label class="ef-label">입주구분</label>
+              <div id="n-occ-btns" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;">
+                <button type="button" class="ef-occ-btn active" data-val="" onclick="setOccupancy(this,'n-occupancy','n-occ-btns')">없음</button>
+                <button type="button" class="ef-occ-btn" data-val="주인거주" onclick="setOccupancy(this,'n-occupancy','n-occ-btns')">주인거주</button>
+                <button type="button" class="ef-occ-btn" data-val="전세" onclick="setOccupancy(this,'n-occupancy','n-occ-btns')">전세</button>
+                <button type="button" class="ef-occ-btn" data-val="월세" onclick="setOccupancy(this,'n-occupancy','n-occ-btns')">월세</button>
+                <button type="button" class="ef-occ-btn" data-val="공실" onclick="setOccupancy(this,'n-occupancy','n-occ-btns')">공실</button>
+              </div>
+              <input type="hidden" id="n-occupancy" value="">
+            </div>
           </div>
         </div>
 
@@ -3425,7 +3456,7 @@
       // 기본 정보
       h += _detSec('기본 정보', [['건물명', r['건물명']], ['동', r['동']], ['호', r['호']], ['유형', r['유형']], ['타입(공용)', r['타입(공용)']], ['타입(전용)', r['타입(전용)']], ['가격', r['가격'], 1], ['만기일', r['만기일'], 'always'], ['입주형태', r['입주형태']], ['에어컨', r['에어컨']], ['방', r['방']], ['융자', r['융자']], ['광고주기', r['광고주기'], 'always'], ['프로세스', r['프로세스']], ['층공개', r['층공개']], ['독점', r['독점']]]);
       // 소유자 정보
-      h += _detSec('소유자 정보', [['소유자', r['소유자']], ['소유자2', r['소유자2']], ['이름', r['이름']], ['임차인', r['임차인']], ['손님구분', r['손님구분']], ['현재점유형태', r['현재점유형태']]]);
+      h += _detSec('소유자 정보', [['소유자', r['소유자']], ['소유자2', r['소유자2']], ['이름', r['이름']], ['임차인', r['임차인']], ['손님구분', r['손님구분']], ['입주구분', r['입주구분']]]);
       // 주요특징
       if (r['주요특징']) { var dtags = (r['주요특징']).split(/[,，\n]/).map(function(t){ return t.trim().replace(/^#/,''); }).filter(Boolean); if (dtags.length) h += '<div class="detail-section"><div class="detail-section-title">주요특징</div><div style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0;">' + dtags.map(function(t){ return '<span class="feat-tag-display">#' + esc(t) + '</span>'; }).join('') + '</div></div>'; }
       // 상담 내용
@@ -3787,6 +3818,11 @@
     // 자동 높이 확장 (textarea.ef-ta용)
     function taResize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
     function taResizeAll() { document.querySelectorAll('#EF .ef-ta').forEach(taResize); }
+    function setOccupancy(btn, inputId, groupId) {
+      document.getElementById(groupId).querySelectorAll('.ef-occ-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById(inputId).value = btn.dataset.val;
+    }
 
     function fillEditForm(r) {
       // 기본 정보
@@ -3813,7 +3849,10 @@
       document.getElementById('e-ownername').value = r['이름'] || '';
       document.getElementById('e-tenant').value = r['임차인'] || '';
       document.getElementById('e-resident').value = r['손님구분'] || '';
-      document.getElementById('e-occupancy').value = r['현재점유형태'] || '';
+      var _occ = r['입주구분'] || '';
+      document.getElementById('e-occupancy').value = _occ;
+      var _occBtns = document.getElementById('e-occ-btns');
+      if (_occBtns) _occBtns.querySelectorAll('.ef-occ-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.val === _occ); });
       // 주요특징 태그 (시트 헤더 줄바꿈 정규화 여부에 따라 키 이름 다를 수 있음)
       var _featKey = r.hasOwnProperty('주요특징') ? '주요특징' : '주요 특징';
       _editTags = (r[_featKey] || '').split(/[,，]/).map(function (t) { return t.trim().replace(/^#/, ''); }).filter(Boolean);
@@ -4403,7 +4442,7 @@
       var _el;
       // 기본 정보
       _el = document.getElementById('e-building');   if (_el) vals['건물명'] = _el.value;
-      _el = document.getElementById('e-type');       if (_el && _el.value) vals['유형'] = _el.value;
+      _el = document.getElementById('e-type');       if (_el) vals['유형'] = _el.value;
       _el = document.getElementById('e-dong');       if (_el) vals['동'] = _el.value;
       _el = document.getElementById('e-ho');         if (_el) vals['호'] = _el.value;
       _el = document.getElementById('e-type-common');if (_el) vals['타입(공용)'] = _el.value;
@@ -4417,30 +4456,30 @@
       _el = document.getElementById('e-exclusive');  if (_el) vals['독점'] = _el.value;
       _el = document.getElementById('e-adcycle');    if (_el) vals['광고주기'] = _el.value;
       _el = document.getElementById('e-movetype');   if (_el) vals['입주형태'] = _el.value;
-      _el = document.getElementById('e-date');       if (_el && _el.value) vals['실행일'] = _el.value;
-      _el = document.getElementById('e-expire');     if (_el && _el.value) vals['만기일'] = _el.value;
+      _el = document.getElementById('e-date');       if (_el) vals['실행일'] = _el.value;
+      _el = document.getElementById('e-expire');     if (_el) vals['만기일'] = _el.value;
       // 소유자 정보
       _el = document.getElementById('e-owner1');     if (_el) vals['소유자'] = _el.value;
       _el = document.getElementById('e-owner2');     if (_el) vals['소유자2'] = _el.value;
       _el = document.getElementById('e-ownername');  if (_el) vals['이름'] = _el.value;
       _el = document.getElementById('e-tenant');     if (_el) vals['임차인'] = _el.value;
       _el = document.getElementById('e-resident');   if (_el) vals['손님구분'] = _el.value;
-      _el = document.getElementById('e-occupancy');  if (_el) vals['현재점유형태'] = _el.value;
+      _el = document.getElementById('e-occupancy');  if (_el) vals['입주구분'] = _el.value;
       // 주요특징 (r에서 실제 키 이름으로 저장 — 시트 헤더와 일치)
       var _featKey = r.hasOwnProperty('주요특징') ? '주요특징' : '주요 특징';
       vals[_featKey] = _editTags.map(function (t) { return '#' + t; }).join(', ');
       // 상담 내용
       vals['상담 내용'] = document.getElementById('e-memo').value;
       // 계약 정보
-      _el = document.getElementById('e-deposit');    if (_el && _el.value) vals['계약금중일부'] = _el.value;
-      _el = document.getElementById('e-agree');      if (_el && _el.value) vals['약정일'] = _el.value;
+      _el = document.getElementById('e-deposit');    if (_el) vals['계약금중일부'] = _el.value;
+      _el = document.getElementById('e-agree');      if (_el) vals['약정일'] = _el.value;
       _el = document.getElementById('e-toher');      if (_el) vals['토허제'] = _el.value;
-      _el = document.getElementById('e-contract');   if (_el && _el.value) vals['계약일'] = _el.value;
-      _el = document.getElementById('e-middle');     if (_el && _el.value) vals['중도금'] = _el.value;
-      _el = document.getElementById('e-balance');    if (_el && _el.value) vals['잔금일'] = _el.value;
-      _el = document.getElementById('e-renewal');    if (_el && _el.value) vals['갱신청구권'] = _el.value;
-      _el = document.getElementById('e-rev1');       if (_el && _el.value) vals['발생수익-매도,임대(VAT포함)'] = _el.value;
-      _el = document.getElementById('e-rev2');       if (_el && _el.value) vals['발생수익-매수,임차(VAT포함)'] = _el.value;
+      _el = document.getElementById('e-contract');   if (_el) vals['계약일'] = _el.value;
+      _el = document.getElementById('e-middle');     if (_el) vals['중도금'] = _el.value;
+      _el = document.getElementById('e-balance');    if (_el) vals['잔금일'] = _el.value;
+      _el = document.getElementById('e-renewal');    if (_el) vals['갱신청구권'] = _el.value;
+      _el = document.getElementById('e-rev1');       if (_el) vals['발생수익-매도,임대(VAT포함)'] = _el.value;
+      _el = document.getElementById('e-rev2');       if (_el) vals['발생수익-매수,임차(VAT포함)'] = _el.value;
       // 이실장 정보
       _el = document.getElementById('e-ls-bld');      if (_el) vals['이실장 단지명'] = _el.value;
       _el = document.getElementById('e-ls-dong');     if (_el) vals['이실장 동'] = _el.value;
@@ -4456,7 +4495,7 @@
       var btn = document.getElementById('saveBtnEdit');
       btn.textContent = '저장 중...'; btn.disabled = true; showToast('⏳ 저장 중...');
       try {
-        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'update', rowIndex: r['__row__'], values: vals }) });
+        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'update', rowIndex: r['__row__'], values: vals, checkBld: r['건물명'] || '', checkDong: r['동'] || '', checkHo: r['호'] || '' }) });
         var json = JSON.parse(await res.text());
         if (json.success) {
           Object.keys(vals).forEach(function (k) { r[k] = vals[k]; });
@@ -4503,7 +4542,7 @@
         '에어컨': getVal('n-ac'), '방': getVal('n-room'), '융자': getVal('n-loan'), '층공개': getVal('n-floor'),
         '입주형태': getVal('n-movetype'), '독점': getVal('n-exclusive'), '광고주기': getVal('n-adcycle'),
         '소유자2': getVal('n-owner2'), '이름': getVal('n-ownername'), '임차인': getVal('n-tenant'),
-        '손님구분': getVal('n-resident'), '현재점유형태': getVal('n-occupancy'),
+        '손님구분': getVal('n-resident'), '입주구분': getVal('n-occupancy'),
         '주요특징': getVal('n-tag-input'),
         '계약금중일부': getVal('na-deposit1'), '약정일': getVal('na-promised-date'), '토허제': getVal('na-deposit-period'),
         '계약일': getVal('na-contract-date'), '중도금': getVal('na-intermediate'), '잔금일': getVal('na-final-date'), '갱신청구권': getVal('na-renewal'),
