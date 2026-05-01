@@ -3475,9 +3475,9 @@
     function det(idx) {
       CUR_IDX = idx; cancelEdit();
       var r = FD[idx];
-      // RAW에서 최신 데이터 가져오기 (데이터 신선도 보장)
+      // RAW에서 최신 데이터로 갱신 — 단, 건물명+동+호가 일치할 때만 교체 (행 이동으로 __row__ 불일치 방지)
       if (r['__row__']) {
-        var rLatest = RAW.find(function(row) { return row['__row__'] === r['__row__']; });
+        var rLatest = RAW.find(function(row) { return row['__row__'] === r['__row__'] && row['건물명'] === r['건물명'] && row['동'] === r['동'] && row['호'] === r['호']; });
         if (rLatest) r = rLatest;
       }
       refreshDetailDisplay(r, idx);
@@ -5306,7 +5306,7 @@
         if (!r) { console.error('sgDet: 데이터 없음, idx=' + idx); return; }
         // RAW에서 최신 데이터 가져오기 (데이터 신선도 보장)
         if (r['__row__'] && _sgRaw && Array.isArray(_sgRaw)) {
-          var rLatest = _sgRaw.find(function(row) { return row && row['__row__'] === r['__row__']; });
+          var rLatest = _sgRaw.find(function(row) { return row && row['__row__'] === r['__row__'] && row['건물명'] === r['건물명'] && row['동'] === r['동'] && row['호'] === r['호']; });
           if (rLatest) r = rLatest;
         }
       } catch(e) { console.error('sgDet 오류:', e.message); return; }
