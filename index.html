@@ -3302,8 +3302,17 @@
     function gpbc(p) { return ({ '예비고객': 'proc-b-pre', '초기상담': 'proc-b-init', '매물제안': 'proc-b-propose', '임장': 'proc-b-visit', '계약': 'proc-b-contract', '종료': 'proc-b-done' })[p] || 'proc-b-pre'; }
     var _selected = new Set(); // 선택된 매물 인덱스
     function makeCard(r, i) {
-      var ph = xph([(r['소유자'] || ''), (r['소유자2'] || ''), (r['이름'] || '')].join(' '));
-      var phHtml = ph.map(function (p) { return '<a class="phone-link" href="tel:' + p + '" onclick="event.stopPropagation()">📞 ' + fph(p) + '</a>'; }).join('');
+      var ownerPhC = xph(r['소유자'] || '').slice(0, 4);
+      var tenantPhC = xph(r['임차인'] || '').slice(0, 2);
+      var phHtml = '';
+      if (ownerPhC.length) {
+        phHtml += '<span style="font-size:10px;font-weight:700;color:var(--text2);margin-right:4px;">주</span>' +
+          ownerPhC.map(function (p) { return '<a class="phone-link" href="tel:' + p + '" onclick="event.stopPropagation()">📞 ' + fph(p) + '</a>'; }).join('');
+      }
+      if (tenantPhC.length) {
+        phHtml += '<span style="font-size:10px;font-weight:700;color:var(--text2);margin:0 4px 0 8px;">세</span>' +
+          tenantPhC.map(function (p) { return '<a class="phone-link" href="tel:' + p + '" onclick="event.stopPropagation()">📞 ' + fph(p) + '</a>'; }).join('');
+      }
       var checked = _selected.has(i) ? 'checked' : '';
       var featHtml = ''; var featRaw = r['주요특징'] || '';
       if (featRaw) { var tags = featRaw.split(/[,，\n]/).map(function (t) { return t.trim().replace(/^#/, ''); }).filter(Boolean); if (tags.length) featHtml = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px;">' + tags.map(function (t) { return '<span class="feat-tag-display">#' + esc(t) + '</span>'; }).join('') + '</div>'; }
@@ -3431,13 +3440,18 @@
       var _idEl = document.getElementById('DI');
       if (_idEl) { _idEl.textContent = r['IDTEST'] ? 'ID: ' + r['IDTEST'] : ''; _idEl.style.display = r['IDTEST'] ? '' : 'none'; }
       document.getElementById('DS').textContent = (r['유형'] || '') + ' · ' + (r['프로세스'] || '') + ' · ' + (r['실행일'] || '');
-      // 전화번호
-      var ph = xph([(r['소유자'] || ''), (r['소유자2'] || ''), (r['이름'] || ''), (r['임차인'] || '')].join(' '));
+      // 전화걸기 영역 (소유자 윗줄 4개 + 임차인 윗줄 2개)
+      var ownerPh = xph(r['소유자'] || '').slice(0, 4);
+      var tenantPh = xph(r['임차인'] || '').slice(0, 2);
+      var allPh = ownerPh.concat(tenantPh);
       var h = '';
-      if (ph.length) {
-        window._contactData = ph.map(function (p) { return { phone: p, name: (r['건물명'] || '') + (r['동'] || '') + '동' + (r['호'] || '') + '호 ' + (r['소유자'] || '').slice(0, 15), memo: (r['상담 내용'] || '').slice(0, 50) }; });
+      if (allPh.length) {
+        window._contactData = allPh.map(function (p, ci) {
+          var srcLabel = ci < ownerPh.length ? (r['소유자'] || '') : (r['임차인'] || '');
+          return { phone: p, name: (r['건물명'] || '') + (r['동'] || '') + '동' + (r['호'] || '') + '호 ' + srcLabel.slice(0, 15), memo: (r['상담 내용'] || '').slice(0, 50) };
+        });
         var CT_TYPES = ['메인','주인','현세입자','신규세입자','매수자'];
-        h = '<div class="detail-phones">' + ph.map(function (p, ci) {
+        var renderApt = function (p, ci) {
           var curType = '';
           CT_TYPES.forEach(function(t){ if ((r['연락처('+t+')']||'')=== p) curType = t; });
           var opts = [''].concat(CT_TYPES).map(function(t){ return '<option value="'+t+'"'+(curType===t?' selected':'')+'>'+(t||'유형선택')+'</option>'; }).join('');
@@ -3445,7 +3459,17 @@
             '<select class="ct-type-sel">'+opts+'</select>' +
             '<button class="ct-save-btn" onclick="savePhoneType('+idx+',\''+p+'\',this.previousElementSibling.value,\'apt\')">💾</button>' +
             '<button class="vcf-btn" onclick="saveContactByIdx(' + ci + ')">👤</button>';
-        }).join('') + '</div>';
+        };
+        h = '<div class="detail-section"><div class="detail-section-title">전화걸기</div>';
+        if (ownerPh.length) {
+          h += '<div style="font-size:11px;font-weight:700;color:var(--text2);margin:4px 0 4px;">소유자</div>';
+          h += '<div class="detail-phones">' + ownerPh.map(function(p, i){ return renderApt(p, i); }).join('') + '</div>';
+        }
+        if (tenantPh.length) {
+          h += '<div style="font-size:11px;font-weight:700;color:var(--text2);margin:8px 0 4px;">임차인</div>';
+          h += '<div class="detail-phones">' + tenantPh.map(function(p, i){ return renderApt(p, ownerPh.length + i); }).join('') + '</div>';
+        }
+        h += '</div>';
       }
       // 기본 정보
       h += _detSec('기본 정보', [['건물명', r['건물명']], ['동', r['동']], ['호', r['호']], ['유형', r['유형']], ['타입(공용)', r['타입(공용)']], ['타입(전용)', r['타입(전용)']], ['가격', r['가격'], 1], ['만기일', r['만기일'], 'always'], ['실행일', r['실행일'], 'always'], ['입주구분', r['입주구분'], 'always'], ['입주형태', r['입주형태']], ['에어컨', r['에어컨']], ['방', r['방']], ['융자', r['융자']], ['광고주기', r['광고주기'], 'always'], ['프로세스', r['프로세스']], ['층공개', r['층공개']], ['독점', r['독점']]]);
@@ -4580,6 +4604,7 @@
         return { id: prefix + String(maxSeq + 1).padStart(4, '0') };
       }
       // APT/OFT (18자: 유형3 + 코드4 + Y/N + 동4 + 호6)
+      // A안 (정보 살림): 정상인 쪽 값 유지, 비정상은 NONE/순번
       var dp = parseDongClient(dong);
       var hp = parseHoClient(ho);
       var flag = (dp.ok && hp.ok) ? 'Y' : 'N';
@@ -4587,17 +4612,25 @@
       if (flag === 'Y') {
         dongPart = dp.part; hoPart = hp.part;
       } else {
-        dongPart = 'NONE';
-        var searchPre = typeCode + code4 + 'N';
-        var maxN = 0;
-        RAW.forEach(function(r) {
-          var rid = (r['IDTEST'] || '').toString();
-          if (rid.indexOf(searchPre) === 0 && rid.length === 18) {
-            var s = parseInt(rid.slice(12), 10);
-            if (!isNaN(s) && s > maxN) maxN = s;
-          }
-        });
-        hoPart = String(maxN + 1).padStart(6, '0');
+        dongPart = dp.ok ? dp.part : 'NONE';
+        if (hp.ok) {
+          hoPart = hp.part;
+        } else {
+          // 호 비정상 → 같은 건물(유형+코드)의 N케이스 중 최대 호순번 + 1
+          var searchPre = typeCode + code4 + 'N';
+          var maxN = 0;
+          RAW.forEach(function(r) {
+            var rid = (r['IDTEST'] || '').toString();
+            if (rid.indexOf(searchPre) === 0 && rid.length === 18) {
+              var tail = rid.slice(12);
+              if (/^\d{6}$/.test(tail)) {
+                var s = parseInt(tail, 10);
+                if (!isNaN(s) && s > maxN) maxN = s;
+              }
+            }
+          });
+          hoPart = String(maxN + 1).padStart(6, '0');
+        }
       }
       return { id: typeCode + code4 + flag + dongPart + hoPart };
     }
@@ -5451,8 +5484,17 @@
     }
 
     function sgMakeCard(r, i) {
-      var ph = xph([(r['소유자']||''), (r['임차인']||'')].join(' '));
-      var phHtml = ph.map(function(p){ return '<a class="phone-link" href="tel:' + p + '" onclick="event.stopPropagation()">📞 ' + fph(p) + '</a>'; }).join('');
+      var sgOwnerPhC = xph(r['소유자']||'').slice(0, 4);
+      var sgTenantPhC = xph(r['임차인']||'').slice(0, 2);
+      var phHtml = '';
+      if (sgOwnerPhC.length) {
+        phHtml += '<span style="font-size:10px;font-weight:700;color:var(--text2);margin-right:4px;">주</span>' +
+          sgOwnerPhC.map(function(p){ return '<a class="phone-link" href="tel:' + p + '" onclick="event.stopPropagation()">📞 ' + fph(p) + '</a>'; }).join('');
+      }
+      if (sgTenantPhC.length) {
+        phHtml += '<span style="font-size:10px;font-weight:700;color:var(--text2);margin:0 4px 0 8px;">세</span>' +
+          sgTenantPhC.map(function(p){ return '<a class="phone-link" href="tel:' + p + '" onclick="event.stopPropagation()">📞 ' + fph(p) + '</a>'; }).join('');
+      }
       var prices = [];
       if (r['매매가']) prices.push('<span class="sg-price-label">매매</span><span class="sg-price-val">' + esc(sgFmtPriceNum(r['매매가'])) + '만</span>');
       if (r['보증금']) prices.push('<span class="sg-price-label">보증금</span><span class="sg-price-val">' + esc(sgFmtPriceNum(r['보증금'])) + '만</span>');
@@ -5513,18 +5555,30 @@
       }
       document.getElementById('sg-DS').textContent = (r['유형']||'') + (r['프로세스'] ? ' · ' + r['프로세스'] : '') + (r['실행일'] ? ' · ' + r['실행일'] : '') + (r['손님구분'] ? ' · ' + r['손님구분'] : '');
 
-      var ph = xph([(r['소유자']||''), (r['임차인']||'')].join(' '));
+      // 전화걸기 영역 (소유자 윗줄 4개 + 임차인 윗줄 2개)
+      var sgOwnerPh = xph(r['소유자']||'').slice(0, 4);
+      var sgTenantPh = xph(r['임차인']||'').slice(0, 2);
       var h = '';
-      if (ph.length) {
+      if (sgOwnerPh.length || sgTenantPh.length) {
         var SG_CT_TYPES = ['메인','주인','현세입자','신규세입자','매수자'];
-        h = '<div class="detail-phones">' + ph.map(function(p) {
+        var renderSg = function(p) {
           var curType = '';
           SG_CT_TYPES.forEach(function(t){ if ((r['연락처('+t+')']||'') === p) curType = t; });
           var opts = [''].concat(SG_CT_TYPES).map(function(t){ return '<option value="'+t+'"'+(curType===t?' selected':'')+'>'+(t||'유형선택')+'</option>'; }).join('');
           return '<a class="phone-link" href="tel:' + p + '">📞 ' + fph(p) + '</a>' +
             '<select class="ct-type-sel">'+opts+'</select>' +
             '<button class="ct-save-btn" onclick="savePhoneType('+idx+',\''+p+'\',this.previousElementSibling.value,\'sg\')">💾</button>';
-        }).join('') + '</div>';
+        };
+        h = '<div class="detail-section"><div class="detail-section-title">전화걸기</div>';
+        if (sgOwnerPh.length) {
+          h += '<div style="font-size:11px;font-weight:700;color:var(--text2);margin:4px 0 4px;">소유자</div>';
+          h += '<div class="detail-phones">' + sgOwnerPh.map(renderSg).join('') + '</div>';
+        }
+        if (sgTenantPh.length) {
+          h += '<div style="font-size:11px;font-weight:700;color:var(--text2);margin:8px 0 4px;">임차인</div>';
+          h += '<div class="detail-phones">' + sgTenantPh.map(renderSg).join('') + '</div>';
+        }
+        h += '</div>';
       }
 
       function detSec(t, d) {
@@ -6171,6 +6225,13 @@
         if (el) el.value = '';
       });
       _bdNewTags = []; renderBdNewTags();
+      // 신규 발급 ID 미리보기 (헤더에 표시)
+      var newIdEl = document.getElementById('BUYER-NEW-ID');
+      if (newIdEl) {
+        var nextId = getNextBuyerId();
+        newIdEl.textContent = '신규 ID: ' + nextId;
+        newIdEl.style.display = '';
+      }
       ['bd-type','bd-status','bd-proptype','bd-selfuse'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.value = '';
@@ -6186,7 +6247,6 @@
       var dateVal = document.getElementById('bd-date').value.trim();
       if (!dateVal) dateVal = new Date().toISOString().slice(0, 10);
       var newId = getNextBuyerId();
-      console.log('[구입자 등록] newId=' + newId + ', _dbList 첫 IDTEST 샘플=' + (_dbList[0] && _dbList[0]['IDTEST']) + ', _dbList 길이=' + _dbList.length);
       var vals = {
         'IDTEST': newId,
         '기입일': dateVal,
@@ -6979,7 +7039,7 @@
           <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);">소유자 정보</div>
           <div class="edit-grid">
             <div class="ef-group"><label class="ef-label">소유자 (전화)</label><textarea id="sge-owner" class="ef-input ef-ta" rows="3" placeholder="010-XXXX-XXXX,이름" oninput="taResize(this)"></textarea></div>
-            <div class="ef-group"><label class="ef-label">임차인</label><textarea id="sge-tenant" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">임차인</label><textarea id="sge-tenant" class="ef-input ef-ta" rows="3" oninput="taResize(this)"></textarea></div>
             <div class="ef-group"><label class="ef-label">손님구분</label><textarea id="sge-guest" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
             <div class="ef-group"><label class="ef-label">입주구분</label>
               <select id="sge-occupancy" class="ef-select">
@@ -7123,8 +7183,8 @@
           <div style="margin-bottom:12px;">
             <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">소유자 / 임차인 정보</div>
             <div class="edit-grid">
-              <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">소유자</label><input id="sgn-owner" class="ef-input" type="text" placeholder="소유자명 / 연락처"></div>
-              <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">임차인</label><input id="sgn-tenant" class="ef-input" type="text" placeholder="임차인명 / 연락처"></div>
+              <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">소유자</label><textarea id="sgn-owner" class="ef-input ef-ta" rows="3" placeholder="소유자명 / 연락처" oninput="taResize(this)"></textarea></div>
+              <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">임차인</label><textarea id="sgn-tenant" class="ef-input ef-ta" rows="3" placeholder="임차인명 / 연락처" oninput="taResize(this)"></textarea></div>
               <div class="ef-group"><label class="ef-label">손님구분</label><input id="sgn-guest" class="ef-input" type="text"></div>
               <div class="ef-group"><label class="ef-label">입주구분</label>
                 <select id="sgn-occupancy" class="ef-select">
@@ -7534,6 +7594,7 @@
       <div class="detail-header">
         <div>
           <div class="detail-title">구입자 정보</div>
+          <div id="BUYER-NEW-ID" style="font-family:monospace;font-size:11px;color:var(--accent);letter-spacing:1px;margin-top:2px;display:none;"></div>
           <div class="detail-subtitle" id="BUYER-SUBTITLE"></div>
         </div>
         <div style="display:flex;gap:7px;flex-shrink:0;align-items:center;">
