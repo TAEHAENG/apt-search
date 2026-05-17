@@ -2189,7 +2189,8 @@
         <button class="sel-btn bld-one" id="bld-한화오벨리스크" onclick="selBld('한화오벨리스크')">한화오벨리스크</button>
         <button class="sel-btn bld-one" id="bld-호반베르디움" onclick="selBld('호반베르디움')">호반베르디움</button>
         <button class="sel-btn bld-one" id="bld-호반써밋" onclick="selBld('호반써밋')">호반써밋</button>
-        <button class="sel-btn bld-one" id="bld-호반써밋2" onclick="selBld('호반써밋2')">호반써밋2</button>
+        <button class="sel-btn bld-one" id="bld-레이크파크호반써밋1" onclick="selBld('레이크파크호반써밋1')">레이크파크호반써밋1</button>
+        <button class="sel-btn bld-one" id="bld-레이크파크호반써밋2" onclick="selBld('레이크파크호반써밋2')">레이크파크호반써밋2</button>
         <button class="sel-btn bld-one" id="bld-호반써밋애비뉴" onclick="selBld('호반써밋애비뉴')">호반써밋애비뉴</button>
       </div>
     </div>
@@ -2315,6 +2316,7 @@
       <div class="detail-header">
         <div>
           <div class="detail-title" id="DT"></div>
+          <div id="DI" style="font-family:monospace;font-size:11px;color:var(--accent);letter-spacing:1px;margin-top:2px;display:none;"></div>
           <div class="detail-subtitle" id="DS"></div>
         </div>
         <div style="display:flex;gap:7px;flex-shrink:0;align-items:center;">
@@ -2391,8 +2393,8 @@
         <!-- ── 소유자 정보 ── -->
         <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);">소유자 정보</div>
         <div class="edit-grid">
-          <div class="ef-group"><label class="ef-label">소유자 (전화)</label><textarea id="e-owner1" class="ef-input ef-ta" placeholder="010-XXXX-XXXX,이름" oninput="taResize(this)"></textarea></div>
-          <div class="ef-group"><label class="ef-label">소유자2 (전화)</label><textarea id="e-owner2" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">소유자 (전화)</label><textarea id="e-owner1" class="ef-input ef-ta" rows="3" placeholder="010-XXXX-XXXX,이름" oninput="taResize(this)"></textarea></div>
+          <div class="ef-group"><label class="ef-label">소유자2 (전화)</label><textarea id="e-owner2" class="ef-input ef-ta" rows="3" oninput="taResize(this)"></textarea></div>
           <div class="ef-group"><label class="ef-label">이름</label><textarea id="e-ownername" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
           <div class="ef-group"><label class="ef-label">임차인</label><textarea id="e-tenant" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
           <div class="ef-group"><label class="ef-label">손님구분</label><textarea id="e-resident" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
@@ -2465,51 +2467,38 @@
         <div style="margin-bottom:12px;">
           <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">기본 정보</div>
           <div class="edit-grid">
-            <div class="ef-group"><label class="ef-label">건물명 *</label>
-              <input id="n-building" class="ef-input" list="bld-list" placeholder="선택 또는 직접 입력" autocomplete="off">
-              <datalist id="bld-list">
-                <option value="그린파크">그린파크</option>
-                <option value="꿈에">꿈에</option>
-                <option value="더샵">더샵</option>
-                <option value="더힐">더힐</option>
-                <option value="동천센자">동천센자</option>
-                <option value="래미안위례">래미안위례</option>
-                <option value="래미안이편한">래미안이편한</option>
-                <option value="롯데">롯데</option>
-                <option value="보미">보미</option>
-                <option value="센자">센자</option>
-                <option value="센트레">센트레</option>
-                <option value="센푸">센푸</option>
-                <option value="송파롯데캐슬파인힐">송파롯데캐슬파인힐</option>
-                <option value="송파시그니처롯데캐슬">송파시그니처롯데캐슬</option>
-                <option value="송파위례리슈빌">송파위례리슈빌</option>
-                <option value="송푸">송푸</option>
-                <option value="신안">신안</option>
-                <option value="아이">아이</option>
-                <option value="아이2">아이2</option>
-                <option value="아트리버">아트리버</option>
-                <option value="엠코플로리체">엠코플로리체</option>
-                <option value="위례센트로엘">위례센트로엘</option>
-                <option value="위례숲우미린">위례숲우미린</option>
-                <option value="위푸">위푸</option>
-                <option value="이택">이택</option>
-                <option value="자이">자이</option>
-                <option value="제일풍경채">제일풍경채</option>
-                <option value="주택">주택</option>
-                <option value="중푸">중푸</option>
-                <option value="지웰">지웰</option>
-                <option value="판교밸리자이">판교밸리자이</option>
-                <option value="포레나송파">포레나송파</option>
-                <option value="한화오벨리스크">한화오벨리스크</option>
-                <option value="호반베르디움">호반베르디움</option>
-                <option value="호반써밋">호반써밋</option>
-                <option value="호반써밋2">호반써밋2</option>
-                <option value="호반써밋애비뉴">호반써밋애비뉴</option>
-                <option value="힐스">힐스</option>
-                <option value="힐스북위례">힐스북위례</option>
-                <option value="힐스위례">힐스위례</option>
-              </datalist>
+            <div class="ef-group">
+              <label class="ef-label">부동산유형 *</label>
+              <select id="n-proptype" class="ef-select" onchange="previewNewId();updateBuildingDatalist()">
+                <option value="">선택</option>
+                <option>아파트</option>
+                <option>오피스텔</option>
+                <option>주택</option>
+                <option>토지</option>
+              </select>
             </div>
+            <div class="ef-group" style="grid-column:span 2;">
+              <label class="ef-label">건물명 *</label>
+              <input id="n-building" class="ef-input" list="bld-list" placeholder="기존 건물 선택 또는 새 이름 입력" autocomplete="off" oninput="previewNewId()">
+              <datalist id="bld-list"></datalist>
+            </div>
+            <div class="ef-group"><label class="ef-label">동 *</label><input id="n-dong" class="ef-input" type="text" placeholder="예) 101" oninput="previewNewId()"></div>
+            <div class="ef-group"><label class="ef-label">호 *</label><input id="n-ho" class="ef-input" type="text" placeholder="예) 201" oninput="previewNewId()"></div>
+          </div>
+          <div id="n-new-bldg-wrap" style="display:none;margin-top:8px;padding:8px;background:var(--surface2);border-radius:6px;">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:6px;">새 건물 — 브랜드(2자)와 지역(2자) 영문 코드 입력</div>
+            <div style="display:flex;gap:8px;">
+              <input id="n-new-brand" class="ef-input" maxlength="2" placeholder="브랜드 (예: HS)"
+                     style="text-transform:uppercase;font-family:monospace;flex:1" oninput="this.value=this.value.toUpperCase();previewNewId()">
+              <input id="n-new-region" class="ef-input" maxlength="2" placeholder="지역 (예: SP)"
+                     style="text-transform:uppercase;font-family:monospace;flex:1" oninput="this.value=this.value.toUpperCase();previewNewId()">
+            </div>
+          </div>
+          <div style="margin-top:10px;padding:10px 12px;background:var(--surface2);border-radius:6px;font-size:14px;">
+            ID: <span id="n-id-preview" style="font-family:monospace;font-weight:700;letter-spacing:1px;">—</span>
+          </div>
+          <input type="hidden" id="n-idtest">
+          <div class="edit-grid" style="margin-top:10px;">
             <div class="ef-group"><label class="ef-label">유형 *</label>
               <select id="n-type" class="ef-select">
                 <option value="">선택</option>
@@ -2522,9 +2511,7 @@
                 <option>매전월</option>
               </select>
             </div>
-            <div class="ef-group"><label class="ef-label">동 *</label><input id="n-dong" class="ef-input" type="text" placeholder="예) 101"></div>
-            <div class="ef-group"><label class="ef-label">호 *</label><input id="n-ho" class="ef-input" type="text" placeholder="예) 201"></div>
-            <div class="ef-group"><label class="ef-label">가격</label><input id="n-price" class="ef-input" type="text" placeholder="예) 13.7억"></div>
+            <div class="ef-group"><label class="ef-label">가격</label><textarea id="n-price" class="ef-input ef-ta" placeholder="예) 13.7억" rows="1" oninput="taResize(this)"></textarea></div>
             <div class="ef-group"><label class="ef-label">만기일</label><input id="n-expire2" class="ef-input" type="text"></div>
             <div class="ef-group"><label class="ef-label">실행일</label><input id="n-date" class="ef-input" type="text"></div>
             <div class="ef-group"><label class="ef-label">타입(공용)</label><input id="n-type-common" class="ef-input" type="text" placeholder="예) 26.5"></div>
@@ -2562,8 +2549,8 @@
         <div style="margin-bottom:12px;">
           <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">소유자 정보</div>
           <div class="edit-grid">
-            <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">소유자</label><input id="n-owner" class="ef-input" type="text" placeholder="소유자명 / 연락처"></div>
-            <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">소유자2</label><input id="n-owner2" class="ef-input" type="text" placeholder="소유자명 / 연락처"></div>
+            <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">소유자</label><textarea id="n-owner" class="ef-input ef-ta" placeholder="소유자명 / 연락처" rows="3" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">소유자2</label><textarea id="n-owner2" class="ef-input ef-ta" placeholder="소유자명 / 연락처" rows="3" oninput="taResize(this)"></textarea></div>
             <div class="ef-group"><label class="ef-label">이름</label><input id="n-ownername" class="ef-input" type="text"></div>
             <div class="ef-group"><label class="ef-label">임차인</label><input id="n-tenant" class="ef-input" type="text"></div>
             <div class="ef-group"><label class="ef-label">손님구분</label><input id="n-resident" class="ef-input" type="text"></div>
@@ -3435,6 +3422,8 @@
       var isContract = (r['소유자'] || '').indexOf('계약') !== -1 || (r['소유자2'] || '').indexOf('계약') !== -1 || (r['이름'] || '').indexOf('계약') !== -1;
       var badge = isContract ? ' <span style="background:#fee2e2;border:1px solid #dc2626;color:#dc2626;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;vertical-align:middle;">계약손님</span>' : '';
       document.getElementById('DT').innerHTML = esc((r['건물명'] || '') + ' ' + (r['동'] || '') + '동 ' + (r['호'] || '') + '호') + badge;
+      var _idEl = document.getElementById('DI');
+      if (_idEl) { _idEl.textContent = r['IDTEST'] ? 'ID: ' + r['IDTEST'] : ''; _idEl.style.display = r['IDTEST'] ? '' : 'none'; }
       document.getElementById('DS').textContent = (r['유형'] || '') + ' · ' + (r['프로세스'] || '') + ' · ' + (r['실행일'] || '');
       // 전화번호
       var ph = xph([(r['소유자'] || ''), (r['소유자2'] || ''), (r['이름'] || ''), (r['임차인'] || '')].join(' '));
@@ -4428,6 +4417,7 @@
         fillEditForm(r);
         ef.style.display = 'block';
         btn.textContent = '▲ 닫기'; btn.disabled = false;
+        setTimeout(taResizeAll, 0); // display:block 후 재계산 (fillEditForm 내 호출은 hidden 상태라 scrollHeight=0)
         setTimeout(function () { ef.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 80);
       } else { cancelEdit(); }
     }
@@ -4497,25 +4487,181 @@
       var btn = document.getElementById('saveBtnEdit');
       btn.textContent = '저장 중...'; btn.disabled = true; showToast('⏳ 저장 중...');
       try {
-        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'update', rowIndex: r['__row__'], values: vals, checkBld: r['건물명'] || '', checkDong: r['동'] || '', checkHo: r['호'] || '' }) });
+        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'update', rowIndex: r['__row__'], recordId: r['IDTEST'] || '', checkBld: r['건물명'] || '', checkDong: r['동'] || '', checkHo: r['호'] || '', values: vals }) });
         var json = JSON.parse(await res.text());
+        if (json.idPath) console.log('[det save] idPath=' + json.idPath);
         if (json.success) {
           Object.keys(vals).forEach(function (k) { r[k] = vals[k]; });
-          saveCache(RAW);
-          showToast('✅ 저장 완료!'); cancelEdit();
+          showToast('✅ 저장 완료'); cancelEdit();
           det(CUR_IDX);
           // 해당 행만 테이블에서 즉시 갱신
           var _tb = document.getElementById('TB');
           if (_tb) { var _trs = _tb.querySelectorAll('tr'); for (var _ti=0; _ti<_trs.length; _ti++) { if (_trs[_ti].getAttribute('onclick') === 'detByRow('+r['__row__']+')') { var _tmp = document.createElement('tbody'); _tmp.innerHTML = makeRow(r, CUR_IDX); _trs[_ti].parentNode.replaceChild(_tmp.firstChild, _trs[_ti]); applyColOrder('apt'); applyColHide('apt'); break; } } }
+        } else if (json.rowMismatch) {
+          alert('❌ 행 불일치: ' + (json.message || '')); syncSheets(true);
         } else { showToast('❌ 실패: ' + json.message); }
       } catch (e) { showToast('❌ 오류: ' + e.message); }
       finally { btn.textContent = '💾 저장'; btn.disabled = false; }
     }
+    // ── ID 생성 (새 메커니즘) ────────────────────────────────
+    var TYPE_HANGUL_TO_CODE = { '아파트': 'APT', '오피스텔': 'OFT', '주택': 'JTK', '토지': 'TOJ' };
+    var _newBldgCodes = {}; // 'typeHangul|bldg' → '4자코드' (새 건물 임시 저장)
+
+    function buildBldgCodeMap() {
+      var map = {};
+      RAW.forEach(function(r) {
+        var t = (r['부동산유형'] || r['부동산 유형'] || '').toString().trim();
+        var b = (r['건물명'] || '').toString().trim();
+        var id = (r['IDTEST'] || '').toString().trim();
+        if (!t || !b || !id || id.length < 7) return;
+        var key = t + '|' + b;
+        if (!map[key]) map[key] = id.slice(3, 7);
+      });
+      return map;
+    }
+
+    function parseDongClient(dong) {
+      if (!dong) return { part: 'NONE', ok: false };
+      var d = dong.toString().replace(/[동\s]/g, '');
+      if (!d) return { part: 'NONE', ok: false };
+      if (/^[A-Za-z]{1,2}$/.test(d)) {
+        var alpha = d.toUpperCase();
+        return { part: (alpha.length === 1 ? '000' : '00') + alpha, ok: true };
+      }
+      if (/^\d{1,4}$/.test(d)) return { part: d.padStart(4, '0'), ok: true };
+      return { part: 'NONE', ok: false };
+    }
+
+    function parseHoClient(ho) {
+      if (!ho) return { part: '0000', ok: false };
+      var h = ho.toString().replace(/[호\s]/g, '');
+      if (!h) return { part: '0000', ok: false };
+      var bMatch = h.match(/^[Bb](\d{1,3})$/);
+      if (bMatch) return { part: 'B' + bMatch[1].padStart(3, '0'), ok: true };
+      if (/^\d{1,4}$/.test(h)) return { part: h.padStart(4, '0'), ok: true };
+      return { part: '0000', ok: false };
+    }
+
+    function generateNewId(typeHangul, bldg, dong, ho) {
+      var typeCode = TYPE_HANGUL_TO_CODE[typeHangul];
+      if (!typeCode) return { error: '부동산유형 미선택' };
+      if (typeCode === 'TOJ') return { error: '토지 ID 규칙 미정의' };
+      if (!bldg) return { error: '건물명 입력 필요' };
+      var bldgMap = buildBldgCodeMap();
+      var key = typeHangul + '|' + bldg;
+      var code4 = bldgMap[key] || _newBldgCodes[key];
+      if (!code4) return { error: '새 건물명 — 브랜드(2)/지역(2) 입력 필요', isNewBldg: true };
+      if (typeCode === 'JTK') {
+        var prefix = typeCode + code4;
+        var maxSeq = 0;
+        RAW.forEach(function(r) {
+          var rid = (r['IDTEST'] || '').toString();
+          if (rid.indexOf(prefix) === 0 && rid.length === 11) {
+            var s = parseInt(rid.slice(7), 10);
+            if (!isNaN(s) && s > maxSeq) maxSeq = s;
+          }
+        });
+        return { id: prefix + String(maxSeq + 1).padStart(4, '0') };
+      }
+      // APT/OFT
+      var dp = parseDongClient(dong);
+      var hp = parseHoClient(ho);
+      var flag = (dp.ok && hp.ok) ? 'Y' : 'N';
+      var dongPart, hoPart;
+      if (flag === 'Y') {
+        dongPart = dp.part; hoPart = hp.part;
+      } else {
+        dongPart = 'NONE';
+        var searchPre = typeCode + code4 + 'N';
+        var maxN = 0;
+        RAW.forEach(function(r) {
+          var rid = (r['IDTEST'] || '').toString();
+          if (rid.indexOf(searchPre) === 0 && rid.length === 16) {
+            var s = parseInt(rid.slice(12), 10);
+            if (!isNaN(s) && s > maxN) maxN = s;
+          }
+        });
+        hoPart = String(maxN + 1).padStart(4, '0');
+      }
+      return { id: typeCode + code4 + flag + dongPart + hoPart };
+    }
+
+    function previewNewId() {
+      var t = (document.getElementById('n-proptype') || { value: '' }).value;
+      var b = (document.getElementById('n-building') || { value: '' }).value.trim();
+      var d = (document.getElementById('n-dong') || { value: '' }).value.trim();
+      var h = (document.getElementById('n-ho') || { value: '' }).value.trim();
+      var preEl = document.getElementById('n-id-preview');
+      var newBldgWrap = document.getElementById('n-new-bldg-wrap');
+      var hiddenEl = document.getElementById('n-idtest');
+      if (!preEl) return;
+      // 새 건물 코드 확인
+      var newBrand = ((document.getElementById('n-new-brand') || { value: '' }).value).trim().toUpperCase();
+      var newRegion = ((document.getElementById('n-new-region') || { value: '' }).value).trim().toUpperCase();
+      if (t && b && newBrand.length === 2 && newRegion.length === 2 && /^[A-Z]{2}$/.test(newBrand) && /^[A-Z]{2}$/.test(newRegion)) {
+        _newBldgCodes[t + '|' + b] = newBrand + newRegion;
+      }
+      var result = generateNewId(t, b, d, h);
+      if (result.error) {
+        preEl.textContent = '⚠️ ' + result.error;
+        preEl.style.color = '#f87171';
+        if (hiddenEl) hiddenEl.value = '';
+        if (newBldgWrap) newBldgWrap.style.display = result.isNewBldg ? '' : 'none';
+        return;
+      }
+      if (newBldgWrap) newBldgWrap.style.display = 'none';
+      // 중복 검사
+      var dup = null;
+      for (var i = 0; i < RAW.length; i++) {
+        if ((RAW[i]['IDTEST'] || '').toString() === result.id) { dup = RAW[i]; break; }
+      }
+      if (dup) {
+        preEl.textContent = result.id + '  ⚠️ 이미 존재: ' + (dup['건물명'] || '') + ' ' + (dup['동'] || '') + '동 ' + (dup['호'] || '') + '호';
+        preEl.style.color = '#f87171';
+        if (hiddenEl) hiddenEl.value = '';
+      } else {
+        // 같은 주소 검사
+        var sameAddr = null;
+        for (var j = 0; j < RAW.length; j++) {
+          if (RAW[j]['건물명'] === b && (RAW[j]['동'] || '').toString().trim() === d && (RAW[j]['호'] || '').toString().trim() === h) { sameAddr = RAW[j]; break; }
+        }
+        if (sameAddr) {
+          preEl.textContent = result.id + '  ⚠️ 같은 주소 매물 존재 (수정 권장)';
+          preEl.style.color = '#fbbf24';
+        } else {
+          preEl.textContent = result.id + '  ✓';
+          preEl.style.color = 'var(--green)';
+        }
+        if (hiddenEl) hiddenEl.value = result.id;
+      }
+    }
+
+    function updateBuildingDatalist() {
+      var t = (document.getElementById('n-proptype') || { value: '' }).value;
+      var dl = document.getElementById('bld-list');
+      if (!dl) return;
+      if (!t) { dl.innerHTML = ''; return; }
+      var names = {};
+      RAW.forEach(function(r) {
+        var rt = (r['부동산유형'] || r['부동산 유형'] || '').toString().trim();
+        var b = (r['건물명'] || '').toString().trim();
+        if (rt === t && b) names[b] = true;
+      });
+      dl.innerHTML = Object.keys(names).sort().map(function(n) { return '<option value="' + n + '">'; }).join('');
+    }
+
     // ── 새 매물 ───────────────────────────────────────
     function openAddNew() {
       var today = new Date();
       document.getElementById('n-date').value = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-      ['n-building', 'n-type', 'n-dong', 'n-ho', 'n-price', 'n-proc', 'n-owner', 'n-expire2', 'n-memo'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      ['n-building', 'n-type', 'n-dong', 'n-ho', 'n-price', 'n-proc', 'n-owner', 'n-expire2', 'n-memo'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      var ptEl = document.getElementById('n-proptype'); if (ptEl) ptEl.value = '';
+      var hid = document.getElementById('n-idtest'); if (hid) hid.value = '';
+      var prev = document.getElementById('n-id-preview'); if (prev) { prev.textContent = '—'; prev.style.color = ''; }
+      var nbw = document.getElementById('n-new-bldg-wrap'); if (nbw) nbw.style.display = 'none';
+      var nbrand = document.getElementById('n-new-brand'); if (nbrand) nbrand.value = '';
+      var nreg = document.getElementById('n-new-region'); if (nreg) nreg.value = '';
+      var dl = document.getElementById('bld-list'); if (dl) dl.innerHTML = '';
       document.getElementById('AM').classList.add('open'); document.body.style.overflow = 'hidden';
     }
     function toggleCollapse(btn, id) {
@@ -4530,13 +4676,19 @@
     }
     function closeAddNew() { document.getElementById('AM').classList.remove('open'); document.body.style.overflow = ''; }
     async function saveNewRow() {
+      var propType = (document.getElementById('n-proptype') || { value: '' }).value;
       var bld = document.getElementById('n-building').value.trim();
       var typ = document.getElementById('n-type').value;
       var dng = document.getElementById('n-dong').value.trim();
       var ho = document.getElementById('n-ho').value.trim();
-      if (!bld || !typ || !dng || !ho) { showToast('⚠️ 건물명, 유형, 동, 호는 필수'); return; }
+      if (!propType || !bld || !dng || !ho) { showToast('⚠️ 부동산유형, 건물명, 동, 호는 필수'); return; }
+      var idValue = (document.getElementById('n-idtest') || { value: '' }).value;
+      if (!idValue) {
+        if (!confirm('ID가 생성되지 않았습니다. ID 없이 등록할까요?\n(나중에 시트 IDTEST 열에 수동 입력 필요)')) return;
+      }
       var getVal = function(id) { var el = document.getElementById(id); return el ? el.value : ''; };
       var vals = {
+        '부동산유형': propType,
         '건물명': bld, '유형': typ, '동': dng, '호': ho,
         '가격': getVal('n-price'), '프로세스': getVal('n-proc'), '소유자': getVal('n-owner'),
         '실행일': getVal('n-date'), '만기일': getVal('n-expire2'), '상담 내용': getVal('n-memo'),
@@ -4551,7 +4703,8 @@
         '단지명': getVal('na-ls-complex'), '이실장동': getVal('na-ls-dong'), '이실장호': getVal('na-ls-ho'),
         '공급면적': getVal('na-ls-supply'), '이실전용면적': getVal('na-ls-exclusive'), '소유형태': getVal('na-ls-ownership'),
         '이실소유자': getVal('na-ls-owner'), '거주자명': getVal('na-ls-resident'), '거래가': getVal('na-ls-price'),
-        '이실계약일': getVal('na-ls-contract-date'), '등기열람일시': getVal('na-ls-registry-date')
+        '이실계약일': getVal('na-ls-contract-date'), '등기열람일시': getVal('na-ls-registry-date'),
+        'IDTEST': idValue
       };
       var btn = document.getElementById('addSaveBtn'); btn.textContent = '추가 중...'; btn.disabled = true; showToast('⏳ 추가 중...');
       try {
@@ -4702,6 +4855,9 @@
     }
 
     document.getElementById('SI2').addEventListener('input', function (e) { fS = e.target.value; applyAll(); });
+    document.getElementById('SI-dong').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); document.getElementById('SI-ho').focus(); }
+    });
     ['SI-dong','SI-ho','SI-type'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) el.addEventListener('input', function(e) {
@@ -5438,6 +5594,8 @@
       set('sge-yield-vs-price', r['매매가대비수익률']); set('sge-sale-ex-vat', r['분양가-부가세']);
       set('sge-storage-ho', r['창고배정호수']); set('sge-storage-py', r['창고(평)']);
       set('sge-excl-storage-py', r['전용+창고(평)']);
+      // ef-ta 높이 자동 조정
+      document.querySelectorAll('#sg-EF .ef-ta').forEach(taResize);
     }
 
     function sgToggleSec(id) {
@@ -6741,7 +6899,7 @@
           <!-- 소유자 정보 -->
           <div style="font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.5px;margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border);">소유자 정보</div>
           <div class="edit-grid">
-            <div class="ef-group"><label class="ef-label">소유자 (전화)</label><textarea id="sge-owner" class="ef-input ef-ta" placeholder="010-XXXX-XXXX,이름" oninput="taResize(this)"></textarea></div>
+            <div class="ef-group"><label class="ef-label">소유자 (전화)</label><textarea id="sge-owner" class="ef-input ef-ta" rows="3" placeholder="010-XXXX-XXXX,이름" oninput="taResize(this)"></textarea></div>
             <div class="ef-group"><label class="ef-label">임차인</label><textarea id="sge-tenant" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
             <div class="ef-group"><label class="ef-label">손님구분</label><textarea id="sge-guest" class="ef-input ef-ta" oninput="taResize(this)"></textarea></div>
             <div class="ef-group"><label class="ef-label">입주구분</label>
