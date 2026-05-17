@@ -4652,16 +4652,32 @@
 
     // ── 새 매물 ───────────────────────────────────────
     function openAddNew() {
+      // 모든 입력 필드 초기화 (이전 입력 잔재 제거)
+      var clearIds = [
+        'n-proptype', 'n-building', 'n-type', 'n-dong', 'n-ho',
+        'n-price', 'n-proc', 'n-owner', 'n-owner2', 'n-ownername', 'n-tenant',
+        'n-date', 'n-expire2', 'n-memo',
+        'n-type-common', 'n-type-excl', 'n-ac', 'n-room', 'n-loan', 'n-floor',
+        'n-movetype', 'n-exclusive', 'n-adcycle', 'n-resident', 'n-occupancy',
+        'n-tag-input', 'n-idtest', 'n-new-brand', 'n-new-region',
+        'na-deposit1', 'na-promised-date', 'na-deposit-period',
+        'na-contract-date', 'na-intermediate', 'na-final-date', 'na-renewal',
+        'na-ls-complex', 'na-ls-dong', 'na-ls-ho', 'na-ls-supply', 'na-ls-exclusive',
+        'na-ls-ownership', 'na-ls-owner', 'na-ls-resident', 'na-ls-price',
+        'na-ls-contract-date', 'na-ls-registry-date'
+      ];
+      clearIds.forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      // 실행일은 오늘로 기본 설정
       var today = new Date();
-      document.getElementById('n-date').value = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-      ['n-building', 'n-type', 'n-dong', 'n-ho', 'n-price', 'n-proc', 'n-owner', 'n-expire2', 'n-memo'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
-      var ptEl = document.getElementById('n-proptype'); if (ptEl) ptEl.value = '';
-      var hid = document.getElementById('n-idtest'); if (hid) hid.value = '';
+      var dateEl = document.getElementById('n-date');
+      if (dateEl) dateEl.value = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+      // textarea 높이 리셋
+      document.querySelectorAll('#AM .ef-ta').forEach(function(ta){ ta.style.height = 'auto'; });
+      // ID 미리보기/새 건물 입력칸 리셋
       var prev = document.getElementById('n-id-preview'); if (prev) { prev.textContent = '—'; prev.style.color = ''; }
       var nbw = document.getElementById('n-new-bldg-wrap'); if (nbw) nbw.style.display = 'none';
-      var nbrand = document.getElementById('n-new-brand'); if (nbrand) nbrand.value = '';
-      var nreg = document.getElementById('n-new-region'); if (nreg) nreg.value = '';
       var dl = document.getElementById('bld-list'); if (dl) dl.innerHTML = '';
+      // 모달 열기
       document.getElementById('AM').classList.add('open'); document.body.style.overflow = 'hidden';
     }
     function toggleCollapse(btn, id) {
@@ -6049,13 +6065,28 @@
 
     // ══════════ 구입자 저장 ══════════
     var BUYER_SHEET = '구입자';
+    // 구입자 다음 G순번 ID 계산 (메모리의 최대 G번호 + 1)
+    function getNextBuyerId() {
+      var max = 0;
+      _dbList.forEach(function(r) {
+        var id = (r['IDTEST'] || '').toString().toUpperCase();
+        var m = id.match(/^G(\d{5})$/);
+        if (m) {
+          var n = parseInt(m[1], 10);
+          if (!isNaN(n) && n > max) max = n;
+        }
+      });
+      return 'G' + String(max + 1).padStart(5, '0');
+    }
     async function saveBuyerRecord() {
       var namephone = document.getElementById('b-namephone').value.trim();
       if (!namephone) { showToast('⚠️ 고객명(전화번호)은 필수입니다'); return; }
       var ymd = new Date().toISOString().slice(0, 10);
       var taListing = document.getElementById('buyer-propose-textarea');
       var listingText = taListing ? taListing.value.trim() : _buyerListings.map(function(it) { return it.text; }).join('\n');
+      var newId = getNextBuyerId();
       var vals = {
+        'IDTEST': newId,
         '기입일': ymd, '고객명(전화번호)': namephone,
         '입주일': document.getElementById('b-movein').value.trim(),
         '거래유형': document.getElementById('b-type').value,
@@ -6116,7 +6147,9 @@
       if (!namephone) { showToast('⚠️ 고객명(전화번호)은 필수입니다'); return; }
       var dateVal = document.getElementById('bd-date').value.trim();
       if (!dateVal) dateVal = new Date().toISOString().slice(0, 10);
+      var newId = getNextBuyerId();
       var vals = {
+        'IDTEST': newId,
         '기입일': dateVal,
         '고객명(전화번호)': namephone,
         '부동산유형': (document.getElementById('bd-proptype') || {value:''}).value,
@@ -6670,8 +6703,9 @@
       };
       var btn = document.getElementById('buyer-save-edit-btn'); btn.textContent = '저장 중...'; btn.disabled = true; showToast('⏳ 저장 중...');
       try {
-        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'updateBuyer', sheetName: BUYER_SHEET, rowIndex: r['__row__'], values: vals }) });
+        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'updateBuyer', sheetName: BUYER_SHEET, rowIndex: r['__row__'], recordId: r['IDTEST'] || '', values: vals }) });
         var json = JSON.parse(await res.text());
+        if (json.idPath) console.log('[updateBuyer save] idPath=' + json.idPath);
         if (json.success) {
           Object.keys(vals).forEach(function (k) { r[k] = vals[k]; });
           showToast('✅ 저장 완료!'); cancelBuyerEdit(); openBuyerDet(_curBuyerIdx);
