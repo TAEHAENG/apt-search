@@ -3462,11 +3462,11 @@
         };
         h = '<div class="detail-section"><div class="detail-section-title">전화걸기</div>';
         if (ownerPh.length) {
-          h += '<div style="font-size:11px;font-weight:700;color:var(--text2);margin:4px 0 4px;">소유자</div>';
+          h += '<div style="font-size:11px;font-weight:700;color:var(--text2);margin:4px 0 4px;">소유자(주)</div>';
           h += '<div class="detail-phones">' + ownerPh.map(function(p, i){ return renderApt(p, i); }).join('') + '</div>';
         }
         if (tenantPh.length) {
-          h += '<div style="font-size:11px;font-weight:700;color:var(--text2);margin:8px 0 4px;">임차인</div>';
+          h += '<div style="font-size:11px;font-weight:700;color:var(--text2);margin:8px 0 4px;">임차인(세)</div>';
           h += '<div class="detail-phones">' + tenantPh.map(function(p, i){ return renderApt(p, ownerPh.length + i); }).join('') + '</div>';
         }
         h += '</div>';
@@ -5571,11 +5571,11 @@
         };
         h = '<div class="detail-section"><div class="detail-section-title">전화걸기</div>';
         if (sgOwnerPh.length) {
-          h += '<div style="font-size:11px;font-weight:700;color:var(--text2);margin:4px 0 4px;">소유자</div>';
+          h += '<div style="font-size:11px;font-weight:700;color:var(--text2);margin:4px 0 4px;">소유자(주)</div>';
           h += '<div class="detail-phones">' + sgOwnerPh.map(renderSg).join('') + '</div>';
         }
         if (sgTenantPh.length) {
-          h += '<div style="font-size:11px;font-weight:700;color:var(--text2);margin:8px 0 4px;">임차인</div>';
+          h += '<div style="font-size:11px;font-weight:700;color:var(--text2);margin:8px 0 4px;">임차인(세)</div>';
           h += '<div class="detail-phones">' + sgTenantPh.map(renderSg).join('') + '</div>';
         }
         h += '</div>';
@@ -5742,7 +5742,7 @@
       var btn = document.getElementById('sg-saveBtnEdit');
       if (btn) { btn.disabled = true; btn.textContent = '저장 중...'; }
       try {
-        var res = await fetch(SG_ASURL, { method: 'POST', headers: {'Content-Type':'text/plain'}, body: safeStringify({ action: 'updateSangga', rowIndex: r['__row__'], values: vals }) });
+        var res = await fetch(SG_ASURL, { method: 'POST', headers: {'Content-Type':'text/plain'}, body: safeStringify({ action: 'updateSangga', rowIndex: r['__row__'], recordId: r['IDTEST'] || '', values: vals }) });
         var j = await res.json();
         if (!j.success) throw new Error(j.message || '저장 실패');
         // 로컬 데이터 업데이트 (빈값 포함 전부 반영)
@@ -5758,6 +5758,149 @@
       finally { if (btn) { btn.disabled = false; btn.textContent = '💾 저장'; } }
     }
 
+    // ── 상가 ID 생성 (상가는 SNG 단일 유형, BLDG_MAP은 _sgRaw에서 추출) ──
+    var _sgNewBldgCodes = {}; // 신규 건물명 → 4자코드 임시 저장
+
+    function buildSgBldgCodeMap() {
+      var map = {};
+      _sgRaw.forEach(function(r) {
+        var b = (r['건물명']||'').toString().trim();
+        var id = (r['IDTEST']||'').toString().trim();
+        if (!b || !id || id.length < 7) return;
+        if (!map[b]) map[b] = id.slice(3, 7);
+      });
+      return map;
+    }
+
+    // 상가 동 — 공란=ZERO 정상, 영숫자 1~4자 정상, 그 외 NONE 비정상
+    function sgParseDongClient(dong) {
+      var d = dong ? dong.toString().replace(/[동\s]/g, '') : '';
+      if (!d) return {part: 'ZERO', ok: true};
+      if (/^[A-Za-z0-9]{1,4}$/.test(d)) {
+        return {part: d.toUpperCase().padStart(4, '0'), ok: true};
+      }
+      return {part: 'NONE', ok: false};
+    }
+
+    // 상가 호 — 6자, 지하/분할 지원 (APT와 동일)
+    function sgParseHoClient(ho) {
+      if (!ho) return {part: '000000', ok: false};
+      var h = ho.toString().replace(/[호\s]/g, '');
+      if (!h) return {part: '000000', ok: false};
+      var bMatch = h.match(/^[Bb](.+)$/);
+      if (bMatch) {
+        var rest = bMatch[1];
+        if (/^\d+(-\d+)?$/.test(rest) && rest.length <= 5) {
+          return {part: 'B' + rest.padStart(5, '0'), ok: true};
+        }
+        return {part: '000000', ok: false};
+      }
+      if (/^\d+(-\d+)?$/.test(h) && h.length <= 6) {
+        return {part: h.padStart(6, '0'), ok: true};
+      }
+      return {part: '000000', ok: false};
+    }
+
+    function _sgMaxNSeq(prefix) {
+      var maxN = 0;
+      _sgRaw.forEach(function(r) {
+        var rid = (r['IDTEST']||'').toString();
+        if (rid.indexOf(prefix) === 0 && rid.length === 18) {
+          var tail = rid.slice(12);
+          if (/^\d{6}$/.test(tail)) {
+            var s = parseInt(tail, 10);
+            if (!isNaN(s) && s > maxN) maxN = s;
+          }
+        }
+      });
+      return maxN;
+    }
+
+    function sgGenerateNewId(bldg, dong, ho) {
+      if (!bldg) return {error: '건물명 입력 필요'};
+      var bldgMap = buildSgBldgCodeMap();
+      var code4 = bldgMap[bldg] || _sgNewBldgCodes[bldg];
+      if (!code4) return {error: '새 건물명 — 브랜드(2)/지역(2) 입력 필요', isNewBldg: true};
+      var dp = sgParseDongClient(dong);
+      var hp = sgParseHoClient(ho);
+      var flag, dongPart, hoPart;
+      if (dp.ok && hp.ok) {
+        flag = 'Y';
+        dongPart = dp.part;
+        hoPart = hp.part;
+      } else {
+        flag = 'N';
+        if (dp.ok) {
+          dongPart = dp.part;
+          hoPart = String(_sgMaxNSeq('SNG' + code4 + 'N') + 1).padStart(6, '0');
+        } else if (hp.ok) {
+          dongPart = 'NONE';
+          hoPart = hp.part;
+        } else {
+          dongPart = 'NONE';
+          hoPart = String(_sgMaxNSeq('SNG' + code4 + 'N') + 1).padStart(6, '0');
+        }
+      }
+      return {id: 'SNG' + code4 + flag + dongPart + hoPart};
+    }
+
+    function sgPreviewNewId() {
+      var b = (document.getElementById('sgn-building')||{value:''}).value.trim();
+      var d = (document.getElementById('sgn-dong')||{value:''}).value.trim();
+      var h = (document.getElementById('sgn-ho')||{value:''}).value.trim();
+      var preEl = document.getElementById('sgn-id-preview');
+      var newBldgWrap = document.getElementById('sgn-new-bldg-wrap');
+      var hiddenEl = document.getElementById('sgn-idtest');
+      if (!preEl) return;
+      var newBrand = ((document.getElementById('sgn-new-brand')||{value:''}).value).trim().toUpperCase();
+      var newRegion = ((document.getElementById('sgn-new-region')||{value:''}).value).trim().toUpperCase();
+      if (b && /^[A-Z]{2}$/.test(newBrand) && /^[A-Z]{2}$/.test(newRegion)) {
+        _sgNewBldgCodes[b] = newBrand + newRegion;
+      }
+      var result = sgGenerateNewId(b, d, h);
+      if (result.error) {
+        preEl.textContent = '⚠️ ' + result.error;
+        preEl.style.color = '#f87171';
+        if (hiddenEl) hiddenEl.value = '';
+        if (newBldgWrap) newBldgWrap.style.display = result.isNewBldg ? '' : 'none';
+        return;
+      }
+      if (newBldgWrap) newBldgWrap.style.display = 'none';
+      var dup = null;
+      for (var i = 0; i < _sgRaw.length; i++) {
+        if ((_sgRaw[i]['IDTEST']||'').toString() === result.id) { dup = _sgRaw[i]; break; }
+      }
+      if (dup) {
+        preEl.textContent = result.id + '  ⚠️ 이미 존재: ' + (dup['건물명']||'') + ' ' + (dup['동']||'') + '동 ' + (dup['호']||'') + '호';
+        preEl.style.color = '#f87171';
+        if (hiddenEl) hiddenEl.value = '';
+      } else {
+        var sameAddr = null;
+        for (var j = 0; j < _sgRaw.length; j++) {
+          if (_sgRaw[j]['건물명']===b && (_sgRaw[j]['동']||'').toString().trim()===d && (_sgRaw[j]['호']||'').toString().trim()===h) { sameAddr = _sgRaw[j]; break; }
+        }
+        if (sameAddr) {
+          preEl.textContent = result.id + '  ⚠️ 같은 주소 매물 존재 (수정 권장)';
+          preEl.style.color = '#fbbf24';
+        } else {
+          preEl.textContent = result.id + '  ✓';
+          preEl.style.color = 'var(--green)';
+        }
+        if (hiddenEl) hiddenEl.value = result.id;
+      }
+    }
+
+    function sgUpdateBuildingDatalist() {
+      var dl = document.getElementById('sg-bld-list');
+      if (!dl) return;
+      var names = {};
+      _sgRaw.forEach(function(r){
+        var b = (r['건물명']||'').toString().trim();
+        if (b) names[b] = true;
+      });
+      dl.innerHTML = Object.keys(names).sort().map(function(n){ return '<option value="'+n+'">'; }).join('');
+    }
+
     // ── 상가 신규 등록 ────────────────────────────────
     function sgOpenAddNew() {
       document.getElementById('SGAM').classList.add('open');
@@ -5767,6 +5910,11 @@
       if (di && !di.value) di.value = new Date().toISOString().slice(0,10).replace(/-/g,'.');
       // 주요특징 태그 초기화
       _sgNewTags = []; renderSgNewTags();
+      // ID 미리보기 + datalist 초기화
+      ['sgn-building','sgn-side','sgn-dong','sgn-ho','sgn-new-brand','sgn-new-region','sgn-idtest'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      var prev = document.getElementById('sgn-id-preview'); if (prev) { prev.textContent = '—'; prev.style.color = ''; }
+      var nbw = document.getElementById('sgn-new-bldg-wrap'); if (nbw) nbw.style.display = 'none';
+      sgUpdateBuildingDatalist();
     }
     function sgCloseAddNew() {
       document.getElementById('SGAM').classList.remove('open');
@@ -5782,6 +5930,7 @@
       if (!g('sgn-type'))     { showToast('유형을 선택하세요'); return; }
       if (!g('sgn-ho'))       { showToast('호를 입력하세요'); return; }
       var vals = {
+        'IDTEST': g('sgn-idtest'),
         '건물명': g('sgn-building'), '유형': g('sgn-type'), '측': g('sgn-side'),
         '동': g('sgn-dong'), '호': g('sgn-ho'), '현재상호': g('sgn-current-name'), '과거입점상호': g('sgn-past-name'),
         '전용(평)': g('sgn-excl-py'), '전용(㎡)': g('sgn-excl-sqm'), '분양(평)': g('sgn-sale-py'), '분양(㎡)': g('sgn-sale-sqm'),
@@ -7141,7 +7290,7 @@
             <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">기본 정보</div>
             <div class="edit-grid">
               <div class="ef-group"><label class="ef-label">건물명 *</label>
-                <input id="sgn-building" class="ef-input" list="sg-bld-list" placeholder="선택 또는 직접 입력" autocomplete="off">
+                <input id="sgn-building" class="ef-input" list="sg-bld-list" placeholder="선택 또는 직접 입력" autocomplete="off" oninput="sgPreviewNewId()">
                 <datalist id="sg-bld-list"><!-- 동적 생성 --></datalist>
               </div>
               <div class="ef-group"><label class="ef-label">유형 *</label>
@@ -7152,8 +7301,21 @@
                 </select>
               </div>
               <div class="ef-group"><label class="ef-label">측</label><input id="sgn-side" class="ef-input" type="text" placeholder="예) A측"></div>
-              <div class="ef-group"><label class="ef-label">동</label><input id="sgn-dong" class="ef-input" type="text" placeholder="예) 상가동"></div>
-              <div class="ef-group"><label class="ef-label">호 *</label><input id="sgn-ho" class="ef-input" type="text" placeholder="예) 101"></div>
+              <div class="ef-group"><label class="ef-label">동</label><input id="sgn-dong" class="ef-input" type="text" placeholder="공란 OK" oninput="sgPreviewNewId()"></div>
+              <div class="ef-group"><label class="ef-label">호 *</label><input id="sgn-ho" class="ef-input" type="text" placeholder="예) 101 또는 B101" oninput="sgPreviewNewId()"></div>
+              <div id="sgn-new-bldg-wrap" style="display:none;grid-column:1/-1;margin-top:4px;padding:8px;background:var(--surface2);border-radius:6px;">
+                <div style="font-size:11px;color:var(--text2);margin-bottom:6px;">새 건물 — 브랜드(2자)와 지역(2자) 영문 코드 입력</div>
+                <div style="display:flex;gap:8px;">
+                  <input id="sgn-new-brand" class="ef-input" maxlength="2" placeholder="브랜드 (예: HS)"
+                         style="text-transform:uppercase;font-family:monospace;flex:1" oninput="this.value=this.value.toUpperCase();sgPreviewNewId()">
+                  <input id="sgn-new-region" class="ef-input" maxlength="2" placeholder="지역 (예: SP)"
+                         style="text-transform:uppercase;font-family:monospace;flex:1" oninput="this.value=this.value.toUpperCase();sgPreviewNewId()">
+                </div>
+              </div>
+              <div style="grid-column:1/-1;margin-top:6px;padding:10px 12px;background:var(--surface2);border-radius:6px;font-size:14px;">
+                ID: <span id="sgn-id-preview" style="font-family:monospace;font-weight:700;letter-spacing:1px;">—</span>
+              </div>
+              <input type="hidden" id="sgn-idtest">
               <div class="ef-group"><label class="ef-label">현재상호</label><input id="sgn-current-name" class="ef-input" type="text"></div>
               <div class="ef-group"><label class="ef-label">과거입점상호</label><input id="sgn-past-name" class="ef-input" type="text"></div>
               <div class="ef-group"><label class="ef-label">전용(평)</label><input id="sgn-excl-py" class="ef-input" type="text" placeholder="예) 15.5"></div>
