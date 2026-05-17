@@ -2570,7 +2570,13 @@
         <!-- 주요특징 -->
         <div style="margin-bottom:12px;">
           <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">주요특징</div>
-          <div class="ef-group" style="margin-bottom:0;"><label class="ef-label">태그</label><textarea id="n-tag-input" class="ef-textarea" rows="2" placeholder="쉼표 또는 줄바꿈으로 구분"></textarea></div>
+          <div class="ef-group" style="margin-bottom:0;">
+            <div id="n-tags-display" style="display:flex;flex-wrap:wrap;gap:4px;min-height:22px;margin-bottom:6px;"></div>
+            <div style="display:flex;gap:6px;">
+              <input id="n-tag-input" class="ef-input" type="text" placeholder="#태그 입력 후 Enter 또는 쉼표" style="flex:1;">
+              <button type="button" onclick="addAptNewTag()" style="padding:0 14px;background:rgba(79,156,249,0.15);border:1px solid rgba(79,156,249,0.4);border-radius:7px;color:#4f9cf9;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">추가</button>
+            </div>
+          </div>
         </div>
 
         <!-- 상담 내용 -->
@@ -4504,7 +4510,7 @@
       finally { btn.textContent = '💾 저장'; btn.disabled = false; }
     }
     // ── ID 생성 (새 메커니즘) ────────────────────────────────
-    var TYPE_HANGUL_TO_CODE = { '아파트': 'APT', '오피스텔': 'OFT', '주택': 'JTK', '토지': 'TOJ' };
+    var TYPE_HANGUL_TO_CODE = { '아파트': 'APT', '오피스텔': 'OFT', '주택': 'JTK', '토지': 'TJI' };
     var _newBldgCodes = {}; // 'typeHangul|bldg' → '4자코드' (새 건물 임시 저장)
 
     function buildBldgCodeMap() {
@@ -4555,13 +4561,13 @@
     function generateNewId(typeHangul, bldg, dong, ho) {
       var typeCode = TYPE_HANGUL_TO_CODE[typeHangul];
       if (!typeCode) return { error: '부동산유형 미선택' };
-      if (typeCode === 'TOJ') return { error: '토지 ID 규칙 미정의' };
       if (!bldg) return { error: '건물명 입력 필요' };
       var bldgMap = buildBldgCodeMap();
       var key = typeHangul + '|' + bldg;
       var code4 = bldgMap[key] || _newBldgCodes[key];
       if (!code4) return { error: '새 건물명 — 브랜드(2)/지역(2) 입력 필요', isNewBldg: true };
-      if (typeCode === 'JTK') {
+      // 주택(JTK) / 토지(TJI): 동일 포맷 11자 (유형3 + 코드4 + 순번4)
+      if (typeCode === 'JTK' || typeCode === 'TJI') {
         var prefix = typeCode + code4;
         var maxSeq = 0;
         RAW.forEach(function(r) {
@@ -4683,6 +4689,8 @@
       if (dateEl) dateEl.value = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
       // textarea 높이 리셋
       document.querySelectorAll('#AM .ef-ta').forEach(function(ta){ ta.style.height = 'auto'; });
+      // 주요특징 태그 초기화
+      _aptNewTags = []; renderAptNewTags();
       // ID 미리보기/새 건물 입력칸 리셋
       var prev = document.getElementById('n-id-preview'); if (prev) { prev.textContent = '—'; prev.style.color = ''; }
       var nbw = document.getElementById('n-new-bldg-wrap'); if (nbw) nbw.style.display = 'none';
@@ -4723,7 +4731,7 @@
         '입주형태': getVal('n-movetype'), '독점': getVal('n-exclusive'), '광고주기': getVal('n-adcycle'),
         '소유자2': getVal('n-owner2'), '이름': getVal('n-ownername'), '임차인': getVal('n-tenant'),
         '손님구분': getVal('n-resident'), '입주구분': getVal('n-occupancy'),
-        '주요특징': getVal('n-tag-input'),
+        '주요특징': _aptNewTags.join(', '),
         '계약금중일부': getVal('na-deposit1'), '약정일': getVal('na-promised-date'), '토허제': getVal('na-deposit-period'),
         '계약일': getVal('na-contract-date'), '중도금': getVal('na-intermediate'), '잔금일': getVal('na-final-date'), '갱신청구권': getVal('na-renewal'),
         '단지명': getVal('na-ls-complex'), '이실장동': getVal('na-ls-dong'), '이실장호': getVal('na-ls-ho'),
@@ -4911,10 +4919,24 @@
     function renderSgNewTags() { var w = document.getElementById('sgn-tags-display'); if (!w) return; w.innerHTML = _sgNewTags.map(function (t, i) { return '<span class="feature-tag">#' + esc(t) + '<button class="tag-del" onclick="removeSgNewTag(' + i + ')">×</button></span>'; }).join(''); }
     function addSgNewTag() { var inp = document.getElementById('sgn-tag-input'); if (!inp) return; inp.value.split(/[,،\n]/).forEach(function (t) { t = t.trim().replace(/^#/, ''); if (t && _sgNewTags.indexOf(t) === -1) _sgNewTags.push(t); }); inp.value = ''; renderSgNewTags(); }
     function removeSgNewTag(i) { _sgNewTags.splice(i, 1); renderSgNewTags(); }
+    // ── APT 새 매물 등록폼 주요특징 태그 ──
+    var _aptNewTags = [];
+    function renderAptNewTags() { var w = document.getElementById('n-tags-display'); if (!w) return; w.innerHTML = _aptNewTags.map(function (t, i) { return '<span class="feature-tag">#' + esc(t) + '<button class="tag-del" onclick="removeAptNewTag(' + i + ')">×</button></span>'; }).join(''); }
+    function addAptNewTag() { var inp = document.getElementById('n-tag-input'); if (!inp) return; inp.value.split(/[,،\n]/).forEach(function (t) { t = t.trim().replace(/^#/, ''); if (t && _aptNewTags.indexOf(t) === -1) _aptNewTags.push(t); }); inp.value = ''; renderAptNewTags(); }
+    function removeAptNewTag(i) { _aptNewTags.splice(i, 1); renderAptNewTags(); }
+    // ── 구입자 등록 모달 주요특징 태그 ──
+    var _bdNewTags = [];
+    function renderBdNewTags() { var w = document.getElementById('bd-tags-display'); if (!w) return; w.innerHTML = _bdNewTags.map(function (t, i) { return '<span class="feature-tag">#' + esc(t) + '<button class="tag-del" onclick="removeBdNewTag(' + i + ')">×</button></span>'; }).join(''); }
+    function addBdNewTag() { var inp = document.getElementById('bd-tag-input'); if (!inp) return; inp.value.split(/[,،\n]/).forEach(function (t) { t = t.trim().replace(/^#/, ''); if (t && _bdNewTags.indexOf(t) === -1) _bdNewTags.push(t); }); inp.value = ''; renderBdNewTags(); }
+    function removeBdNewTag(i) { _bdNewTags.splice(i, 1); renderBdNewTags(); }
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter') return;
-      if (document.activeElement && document.activeElement.id === 'sge-tag-input') { e.preventDefault(); addSgEditTag(); }
-      if (document.activeElement && document.activeElement.id === 'sgn-tag-input') { e.preventDefault(); addSgNewTag(); }
+      if (!document.activeElement) return;
+      var aid = document.activeElement.id;
+      if (aid === 'sge-tag-input') { e.preventDefault(); addSgEditTag(); }
+      else if (aid === 'sgn-tag-input') { e.preventDefault(); addSgNewTag(); }
+      else if (aid === 'n-tag-input') { e.preventDefault(); addAptNewTag(); }
+      else if (aid === 'bd-tag-input') { e.preventDefault(); addBdNewTag(); }
     });
 
     // ══════════ 뷰 전환 ══════════
@@ -5484,6 +5506,11 @@
       } catch(e) { console.error('sgDet 오류:', e.message); return; }
       var side = r['측'] ? r['측'] + ' ' : '';
       document.getElementById('sg-DT').textContent = (r['건물명']||'') + ' ' + side + (r['동']||'') + ' ' + (r['호']||'');
+      var sgIdEl = document.getElementById('sg-DI');
+      if (sgIdEl) {
+        if (r['IDTEST']) { sgIdEl.textContent = r['IDTEST']; sgIdEl.style.display = ''; }
+        else { sgIdEl.style.display = 'none'; }
+      }
       document.getElementById('sg-DS').textContent = (r['유형']||'') + (r['프로세스'] ? ' · ' + r['프로세스'] : '') + (r['실행일'] ? ' · ' + r['실행일'] : '') + (r['손님구분'] ? ' · ' + r['손님구분'] : '');
 
       var ph = xph([(r['소유자']||''), (r['임차인']||'')].join(' '));
@@ -6139,10 +6166,11 @@
       var subtitle = document.getElementById('BUYER-SUBTITLE');
       modal.classList.add('open');
       subtitle.textContent = '신규 구입자 등록';
-      ['bd-date','bd-namephone','bd-movein','bd-want','bd-price-budget','bd-deposit-budget','bd-monthly-budget','bd-propose','bd-memo','bd-feature'].forEach(function(id) {
+      ['bd-date','bd-namephone','bd-movein','bd-want','bd-price-budget','bd-deposit-budget','bd-monthly-budget','bd-propose','bd-memo','bd-tag-input'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.value = '';
       });
+      _bdNewTags = []; renderBdNewTags();
       ['bd-type','bd-status','bd-proptype','bd-selfuse'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.value = '';
@@ -6169,7 +6197,7 @@
         '제안 매물': document.getElementById('bd-propose').value.trim(),
         '상담 내용': document.getElementById('bd-memo').value.trim(),
         '프로세스': (document.getElementById('bd-status') || {value:''}).value,
-        '주요특징': (document.getElementById('bd-feature') || {value:''}).value.trim(),
+        '주요특징': _bdNewTags.join(', '),
         '매매가(예산)': (document.getElementById('bd-price-budget') || {value:''}).value.trim(),
         '보증금(예산)': (document.getElementById('bd-deposit-budget') || {value:''}).value.trim(),
         '월세(예산)': (document.getElementById('bd-monthly-budget') || {value:''}).value.trim(),
@@ -6608,6 +6636,11 @@
         if (rLatest) r = rLatest;
       }
       document.getElementById('buyer-det-title').textContent = fmtBuyerName(r['고객명(전화번호)']);
+      var idEl = document.getElementById('buyer-det-id');
+      if (idEl) {
+        if (r['IDTEST']) { idEl.textContent = r['IDTEST']; idEl.style.display = ''; }
+        else { idEl.style.display = 'none'; }
+      }
       document.getElementById('buyer-det-sub').textContent = (r['거래유형'] || '') + ' · ' + (r['프로세스'] || '') + ' · ' + (r['기입일'] || '');
       var h = '';
       // 전화번호 버튼
@@ -6885,6 +6918,7 @@
         <div class="detail-header">
           <div>
             <div class="detail-title" id="sg-DT"></div>
+            <div id="sg-DI" style="font-family:monospace;font-size:11px;color:var(--accent);letter-spacing:1px;margin-top:2px;display:none;"></div>
             <div class="detail-subtitle" id="sg-DS"></div>
           </div>
           <div style="display:flex;gap:7px;flex-shrink:0;align-items:center;">
@@ -7522,7 +7556,13 @@
             <div class="ef-group"><label class="ef-label">실거주여부</label><select id="bd-selfuse" class="ef-select"><option value="">선택</option><option>실거주</option><option>투자</option></select></div>
             <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">찾는 매물</label><input id="bd-want" class="ef-input" type="text" placeholder="예) 아이 전세 34평"></div>
             <div class="ef-group"><label class="ef-label">프로세스</label><select id="bd-status" class="ef-select"><option value="">선택</option><option>예비고객</option><option>초기상담</option><option>매물제안</option><option>임장</option><option>계약</option><option>종료</option></select></div>
-            <div class="ef-group"><label class="ef-label">주요특징</label><input id="bd-feature" class="ef-input" type="text" placeholder="예) #급매 #역세권"></div>
+            <div class="ef-group" style="grid-column:span 2;"><label class="ef-label">주요특징</label>
+              <div id="bd-tags-display" style="display:flex;flex-wrap:wrap;gap:4px;min-height:22px;margin-bottom:6px;"></div>
+              <div style="display:flex;gap:6px;">
+                <input id="bd-tag-input" class="ef-input" type="text" placeholder="#태그 입력 후 Enter 또는 쉼표" style="flex:1;">
+                <button type="button" onclick="addBdNewTag()" style="padding:0 14px;background:rgba(79,156,249,0.15);border:1px solid rgba(79,156,249,0.4);border-radius:7px;color:#4f9cf9;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">추가</button>
+              </div>
+            </div>
           </div>
           <div class="ef-group" style="margin-bottom:8px;"><label class="ef-label">제안 매물</label><textarea id="bd-propose" class="ef-textarea" rows="3"></textarea></div>
           <div class="ef-group" style="margin-bottom:12px;"><label class="ef-label">상담 내용</label><textarea id="bd-memo" class="ef-textarea" rows="3"></textarea></div>
