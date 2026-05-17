@@ -4516,13 +4516,16 @@
       _el = document.getElementById('e-ls-regdate');  if (_el) vals['등기열람일시'] = _el.value;
       var btn = document.getElementById('saveBtnEdit');
       btn.textContent = '저장 중...'; btn.disabled = true; showToast('⏳ 저장 중...');
+      var _t0 = performance.now();
       try {
         var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'update', rowIndex: r['__row__'], recordId: r['IDTEST'] || '', checkBld: r['건물명'] || '', checkDong: r['동'] || '', checkHo: r['호'] || '', values: vals }) });
+        var _ms = Math.round(performance.now() - _t0);
         var json = JSON.parse(await res.text());
-        if (json.idPath) console.log('[det save] idPath=' + json.idPath);
+        var _path = json.idPath || '?';
+        console.log('[det save] ' + _ms + 'ms idPath=' + _path);
         if (json.success) {
           Object.keys(vals).forEach(function (k) { r[k] = vals[k]; });
-          showToast('✅ 저장 완료'); cancelEdit();
+          showToast('✅ 저장 완료 (' + _ms + 'ms · ' + _path + ')'); cancelEdit();
           det(CUR_IDX);
           // 해당 행만 테이블에서 즉시 갱신
           var _tb = document.getElementById('TB');
@@ -4774,16 +4777,27 @@
         'IDTEST': idValue
       };
       var btn = document.getElementById('addSaveBtn'); btn.textContent = '추가 중...'; btn.disabled = true; showToast('⏳ 추가 중...');
+      console.time('[saveNewRow fetch]');
       try {
         var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'append', values: vals }) });
+        console.timeEnd('[saveNewRow fetch]');
         var json = JSON.parse(await res.text());
         if (json.success) {
+          // 응답 메시지에서 행번호 추출 (예: "새 행 추가 완료 (123행)")
+          var rowMatch = (json.message || '').match(/\((\d+)행\)/);
+          var newRow = rowMatch ? parseInt(rowMatch[1], 10) : ((RAW.length ? Math.max.apply(null, RAW.map(function(x){return x['__row__']||0;})) : 1) + 1);
+          var newRec = { __row__: newRow };
+          Object.keys(vals).forEach(function(k){ newRec[k] = vals[k]; });
+          RAW.push(newRec);
+          FD = RAW.slice();
+          applyAll();
           closeAddNew();
-          showToast('✅ 매물 추가 완료! ' + (json.message || '') + ' 동기화 중...');
-          syncSheets(true);
+          showToast('✅ 매물 추가 완료 (' + newRow + '행)');
+          // 백그라운드 silent sync (시트 진실값과 정합성 확인) — UI 즉시 반응
+          setTimeout(function(){ syncSheets(true); }, 100);
         }
         else { alert('❌ 매물 추가 실패\n\n' + (json.message || JSON.stringify(json))); }
-      } catch (e) { alert('❌ 매물 추가 오류\n\n' + e.message); }
+      } catch (e) { console.timeEnd('[saveNewRow fetch]'); alert('❌ 매물 추가 오류\n\n' + e.message); }
       finally { btn.textContent = '＋ 매물장에 추가'; btn.disabled = false; }
     }
 
@@ -5742,12 +5756,16 @@
       var btn = document.getElementById('sg-saveBtnEdit');
       if (btn) { btn.disabled = true; btn.textContent = '저장 중...'; }
       try {
-        var res = await fetch(SG_ASURL, { method: 'POST', headers: {'Content-Type':'text/plain'}, body: safeStringify({ action: 'updateSangga', rowIndex: r['__row__'], recordId: r['IDTEST'] || '', values: vals }) });
+        var _sgT0 = performance.now();
+        var res = await fetch(SG_ASURL, { method: 'POST', headers: {'Content-Type':'text/plain'}, body: safeStringify({ action: 'updateSangga', rowIndex: r['__row__'], recordId: r['IDTEST'] || '', checkBld: r['건물명']||'', checkSide: r['측']||'', checkDong: r['동']||'', checkHo: r['호']||'', values: vals }) });
+        var _sgMs = Math.round(performance.now() - _sgT0);
         var j = await res.json();
         if (!j.success) throw new Error(j.message || '저장 실패');
+        var _sgPath = j.idPath || '?';
+        console.log('[sgDet save] ' + _sgMs + 'ms idPath=' + _sgPath);
         // 로컬 데이터 업데이트 (빈값 포함 전부 반영)
         Object.keys(vals).forEach(function(k){ r[k] = vals[k]; });
-        showToast('상가 매물 저장 완료');
+        showToast('✅ 상가 매물 저장 완료 (' + _sgMs + 'ms · ' + _sgPath + ')');
         sgCancelEdit();
         sgDet(_sgCurIdx);
         // 해당 행만 테이블에서 즉시 갱신
@@ -5949,14 +5967,25 @@
       _sgSaving = true;
       var saveBtn = document.querySelector('#SGAM .ef-save, #SGAM button[onclick*="sgSaveNewRow"]');
       if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '저장 중...'; }
+      console.time('[sgSaveNewRow fetch]');
       try {
         var res = await fetch(SG_ASURL, { method: 'POST', headers: {'Content-Type':'text/plain'}, body: safeStringify({ action: 'appendSangga', values: vals }) });
+        console.timeEnd('[sgSaveNewRow fetch]');
         var j = await res.json();
         if (!j.success) throw new Error(j.message || '추가 실패');
-        showToast('상가 매물 추가 완료');
+        // 부분 갱신: _sgRaw에 직접 push + UI 즉시 갱신
+        var rowMatch = (j.message || '').match(/\((\d+)행\)/);
+        var newRow = rowMatch ? parseInt(rowMatch[1], 10) : ((_sgRaw.length ? Math.max.apply(null, _sgRaw.map(function(x){return x['__row__']||0;})) : 1) + 1);
+        var newRec = { __row__: newRow };
+        Object.keys(vals).forEach(function(k){ newRec[k] = vals[k]; });
+        _sgRaw.push(newRec);
+        if (typeof sgApplyAll === 'function') sgApplyAll();
+        else if (typeof sgRender === 'function') sgRender();
         sgCloseAddNew();
-        sgSyncSheets();
-      } catch(e) { showToast('추가 오류: ' + e.message); }
+        showToast('상가 매물 추가 완료 (' + newRow + '행)');
+        // 백그라운드 silent sync
+        setTimeout(function(){ if (typeof sgSyncSheets === 'function') sgSyncSheets(); }, 100);
+      } catch(e) { console.timeEnd('[sgSaveNewRow fetch]'); showToast('추가 오류: ' + e.message); }
       finally { _sgSaving = false; if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 추가'; } }
     }
 
@@ -6956,12 +6985,15 @@
       };
       var btn = document.getElementById('buyer-save-edit-btn'); btn.textContent = '저장 중...'; btn.disabled = true; showToast('⏳ 저장 중...');
       try {
-        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'updateBuyer', sheetName: BUYER_SHEET, rowIndex: r['__row__'], recordId: r['IDTEST'] || '', values: vals }) });
+        var _bdT0 = performance.now();
+        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'updateBuyer', sheetName: BUYER_SHEET, rowIndex: r['__row__'], recordId: r['IDTEST'] || '', checkName: r['고객명(전화번호)']||'', checkDate: r['기입일']||'', values: vals }) });
+        var _bdMs = Math.round(performance.now() - _bdT0);
         var json = JSON.parse(await res.text());
-        if (json.idPath) console.log('[updateBuyer save] idPath=' + json.idPath);
+        var _bdPath = json.idPath || '?';
+        console.log('[updateBuyer save] ' + _bdMs + 'ms idPath=' + _bdPath);
         if (json.success) {
           Object.keys(vals).forEach(function (k) { r[k] = vals[k]; });
-          showToast('✅ 저장 완료!'); cancelBuyerEdit(); openBuyerDet(_curBuyerIdx);
+          showToast('✅ 저장 완료 (' + _bdMs + 'ms · ' + _bdPath + ')'); cancelBuyerEdit(); openBuyerDet(_curBuyerIdx);
           applyDbSearch(); // 테이블 행 갱신 (구입자는 행 수가 적어 전체 재렌더 허용)
         }
         else { showToast('❌ 실패: ' + (json.message || '')); }
