@@ -6986,7 +6986,7 @@
       var btn = document.getElementById('buyer-save-edit-btn'); btn.textContent = '저장 중...'; btn.disabled = true; showToast('⏳ 저장 중...');
       try {
         var _bdT0 = performance.now();
-        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'updateBuyer', sheetName: BUYER_SHEET, rowIndex: r['__row__'], recordId: r['IDTEST'] || '', checkName: r['고객명(전화번호)']||'', checkDate: r['기입일']||'', values: vals }) });
+        var res = await fetch(ASURL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: safeStringify({ action: 'updateBuyer', sheetName: BUYER_SHEET, rowIndex: r['__row__'], recordId: r['IDTEST'] || '', checkName: r['고객명(전화번호)']||'', values: vals }) });
         var _bdMs = Math.round(performance.now() - _bdT0);
         var json = JSON.parse(await res.text());
         var _bdPath = json.idPath || '?';
