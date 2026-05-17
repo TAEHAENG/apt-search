@@ -4535,11 +4535,21 @@
     function parseHoClient(ho) {
       if (!ho) return { part: '0000', ok: false };
       var h = ho.toString().replace(/[호\s]/g, '');
-      if (!h) return { part: '0000', ok: false };
-      var bMatch = h.match(/^[Bb](\d{1,3})$/);
-      if (bMatch) return { part: 'B' + bMatch[1].padStart(3, '0'), ok: true };
-      if (/^\d{1,4}$/.test(h)) return { part: h.padStart(4, '0'), ok: true };
-      return { part: '0000', ok: false };
+      if (!h) return { part: '000000', ok: false };
+      // 지하 (B로 시작) — B 뒤 5자 이하의 숫자 또는 숫자-숫자
+      var bMatch = h.match(/^[Bb](.+)$/);
+      if (bMatch) {
+        var rest = bMatch[1];
+        if (/^\d+(-\d+)?$/.test(rest) && rest.length <= 5) {
+          return { part: 'B' + rest.padStart(5, '0'), ok: true };
+        }
+        return { part: '000000', ok: false };
+      }
+      // 지상: 6자 이하의 숫자 또는 숫자-숫자
+      if (/^\d+(-\d+)?$/.test(h) && h.length <= 6) {
+        return { part: h.padStart(6, '0'), ok: true };
+      }
+      return { part: '000000', ok: false };
     }
 
     function generateNewId(typeHangul, bldg, dong, ho) {
@@ -4563,7 +4573,7 @@
         });
         return { id: prefix + String(maxSeq + 1).padStart(4, '0') };
       }
-      // APT/OFT
+      // APT/OFT (18자: 유형3 + 코드4 + Y/N + 동4 + 호6)
       var dp = parseDongClient(dong);
       var hp = parseHoClient(ho);
       var flag = (dp.ok && hp.ok) ? 'Y' : 'N';
@@ -4576,12 +4586,12 @@
         var maxN = 0;
         RAW.forEach(function(r) {
           var rid = (r['IDTEST'] || '').toString();
-          if (rid.indexOf(searchPre) === 0 && rid.length === 16) {
+          if (rid.indexOf(searchPre) === 0 && rid.length === 18) {
             var s = parseInt(rid.slice(12), 10);
             if (!isNaN(s) && s > maxN) maxN = s;
           }
         });
-        hoPart = String(maxN + 1).padStart(4, '0');
+        hoPart = String(maxN + 1).padStart(6, '0');
       }
       return { id: typeCode + code4 + flag + dongPart + hoPart };
     }
@@ -6148,6 +6158,7 @@
       var dateVal = document.getElementById('bd-date').value.trim();
       if (!dateVal) dateVal = new Date().toISOString().slice(0, 10);
       var newId = getNextBuyerId();
+      console.log('[구입자 등록] newId=' + newId + ', _dbList 첫 IDTEST 샘플=' + (_dbList[0] && _dbList[0]['IDTEST']) + ', _dbList 길이=' + _dbList.length);
       var vals = {
         'IDTEST': newId,
         '기입일': dateVal,
@@ -7403,6 +7414,7 @@
       <div class="detail-header">
         <div>
           <div class="detail-title" id="buyer-det-title"></div>
+          <div id="buyer-det-id" style="font-family:monospace;font-size:11px;color:var(--accent);letter-spacing:1px;margin-top:2px;display:none;"></div>
           <div class="detail-subtitle" id="buyer-det-sub"></div>
         </div>
         <div style="display:flex;gap:7px;align-items:center;">
