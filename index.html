@@ -1924,7 +1924,9 @@
 
     /* ── 인쇄 ─────────────────────────────────────── */
     @media print {
-      @page { size: landscape; margin: 10mm; }
+      @page { size: landscape; margin: 8mm 6mm; }
+      /* body/html 여백 제거 */
+      html, body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
       /* 인쇄 영역 외 모두 숨김 */
       .pw-overlay, .loading-overlay, #colWidthPanel,
       header, .filter-panel, .search-row, .filter-divider,
@@ -1939,9 +1941,11 @@
         overflow: visible !important;
         max-height: none !important;
         height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
       /* 테이블 인쇄 스타일 */
-      table { width: 100% !important; border-collapse: collapse !important; table-layout: fixed !important; font-size: 9pt; }
+      table { width: 100% !important; border-collapse: collapse !important; table-layout: auto !important; font-size: 9pt; }
       thead { display: table-header-group; position: static !important; top: auto !important; z-index: auto !important; } /* 페이지마다 헤더 반복 */
       thead tr { position: static !important; top: auto !important; z-index: auto !important; background: transparent !important; }
       thead th {
@@ -1951,13 +1955,13 @@
         print-color-adjust: exact;
         color: #1e293b !important;
         border: 1px solid #94a3b8 !important;
-        padding: 3px 5px !important;
+        padding: 3px 4px !important;
         font-size: 8pt;
         cursor: default;
       }
       tbody td {
         border: 1px solid #cbd5e1 !important;
-        padding: 3px 5px !important;
+        padding: 3px 4px !important;
         color: #1e293b !important;
         background: #fff !important;
         white-space: normal !important;
@@ -2333,7 +2337,7 @@
       <div class="detail-header">
         <div>
           <div class="detail-title" id="DT"></div>
-          <div id="DI" style="font-family:monospace;font-size:11px;color:var(--accent);letter-spacing:1px;margin-top:2px;display:none;"></div>
+          <div id="DI" style="font-family:monospace;font-size:11px;color:#ffffff;letter-spacing:1px;margin-top:2px;display:none;"></div>
           <div class="detail-subtitle" id="DS"></div>
         </div>
         <div style="display:flex;gap:7px;flex-shrink:0;align-items:center;">
@@ -2918,8 +2922,8 @@
         }
       } else {
         document.getElementById('pwOverlay').style.display = 'none';
-        // 자동로그인 시 저장된 슬롯 자동 적용 (load 이벤트 후 처리)
-        window.addEventListener('load', function() { applyLoginSlot(savedSlot); }, { once: true });
+        // 자동로그인/세션 유지 시 저장된 슬롯 적용
+        applyLoginSlot(savedSlot);
       }
       // 열순서 드래그 초기화 (모든 3개 테이블)
       _initColOrderDrag('apt-main-table', 'apt');
@@ -6506,6 +6510,17 @@
       if (document.querySelectorAll('.cf-type-btn[data-type].active').length === 0) { if (allBtn) allBtn.classList.add('active'); }
       renderBuyerClassify();
     }
+    var CF_DEAL_MAP = { '매매s': ['매매','매월세','매전세','매전월'], '전세s': ['전세','매전세','전월세','매전월'], '월세s': ['월세','매월세','전월세','매전월'] };
+    function cfSyncDealGroupBtns() {
+      Object.keys(CF_DEAL_MAP).forEach(function(g) {
+        var groupBtn = document.querySelector('.cf-deal-btn[data-deal="' + g + '"]');
+        if (!groupBtn) return;
+        var allActive = CF_DEAL_MAP[g].every(function(v) { return !!document.querySelector('.cf-dealex-btn[data-dex="' + v + '"].active'); });
+        groupBtn.classList.toggle('active', allActive);
+      });
+      var noActive = document.querySelectorAll('.cf-dealex-btn.active').length === 0;
+      var allBtn = document.getElementById('cf-deal-all'); if (allBtn) allBtn.classList.toggle('active', noActive);
+    }
     function cfDealSelectAll() {
       document.querySelectorAll('.cf-deal-btn[data-deal]').forEach(function(b) { b.classList.remove('active'); });
       document.querySelectorAll('.cf-dealex-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -6513,23 +6528,19 @@
       renderBuyerClassify();
     }
     function cfDealToggle(btn, group) {
-      var map = { '매매s': ['매매','매월세','매전세','매전월'], '전세s': ['전세','매전세','전월세','매전월'], '월세s': ['월세','매월세','전월세','매전월'] };
-      var targets = map[group] || [];
-      var isActive = btn.classList.contains('active');
-      btn.classList.toggle('active');
-      var allBtn = document.getElementById('cf-deal-all'); if (allBtn) allBtn.classList.remove('active');
+      var targets = CF_DEAL_MAP[group] || [];
+      var allActive = targets.every(function(v) { return !!document.querySelector('.cf-dealex-btn[data-dex="' + v + '"].active'); });
       targets.forEach(function(v) {
         document.querySelectorAll('.cf-dealex-btn').forEach(function(b) {
-          if (b.dataset.dex === v) { isActive ? b.classList.remove('active') : b.classList.add('active'); }
+          if (b.dataset.dex === v) { allActive ? b.classList.remove('active') : b.classList.add('active'); }
         });
       });
-      if (document.querySelectorAll('.cf-deal-btn[data-deal].active').length === 0) { if (allBtn) allBtn.classList.add('active'); }
+      cfSyncDealGroupBtns();
       renderBuyerClassify();
     }
     function cfDealExToggle(btn) {
       btn.classList.toggle('active');
-      var allBtn = document.getElementById('cf-deal-all'); if (allBtn) allBtn.classList.remove('active');
-      if (document.querySelectorAll('.cf-dealex-btn.active').length === 0 && document.querySelectorAll('.cf-deal-btn[data-deal].active').length === 0) { if (allBtn) allBtn.classList.add('active'); }
+      cfSyncDealGroupBtns();
       renderBuyerClassify();
     }
     function cfDealAll() {
@@ -6581,6 +6592,17 @@
       if (document.querySelectorAll('.db-cf-type-btn.active').length === 0) { if (allBtn) allBtn.classList.add('active'); }
       applyDbSearch();
     }
+    var DB_DEAL_MAP = { '매매s': ['매매','매월세','매전세','매전월'], '전세s': ['전세','매전세','전월세','매전월'], '월세s': ['월세','매월세','전월세','매전월'] };
+    function dbCfSyncDealGroupBtns() {
+      Object.keys(DB_DEAL_MAP).forEach(function(g) {
+        var groupBtn = document.querySelector('.db-cf-deal-btn[data-deal="' + g + '"]');
+        if (!groupBtn) return;
+        var allActive = DB_DEAL_MAP[g].every(function(v) { return !!document.querySelector('.db-cf-dealex-btn[data-dex="' + v + '"].active'); });
+        groupBtn.classList.toggle('active', allActive);
+      });
+      var noActive = document.querySelectorAll('.db-cf-dealex-btn.active').length === 0;
+      var allBtn = document.getElementById('db-cf-deal-all'); if (allBtn) allBtn.classList.toggle('active', noActive);
+    }
     function dbCfDealSelectAll() {
       document.querySelectorAll('.db-cf-deal-btn').forEach(function(b) { b.classList.remove('active'); });
       document.querySelectorAll('.db-cf-dealex-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -6612,23 +6634,19 @@
       if (btn) btn.textContent = isOpen ? '펼치기' : '접기';
     }
     function dbCfDealToggle(btn, group) {
-      var map = { '매매s': ['매매','매월세','매전세','매전월'], '전세s': ['전세','매전세','전월세','매전월'], '월세s': ['월세','매월세','전월세','매전월'] };
-      var targets = map[group] || [];
-      var isActive = btn.classList.contains('active');
-      btn.classList.toggle('active');
-      var allBtn = document.getElementById('db-cf-deal-all'); if (allBtn) allBtn.classList.remove('active');
+      var targets = DB_DEAL_MAP[group] || [];
+      var allActive = targets.every(function(v) { return !!document.querySelector('.db-cf-dealex-btn[data-dex="' + v + '"].active'); });
       targets.forEach(function(v) {
         document.querySelectorAll('.db-cf-dealex-btn').forEach(function(b) {
-          if (b.dataset.dex === v) { isActive ? b.classList.remove('active') : b.classList.add('active'); }
+          if (b.dataset.dex === v) { allActive ? b.classList.remove('active') : b.classList.add('active'); }
         });
       });
-      if (document.querySelectorAll('.db-cf-deal-btn.active').length === 0) { if (allBtn) allBtn.classList.add('active'); }
+      dbCfSyncDealGroupBtns();
       applyDbSearch();
     }
     function dbCfDealExToggle(btn) {
       btn.classList.toggle('active');
-      var allBtn = document.getElementById('db-cf-deal-all'); if (allBtn) allBtn.classList.remove('active');
-      if (document.querySelectorAll('.db-cf-dealex-btn.active').length === 0 && document.querySelectorAll('.db-cf-deal-btn.active').length === 0) { if (allBtn) allBtn.classList.add('active'); }
+      dbCfSyncDealGroupBtns();
       applyDbSearch();
     }
     var DB_CF_DEAL_EXPAND = false;
@@ -6695,16 +6713,7 @@
     function getCfDeals() {
       var allBtn = document.getElementById('cf-deal-all');
       if (allBtn && allBtn.classList.contains('active')) return [];
-      var ex = document.getElementById('cf-deal-expand');
-      if (ex && ex.style.display !== 'none') {
-        return Array.from(document.querySelectorAll('.cf-dealex-btn.active')).map(function(b) { return b.dataset.dex; });
-      }
-      var active = Array.from(document.querySelectorAll('.cf-deal-btn[data-deal].active')).map(function(b) { return b.dataset.deal; });
-      var result = new Set();
-      if (active.indexOf('매매s') !== -1) ['매매','매월세','매전세','매전월'].forEach(function(v) { result.add(v); });
-      if (active.indexOf('전세s') !== -1) ['전세','매전세','전월세','매전월'].forEach(function(v) { result.add(v); });
-      if (active.indexOf('월세s') !== -1) ['월세','매월세','전월세','매전월'].forEach(function(v) { result.add(v); });
-      return Array.from(result);
+      return Array.from(document.querySelectorAll('.cf-dealex-btn.active')).map(function(b) { return b.dataset.dex; });
     }
 
     // DB탭 필터 — 활성 프로세스, 유형, 거래유형 수집
@@ -6721,16 +6730,7 @@
     function getDbCfDeals() {
       var allBtn = document.getElementById('db-cf-deal-all');
       if (allBtn && allBtn.classList.contains('active')) return [];
-      var ex = document.getElementById('db-cf-deal-expand');
-      if (ex && ex.style.display !== 'none') {
-        return Array.from(document.querySelectorAll('.db-cf-dealex-btn.active')).map(function(b) { return b.dataset.dex; });
-      }
-      var active = Array.from(document.querySelectorAll('.db-cf-deal-btn.active')).map(function(b) { return b.dataset.deal; });
-      var result = new Set();
-      if (active.indexOf('매매s') !== -1) ['매매','매월세','매전세','매전월'].forEach(function(v) { result.add(v); });
-      if (active.indexOf('전세s') !== -1) ['전세','매전세','전월세','매전월'].forEach(function(v) { result.add(v); });
-      if (active.indexOf('월세s') !== -1) ['월세','매월세','전월세','매전월'].forEach(function(v) { result.add(v); });
-      return Array.from(result);
+      return Array.from(document.querySelectorAll('.db-cf-dealex-btn.active')).map(function(b) { return b.dataset.dex; });
     }
 
     // 열별 고정 너비 (px) — 구입자 분류탭 하단 테이블 통일
@@ -7285,7 +7285,7 @@
         <div class="detail-header">
           <div>
             <div class="detail-title" id="sg-DT"></div>
-            <div id="sg-DI" style="font-family:monospace;font-size:11px;color:var(--accent);letter-spacing:1px;margin-top:2px;display:none;"></div>
+            <div id="sg-DI" style="font-family:monospace;font-size:11px;color:#ffffff;letter-spacing:1px;margin-top:2px;display:none;"></div>
             <div class="detail-subtitle" id="sg-DS"></div>
           </div>
           <div style="display:flex;gap:7px;flex-shrink:0;align-items:center;">
@@ -7854,7 +7854,7 @@
       <div class="detail-header">
         <div>
           <div class="detail-title" id="buyer-det-title"></div>
-          <div id="buyer-det-id" style="font-family:monospace;font-size:11px;color:var(--accent);letter-spacing:1px;margin-top:2px;display:none;"></div>
+          <div id="buyer-det-id" style="font-family:monospace;font-size:11px;color:#ffffff;letter-spacing:1px;margin-top:2px;display:none;"></div>
           <div class="detail-subtitle" id="buyer-det-sub"></div>
         </div>
         <div style="display:flex;gap:7px;align-items:center;">
