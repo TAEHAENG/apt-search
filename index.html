@@ -1944,8 +1944,10 @@
         margin: 0 !important;
         padding: 0 !important;
       }
-      /* 테이블 인쇄 스타일 */
-      table { width: 100% !important; border-collapse: collapse !important; table-layout: auto !important; font-size: 9pt; }
+      /* 체크박스 열 숨김 */
+      .col-check { display: none !important; }
+      /* 테이블 인쇄 스타일 — table-layout:fixed 로 열너비 비율 유지 */
+      table { width: 100% !important; border-collapse: collapse !important; table-layout: fixed !important; font-size: 9pt; }
       thead { display: table-header-group; position: static !important; top: auto !important; z-index: auto !important; } /* 페이지마다 헤더 반복 */
       thead tr { position: static !important; top: auto !important; z-index: auto !important; background: transparent !important; }
       thead th {
@@ -1957,6 +1959,7 @@
         border: 1px solid #94a3b8 !important;
         padding: 3px 4px !important;
         font-size: 8pt;
+        overflow: hidden;
         cursor: default;
       }
       tbody td {
@@ -1965,6 +1968,8 @@
         color: #1e293b !important;
         background: #fff !important;
         white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
         font-size: 8pt;
       }
       /* cell-clamp는 테이블뷰 높이 그대로 인쇄 — 해제하지 않음 */
