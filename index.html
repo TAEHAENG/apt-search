@@ -681,10 +681,15 @@
       border: 1px solid rgba(148,163,184,0.35); background: rgba(148,163,184,0.1);
       color: #94a3b8; font-weight: 600;
     }
-    .col-hide-panel { display:none; flex-wrap:wrap; gap:3px 10px; padding:4px 0; }
-    .col-hide-panel.open { display:flex; }
+    .col-hide-panel { display:none; padding:4px 0; }
+    .col-hide-panel.open { display:block; }
     .col-hide-panel label { font-size:11px; color:#94a3b8; cursor:pointer; display:flex; align-items:center; gap:3px; white-space:nowrap; }
     .col-hide-panel label:hover { color:#cbd5e1; }
+    .chp-table { border-collapse:collapse; font-size:11px; color:#94a3b8; }
+    .chp-table thead th { text-align:center; padding:1px 8px 3px; font-weight:normal; font-size:10px; color:#94a3b8; }
+    .chp-table thead th:nth-child(3) { color:#7dd3fc; }
+    .chp-table tbody td { padding:1px 4px; white-space:nowrap; }
+    .chp-table tbody td:nth-child(2), .chp-table tbody td:nth-child(3) { text-align:center; }
     /* 열 순서 드래그 */
     .col-order-mode { cursor: grab !important; }
     .col-dragging { opacity: 0.4; background: rgba(96,165,250,0.15) !important; }
@@ -1944,8 +1949,6 @@
         margin: 0 !important;
         padding: 0 !important;
       }
-      /* 체크박스 열 숨김 */
-      .col-check { display: none !important; }
       /* 테이블 인쇄 스타일 — table-layout:fixed 로 열너비 비율 유지 */
       table { width: 100% !important; border-collapse: collapse !important; table-layout: fixed !important; font-size: 9pt; }
       thead { display: table-header-group; position: static !important; top: auto !important; z-index: auto !important; } /* 페이지마다 헤더 반복 */
@@ -1960,6 +1963,8 @@
         padding: 3px 4px !important;
         font-size: 8pt;
         overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
         cursor: default;
       }
       tbody td {
@@ -2303,22 +2308,22 @@
     <table id="apt-main-table">
       <thead>
         <tr>
-          <th data-col-idx="0" class="col-check"><input type="checkbox" id="chk-all" onclick="toggleAllSelect(this)"
+          <th data-col-idx="0" class="col-check" data-col-name="선택"><input type="checkbox" id="chk-all" onclick="toggleAllSelect(this)"
               style="width:15px;height:15px;cursor:pointer;accent-color:#1d4ed8;"></th>
           <th data-col-idx="1" class="col-date" onclick="srt('실행일',this)">실행일 ↕</th>
           <th data-col-idx="2" class="col-type" onclick="srt('유형',this)">유형 ↕</th>
-          <th data-col-idx="3" class="col-building" onclick="srt('건물명',this)">건물명 ↕</th>
+          <th data-col-idx="3" class="col-building" onclick="srt('건물명',this)" data-col-abbr="건물">건물명 ↕</th>
           <th data-col-idx="4" class="col-dong" onclick="srt('동',this)">동 ↕</th>
           <th data-col-idx="5" class="col-ho" onclick="srt('호',this)">호 ↕</th>
-          <th data-col-idx="6" class="col-typev" onclick="srt('타입(공용)',this)">타입(공용) ↕</th>
-          <th data-col-idx="7" class="col-typev2" onclick="srt('타입(전용)',this)">타입(전용) ↕</th>
+          <th data-col-idx="6" class="col-typev" onclick="srt('타입(공용)',this)" data-col-abbr="타(공)">타입(공용) ↕</th>
+          <th data-col-idx="7" class="col-typev2" onclick="srt('타입(전용)',this)" data-col-abbr="타(전)">타입(전용) ↕</th>
           <th data-col-idx="8" class="col-owner" onclick="srt('소유자',this)">소유자 ↕</th>
           <th data-col-idx="9" class="col-price" onclick="srt('가격',this)">가격 ↕</th>
-          <th data-col-idx="10" class="col-memo" onclick="srt('상담 내용',this)">상담 내용 ↕</th>
+          <th data-col-idx="10" class="col-memo" onclick="srt('상담 내용',this)">상담내용 ↕</th>
           <th data-col-idx="11" class="col-expire" onclick="srt('만기일',this)">만기일 ↕</th>
           <th data-col-idx="12" class="col-e" onclick="srt('에어컨',this)">에 ↕</th>
           <th data-col-idx="13" class="col-room" onclick="srt('방',this)">방 ↕</th>
-          <th data-col-idx="14" class="col-loan" onclick="srt('융자',this)">융자 ↕</th>
+          <th data-col-idx="14" class="col-loan" onclick="srt('융자',this)" data-col-abbr="융">융자 ↕</th>
           <th data-col-idx="15" class="col-adcycle" onclick="srt('광고주기',this)">광고주기 ↕</th>
           <th data-col-idx="16" class="col-process" onclick="srt('프로세스',this)">프로세스 ↕</th>
           <th data-col-idx="17" class="col-guest" onclick="srt('손님구분',this)">손님구분 ↕</th>
@@ -3397,6 +3402,7 @@
       pg.forEach(function (r, i) { rows += makeRow(r, st + i); });
       document.getElementById('TB').innerHTML = rows;
       renderPager();
+      updateColAbbr('apt');
     }
     function renderPager() {
       var tot = Math.ceil(FD.length / PER);
@@ -4103,6 +4109,7 @@
         });
       }
       el.textContent = css;
+      applyColHidePrint(tableType);
     }
     function toggleColHide(tableType, colName, visible) {
       var hidden = loadColHide(tableType);
@@ -4118,22 +4125,105 @@
       var tbl = document.getElementById(tableId);
       if (!tbl || tbl.offsetWidth === 0) { showToast('해당 탭에서 열어주세요'); return; }
       var ths = tbl.querySelectorAll('thead th');
-      var hiddenNames = loadColHide(tableType);
-      var html = '';
+      var hiddenView = loadColHide(tableType);
+      var hiddenPrint = loadColHidePrint(tableType);
+      var html = '<table class="chp-table"><thead><tr><th></th><th>보기</th><th>인쇄</th></tr></thead><tbody>';
       ths.forEach(function(th) {
         var label = _cwColName(th);
         if (!label) return;
         var safe = label.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-        var checked = !hiddenNames.has(label) ? 'checked' : '';
-        html += '<label><input type="checkbox" ' + checked + ' onchange="toggleColHide(\'' + tableType + '\',\'' + safe + '\',this.checked)" style="width:12px;height:12px;accent-color:#1d4ed8;">' + esc(label) + '</label>';
+        var vc = !hiddenView.has(label) ? 'checked' : '';
+        var pc = !hiddenPrint.has(label) ? 'checked' : '';
+        html += '<tr><td>' + esc(label) + '</td>' +
+          '<td><input type="checkbox" ' + vc + ' onchange="toggleColHide(\'' + tableType + '\',\'' + safe + '\',this.checked)" style="width:12px;height:12px;accent-color:#1d4ed8;"></td>' +
+          '<td><input type="checkbox" ' + pc + ' onchange="toggleColHidePrint(\'' + tableType + '\',\'' + safe + '\',this.checked)" style="width:12px;height:12px;accent-color:#0ea5e9;"></td>' +
+          '</tr>';
       });
+      html += '</tbody></table>';
       panel.innerHTML = html;
       panel.classList.add('open');
     }
 
-    // th 텍스트에서 컬럼명 추출 (↕/정렬기호 제거)
+    // th 텍스트에서 컬럼명 추출 (data-col-name 우선, 없으면 텍스트에서 기호 제거)
     function _cwColName(th) {
+      if (th.dataset.colName) return th.dataset.colName;
+      // data-col-abbr이 있으면 항상 전체 이름 반환 (약어 전환 상태와 무관)
+      if (th.dataset.colAbbr) return th.dataset.colFull || (_ABBR_FULL && _ABBR_FULL[th.dataset.colAbbr]) || th.textContent.replace(/[↕▲▼↕▲▼]/g, '').trim();
       return th.textContent.replace(/[↕▲▼↕▲▼]/g, '').trim();
+    }
+
+    // ── 헤더 약어 자동 전환 (열너비 < 텍스트 너비 시 약어로 표시) ──
+    var _ABBR_FULL = { '건물':'건물명', '타(공)':'타입(공용)', '타(전)':'타입(전용)', '융':'융자', '상호(현)':'현재상호', '상호(과)':'과거입점상호' };
+    function _measureThText(text, th) {
+      var sp = document.createElement('span');
+      sp.style.cssText = 'visibility:hidden;position:absolute;white-space:nowrap;pointer-events:none;';
+      var cs = window.getComputedStyle(th);
+      sp.style.font = cs.font || (cs.fontSize + ' ' + cs.fontFamily);
+      sp.textContent = text;
+      document.body.appendChild(sp);
+      var w = sp.offsetWidth;
+      document.body.removeChild(sp);
+      return w;
+    }
+    function updateColAbbr(tableType) {
+      var tableId = _COL_HIDE_TABLE[tableType];
+      var tbl = document.getElementById(tableId);
+      if (!tbl) return;
+      tbl.querySelectorAll('thead th[data-col-abbr]').forEach(function(th) {
+        var abbr = th.dataset.colAbbr;
+        var full = th.dataset.colFull || (_ABBR_FULL[abbr] || abbr);
+        if (!th.dataset.colFull) th.dataset.colFull = full;
+        var arrow = th.textContent.match(/[↕▲▼]/);
+        var arrowStr = arrow ? ' ' + arrow[0] : '';
+        var thW = th.clientWidth;
+        if (thW === 0) return;
+        var fullW = _measureThText(full + arrowStr, th);
+        var curText = th.textContent.replace(/\s*[↕▲▼]\s*$/, '').trim();
+        if (fullW + 8 <= thW) { if (curText !== full) th.textContent = full + arrowStr; }
+        else { if (curText !== abbr) th.textContent = abbr + arrowStr; }
+      });
+    }
+
+    // ── 인쇄 숨기기 (슬롯별 저장) ─────────────────────────
+    function loadColHidePrint(tableType, slot) {
+      var s = (slot !== undefined) ? slot : getCurrentSlot();
+      var key = 'col_hide_' + tableType + '_s' + s + '_p';
+      var stored = localStorage.getItem(key);
+      if (stored === null) {
+        // 기본값: apt는 선택·실행일 인쇄 숨김
+        if (tableType === 'apt') return new Set(['선택', '실행일']);
+        return new Set();
+      }
+      try { return new Set(JSON.parse(stored)); } catch(e) { return new Set(); }
+    }
+    function saveColHidePrint(tableType, hidden, slot) {
+      var s = (slot !== undefined) ? slot : getCurrentSlot();
+      var key = 'col_hide_' + tableType + '_s' + s + '_p';
+      try { localStorage.setItem(key, JSON.stringify(Array.from(hidden))); } catch(e) {}
+    }
+    function applyColHidePrint(tableType) {
+      var tableId = _COL_HIDE_TABLE[tableType];
+      var tbl = document.getElementById(tableId);
+      var hiddenNames = loadColHidePrint(tableType);
+      var styleId = 'col-hide-print-style-' + tableType;
+      var el = document.getElementById(styleId);
+      if (!el) { el = document.createElement('style'); el.id = styleId; document.head.appendChild(el); }
+      var css = '';
+      if (tbl) {
+        tbl.querySelectorAll('thead th').forEach(function(th, i) {
+          var name = _cwColName(th);
+          if (hiddenNames.has(name)) {
+            css += '@media print { #' + tableId + ' thead th:nth-child(' + (i+1) + '), #' + tableId + ' tbody td:nth-child(' + (i+1) + ') { display:none !important; } }\n';
+          }
+        });
+      }
+      el.textContent = css;
+    }
+    function toggleColHidePrint(tableType, colName, visible) {
+      var hidden = loadColHidePrint(tableType);
+      if (visible) hidden.delete(colName); else hidden.add(colName);
+      saveColHidePrint(tableType, hidden);
+      applyColHidePrint(tableType);
     }
 
     // ── 열 순서 ─────────────────────────────────────────
@@ -4355,7 +4445,9 @@
       _rTh.querySelector('.col-resize-handle') && _rTh.querySelector('.col-resize-handle').classList.remove('dragging');
       // 드래그한 테이블의 현재 활성 슬롯에 저장
       // 드래그 종료 시 자동저장하지 않음 — 패널에서 명시적으로 저장
-      _rTh = null;
+      var _savedKey = _rTableKey; _rTh = null;
+      // 약어 자동 전환 업데이트
+      Object.keys(_COL_HIDE_TABLE).forEach(function(t){ if (_COL_HIDE_TABLE[t] === _savedKey) updateColAbbr(t); });
     }
 
     // 설정 패널 열기/닫기
@@ -5460,6 +5552,7 @@
       if (tb) tb.innerHTML = slice.map(function(r, i){ return sgMakeRow(r, st + i); }).join('');
       applyColOrder('sg'); applyColHide('sg');
       sgRenderPager();
+      updateColAbbr('sg');
       // search event
       var si = document.getElementById('sg-SI2');
       if (si && !si._sgBound) {
@@ -7259,13 +7352,13 @@
         <thead>
           <tr>
             <th data-col-idx="0" style="width:70px;" onclick="sgSrt('실행일',this)">실행일 ↕</th>
-            <th data-col-idx="1" style="width:90px;" onclick="sgSrt('건물명',this)">건물명 ↕</th>
+            <th data-col-idx="1" style="width:90px;" onclick="sgSrt('건물명',this)" data-col-abbr="건물">건물명 ↕</th>
             <th data-col-idx="2" style="width:55px;" onclick="sgSrt('유형',this)">유형 ↕</th>
             <th data-col-idx="3" style="width:30px;" onclick="sgSrt('측',this)">측 ↕</th>
             <th data-col-idx="4" style="width:40px;" onclick="sgSrt('동',this)">동 ↕</th>
             <th data-col-idx="5" style="width:40px;" onclick="sgSrt('호',this)">호 ↕</th>
-            <th data-col-idx="6" style="width:90px;" onclick="sgSrt('현재상호',this)">현재상호 ↕</th>
-            <th data-col-idx="7" style="width:90px;" onclick="sgSrt('과거입점상호',this)">과거입점상호 ↕</th>
+            <th data-col-idx="6" style="width:90px;" onclick="sgSrt('현재상호',this)" data-col-abbr="상호(현)">현재상호 ↕</th>
+            <th data-col-idx="7" style="width:90px;" onclick="sgSrt('과거입점상호',this)" data-col-abbr="상호(과)">과거입점상호 ↕</th>
             <th data-col-idx="8" style="width:55px;" onclick="sgSrt('전용(평)',this)">전용(평) ↕</th>
             <th data-col-idx="9" style="width:75px;" onclick="sgSrt('매매가',this)">매매가 ↕</th>
             <th data-col-idx="10" style="width:75px;" onclick="sgSrt('보증금',this)">보증금 ↕</th>
