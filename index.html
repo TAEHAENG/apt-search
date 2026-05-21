@@ -15,6 +15,17 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="아이파크검색기">
   <meta name="mobile-web-app-capable" content="yes">
+  <script>(function(){
+    var appleEl=document.querySelector('link[rel="apple-touch-icon"]');
+    if(!appleEl||!appleEl.href.startsWith('data:'))return;
+    var b64=appleEl.href.split(',')[1];if(!b64)return;
+    function toBlob(data,type){var raw=atob(data),arr=new Uint8Array(raw.length);for(var i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);return new Blob([arr],{type:type||'image/png'});}
+    var iconUrl=URL.createObjectURL(toBlob(b64));
+    appleEl.href=iconUrl;
+    var mfJson=JSON.stringify({name:'아이파크 부동산 검색기',short_name:'검색기',description:'APT 매물 부동산 검색기',start_url:'./',display:'standalone',background_color:'#eef0f4',theme_color:'#1d4ed8',orientation:'portrait',icons:[{src:iconUrl,sizes:'180x180',type:'image/png',purpose:'any'},{src:iconUrl,sizes:'192x192',type:'image/png',purpose:'any maskable'}]});
+    var mfEl=document.querySelector('link[rel="manifest"]');if(mfEl)mfEl.href=URL.createObjectURL(new Blob([mfJson],{type:'application/manifest+json'}));
+    var favEl=document.querySelector('link[rel="icon"]');if(favEl)favEl.href=iconUrl;
+  })();</script>
   <title>아이파크 부동산 검색기</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
@@ -6578,6 +6589,22 @@
       body.style.display = isOpen ? 'none' : 'block';
       if (btn) btn.textContent = isOpen ? '입력' : '닫기';
     }
+    function dbToggleMovein() {
+      var body = document.getElementById('db-movein-body');
+      var btn = document.getElementById('db-movein-toggle-btn');
+      if (!body) return;
+      var isOpen = body.style.display !== 'none';
+      body.style.display = isOpen ? 'none' : 'block';
+      if (btn) btn.textContent = isOpen ? '입력' : '닫기';
+    }
+    function cfToggleMovein() {
+      var body = document.getElementById('cf-movein-body');
+      var btn = document.getElementById('cf-movein-toggle-btn');
+      if (!body) return;
+      var isOpen = body.style.display !== 'none';
+      body.style.display = isOpen ? 'none' : 'block';
+      if (btn) btn.textContent = isOpen ? '펼치기' : '접기';
+    }
     function dbCfDealToggle(btn, group) {
       var map = { '매매s': ['매매','매월세','매전세','매전월'], '전세s': ['전세','매전세','전월세','매전월'], '월세s': ['월세','매월세','전월세','매전월'] };
       var targets = map[group] || [];
@@ -6798,7 +6825,7 @@
       // 각 부동산유형별 처리
       var PROP_TYPES = ['아파트', '상가'];
       PROP_TYPES.forEach(function(propType) {
-        if (activeTypes.indexOf(propType) === -1) return;
+        if (activeTypes.length && activeTypes.indexOf(propType) === -1) return;
 
         // 이 유형에 해당하는 행 (부동산유형 열 기준, 공란도 포함)
         function matchProp(r) {
@@ -6814,7 +6841,7 @@
         html += '<div class="classify-section"><div class="classify-section-title">#' + propType + '</div>';
 
         // 1. 매매s
-        var maemaeDeals = MAEMAE_DEALS.filter(function(d) { return activeDeals.indexOf(d) !== -1; });
+        var maemaeDeals = activeDeals.length ? MAEMAE_DEALS.filter(function(d) { return activeDeals.indexOf(d) !== -1; }) : MAEMAE_DEALS;
         var mmRows = typeRows.filter(function(r) { return maemaeDeals.indexOf(r['거래유형'] || '') !== -1; });
         if (mmRows.length) {
           html += '<div class="classify-group-title">' + propType + '-매매s</div>';
@@ -6840,7 +6867,7 @@
         }
 
         // 2. 전세s
-        var jeonseDeals = JEONSE_DEALS.filter(function(d) { return activeDeals.indexOf(d) !== -1; });
+        var jeonseDeals = activeDeals.length ? JEONSE_DEALS.filter(function(d) { return activeDeals.indexOf(d) !== -1; }) : JEONSE_DEALS;
         var jsRows = typeRows.filter(function(r) { return jeonseDeals.indexOf(r['거래유형'] || '') !== -1; });
         if (jsRows.length) {
           html += '<div class="classify-group-title">' + propType + '-전세s</div>';
@@ -6848,7 +6875,7 @@
         }
 
         // 3. 월세s
-        var wolseDeals = WOLSE_DEALS.filter(function(d) { return activeDeals.indexOf(d) !== -1; });
+        var wolseDeals = activeDeals.length ? WOLSE_DEALS.filter(function(d) { return activeDeals.indexOf(d) !== -1; }) : WOLSE_DEALS;
         var wsRows = typeRows.filter(function(r) { return wolseDeals.indexOf(r['거래유형'] || '') !== -1; });
         if (wsRows.length) {
           html += '<div class="classify-group-title">' + propType + '-월세s</div>';
@@ -7641,11 +7668,16 @@
         </div>
         <!-- 4. 입주일 -->
         <div>
-          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">입주일 범위</div>
-          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
-            <input id="db-cf-movein-from" type="date" style="padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);font-size:11px;flex:1;min-width:120px;" oninput="applyDbSearch()">
-            <span style="color:var(--text2);">~</span>
-            <input id="db-cf-movein-to" type="date" style="padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);font-size:11px;flex:1;min-width:120px;" oninput="applyDbSearch()">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+            <div style="font-size:10px;color:var(--text2);font-weight:600;">입주일 범위</div>
+            <button id="db-movein-toggle-btn" onclick="dbToggleMovein()" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);cursor:pointer;">입력</button>
+          </div>
+          <div id="db-movein-body" style="display:none;">
+            <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+              <input id="db-cf-movein-from" type="date" style="padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);font-size:11px;flex:1;min-width:120px;" oninput="applyDbSearch()">
+              <span style="color:var(--text2);">~</span>
+              <input id="db-cf-movein-to" type="date" style="padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);font-size:11px;flex:1;min-width:120px;" oninput="applyDbSearch()">
+            </div>
           </div>
         </div>
       </div>
@@ -7792,12 +7824,17 @@
         </div>
         <!-- 4. 입주일 -->
         <div>
-          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">입주일 범위</div>
-          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
-            <input id="cf-movein-from" class="ef-input" type="date" style="padding:4px 6px;font-size:11px;flex:1;" oninput="renderBuyerClassify()">
-            <span style="color:var(--text3);">~</span>
-            <input id="cf-movein-to" class="ef-input" type="date" style="padding:4px 6px;font-size:11px;flex:1;" oninput="renderBuyerClassify()">
-            <button onclick="cfResetAll()" style="padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text3);font-size:11px;cursor:pointer;">초기화</button>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+            <div style="font-size:10px;color:var(--text2);font-weight:600;">입주일 범위</div>
+            <button id="cf-movein-toggle-btn" onclick="cfToggleMovein()" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);cursor:pointer;">펼치기</button>
+          </div>
+          <div id="cf-movein-body" style="display:none;">
+            <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+              <input id="cf-movein-from" class="ef-input" type="date" style="padding:4px 6px;font-size:11px;flex:1;" oninput="renderBuyerClassify()">
+              <span style="color:var(--text3);">~</span>
+              <input id="cf-movein-to" class="ef-input" type="date" style="padding:4px 6px;font-size:11px;flex:1;" oninput="renderBuyerClassify()">
+              <button onclick="cfResetAll()" style="padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text3);font-size:11px;cursor:pointer;">초기화</button>
+            </div>
           </div>
         </div>
       </div>
