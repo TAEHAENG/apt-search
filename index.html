@@ -4173,14 +4173,28 @@
         var abbr = th.dataset.colAbbr;
         var full = th.dataset.colFull || (_ABBR_FULL[abbr] || abbr);
         if (!th.dataset.colFull) th.dataset.colFull = full;
-        var arrow = th.textContent.match(/[↕▲▼]/);
-        var arrowStr = arrow ? ' ' + arrow[0] : '';
         var thW = th.clientWidth;
         if (thW === 0) return;
+        // 텍스트 노드만 찾아서 수정 (resize handle 등 자식 엘리먼트 보존)
+        var textNode = null;
+        for (var i = 0; i < th.childNodes.length; i++) {
+          if (th.childNodes[i].nodeType === 3) { textNode = th.childNodes[i]; break; }
+        }
+        var curRaw = textNode ? textNode.nodeValue : th.textContent;
+        var arrow = curRaw.match(/[↕▲▼]/);
+        var arrowStr = arrow ? ' ' + arrow[0] : '';
+        var curLabel = curRaw.replace(/\s*[↕▲▼]\s*$/, '').trim();
         var fullW = _measureThText(full + arrowStr, th);
-        var curText = th.textContent.replace(/\s*[↕▲▼]\s*$/, '').trim();
-        if (fullW + 8 <= thW) { if (curText !== full) th.textContent = full + arrowStr; }
-        else { if (curText !== abbr) th.textContent = abbr + arrowStr; }
+        var wantLabel = (fullW + 8 <= thW) ? full : abbr;
+        if (curLabel === wantLabel) return;
+        if (textNode) {
+          textNode.nodeValue = wantLabel + arrowStr;
+        } else {
+          // 핸들 없는 상태면 textContent 교체 (handle이 있으면 재부착)
+          var handle = th.querySelector('.col-resize-handle');
+          th.textContent = wantLabel + arrowStr;
+          if (handle) th.appendChild(handle);
+        }
       });
     }
 
