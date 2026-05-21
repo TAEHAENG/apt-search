@@ -6467,29 +6467,54 @@
     async function loadBuyerList() { await loadBuyerDb(); renderBuyerClassify(); }
     // ══════════ 구입자 분류탭 필터 ══════════
     var CF_DEAL_EXPAND = false;
-    function cfProcToggle(btn) { btn.classList.toggle('active'); renderBuyerClassify(); }
-    function cfProcAll() {
-      var btns = document.querySelectorAll('.cf-proc-btn');
-      var anyActive = Array.from(btns).some(function(b) { return b.classList.contains('active'); });
-      btns.forEach(function(b) { anyActive ? b.classList.remove('active') : b.classList.add('active'); });
+    function cfProcToggle(btn) {
+      btn.classList.toggle('active');
+      var allBtn = document.getElementById('cf-btn-all-proc'); if (allBtn) allBtn.classList.remove('active');
+      if (document.querySelectorAll('.cf-proc-btn[data-proc].active').length === 0) { if (allBtn) allBtn.classList.add('active'); }
       renderBuyerClassify();
     }
-    function cfTypeToggle(btn) { btn.classList.toggle('active'); renderBuyerClassify(); }
+    function cfProcAll() {
+      document.querySelectorAll('.cf-proc-btn[data-proc]').forEach(function(b) { b.classList.remove('active'); });
+      var allBtn = document.getElementById('cf-btn-all-proc'); if (allBtn) allBtn.classList.add('active');
+      renderBuyerClassify();
+    }
+    function cfTypeAll() {
+      document.querySelectorAll('.cf-type-btn[data-type]').forEach(function(b) { b.classList.remove('active'); });
+      var allBtn = document.getElementById('cf-type-all'); if (allBtn) allBtn.classList.add('active');
+      renderBuyerClassify();
+    }
+    function cfTypeToggle(btn) {
+      btn.classList.toggle('active');
+      var allBtn = document.getElementById('cf-type-all'); if (allBtn) allBtn.classList.remove('active');
+      if (document.querySelectorAll('.cf-type-btn[data-type].active').length === 0) { if (allBtn) allBtn.classList.add('active'); }
+      renderBuyerClassify();
+    }
+    function cfDealSelectAll() {
+      document.querySelectorAll('.cf-deal-btn[data-deal]').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.cf-dealex-btn').forEach(function(b) { b.classList.remove('active'); });
+      var allBtn = document.getElementById('cf-deal-all'); if (allBtn) allBtn.classList.add('active');
+      renderBuyerClassify();
+    }
     function cfDealToggle(btn, group) {
-      // 그룹 토글: 매매s, 전세s, 월세s
       var map = { '매매s': ['매매','매월세','매전세','매전월'], '전세s': ['전세','매전세','전월세','매전월'], '월세s': ['월세','매월세','전월세','매전월'] };
       var targets = map[group] || [];
       var isActive = btn.classList.contains('active');
       btn.classList.toggle('active');
-      // 확장 버튼도 연동
+      var allBtn = document.getElementById('cf-deal-all'); if (allBtn) allBtn.classList.remove('active');
       targets.forEach(function(v) {
         document.querySelectorAll('.cf-dealex-btn').forEach(function(b) {
           if (b.dataset.dex === v) { isActive ? b.classList.remove('active') : b.classList.add('active'); }
         });
       });
+      if (document.querySelectorAll('.cf-deal-btn[data-deal].active').length === 0) { if (allBtn) allBtn.classList.add('active'); }
       renderBuyerClassify();
     }
-    function cfDealExToggle(btn) { btn.classList.toggle('active'); renderBuyerClassify(); }
+    function cfDealExToggle(btn) {
+      btn.classList.toggle('active');
+      var allBtn = document.getElementById('cf-deal-all'); if (allBtn) allBtn.classList.remove('active');
+      if (document.querySelectorAll('.cf-dealex-btn.active').length === 0 && document.querySelectorAll('.cf-deal-btn[data-deal].active').length === 0) { if (allBtn) allBtn.classList.add('active'); }
+      renderBuyerClassify();
+    }
     function cfDealAll() {
       CF_DEAL_EXPAND = !CF_DEAL_EXPAND;
       var ex = document.getElementById('cf-deal-expand');
@@ -6497,19 +6522,35 @@
       if (ex) ex.style.display = CF_DEAL_EXPAND ? 'flex' : 'none';
       if (btn) btn.textContent = CF_DEAL_EXPAND ? '- 접기' : '+ 전체보기';
     }
+    function cfToggleBudget() {
+      var body = document.getElementById('cf-budget-body');
+      var btn = document.getElementById('cf-budget-toggle-btn');
+      if (!body) return;
+      var isOpen = body.style.display !== 'none';
+      body.style.display = isOpen ? 'none' : 'block';
+      if (btn) btn.textContent = isOpen ? '펼치기' : '접기';
+    }
     function cfResetAll() {
-      document.querySelectorAll('.cf-proc-btn').forEach(function(b) { b.dataset.proc === '종료' ? b.classList.remove('active') : b.classList.add('active'); });
-      document.querySelectorAll('.cf-type-btn, .cf-deal-btn, .cf-dealex-btn').forEach(function(b) { b.classList.add('active'); });
+      document.querySelectorAll('.cf-proc-btn[data-proc]').forEach(function(b) { b.classList.remove('active'); });
+      var procAll = document.getElementById('cf-btn-all-proc'); if (procAll) procAll.classList.add('active');
+      document.querySelectorAll('.cf-type-btn[data-type]').forEach(function(b) { b.classList.remove('active'); });
+      var typeAll = document.getElementById('cf-type-all'); if (typeAll) typeAll.classList.add('active');
+      document.querySelectorAll('.cf-deal-btn[data-deal], .cf-dealex-btn').forEach(function(b) { b.classList.remove('active'); });
+      var dealAll = document.getElementById('cf-deal-all'); if (dealAll) dealAll.classList.add('active');
       ['cf-price-min','cf-price-max','cf-dep-min','cf-dep-max','cf-rent-min','cf-rent-max','cf-movein-from','cf-movein-to'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
       renderBuyerClassify();
     }
 
     // ══════════ DB탭 필터 ══════════
-    function dbCfProcToggle(btn) { btn.classList.toggle('active'); applyDbSearch(); }
+    function dbCfProcToggle(btn) {
+      btn.classList.toggle('active');
+      var allBtn = document.getElementById('db-cf-btn-all-proc'); if (allBtn) allBtn.classList.remove('active');
+      if (document.querySelectorAll('.db-cf-proc-btn.active').length === 0) { if (allBtn) allBtn.classList.add('active'); }
+      applyDbSearch();
+    }
     function dbCfProcAll() {
-      var btns = document.querySelectorAll('.db-cf-proc-btn');
-      var anyActive = Array.from(btns).some(function(b) { return b.classList.contains('active'); });
-      btns.forEach(function(b) { anyActive ? b.classList.remove('active') : b.classList.add('active'); });
+      document.querySelectorAll('.db-cf-proc-btn').forEach(function(b) { b.classList.remove('active'); });
+      var allBtn = document.getElementById('db-cf-btn-all-proc'); if (allBtn) allBtn.classList.add('active');
       applyDbSearch();
     }
     function dbCfTypeAll() {
@@ -6608,15 +6649,24 @@
     }
 
     // 현재 필터 상태에서 활성 프로세스, 유형, 거래유형 수집
-    function getCfProcs() { return Array.from(document.querySelectorAll('.cf-proc-btn.active')).map(function(b) { return b.dataset.proc; }); }
-    function getCfTypes() { return Array.from(document.querySelectorAll('.cf-type-btn.active')).map(function(b) { return b.dataset.type; }); }
+    function getCfProcs() {
+      var allBtn = document.getElementById('cf-btn-all-proc');
+      if (allBtn && allBtn.classList.contains('active')) return [];
+      return Array.from(document.querySelectorAll('.cf-proc-btn[data-proc].active')).map(function(b) { return b.dataset.proc; });
+    }
+    function getCfTypes() {
+      var allBtn = document.getElementById('cf-type-all');
+      if (allBtn && allBtn.classList.contains('active')) return [];
+      return Array.from(document.querySelectorAll('.cf-type-btn[data-type].active')).map(function(b) { return b.dataset.type; });
+    }
     function getCfDeals() {
-      // 확장 열려있으면 개별 버튼, 아니면 s그룹 버튼 기반
+      var allBtn = document.getElementById('cf-deal-all');
+      if (allBtn && allBtn.classList.contains('active')) return [];
       var ex = document.getElementById('cf-deal-expand');
       if (ex && ex.style.display !== 'none') {
         return Array.from(document.querySelectorAll('.cf-dealex-btn.active')).map(function(b) { return b.dataset.dex; });
       }
-      var active = Array.from(document.querySelectorAll('.cf-deal-btn.active')).map(function(b) { return b.dataset.deal; });
+      var active = Array.from(document.querySelectorAll('.cf-deal-btn[data-deal].active')).map(function(b) { return b.dataset.deal; });
       var result = new Set();
       if (active.indexOf('매매s') !== -1) ['매매','매월세','매전세','매전월'].forEach(function(v) { result.add(v); });
       if (active.indexOf('전세s') !== -1) ['전세','매전세','전월세','매전월'].forEach(function(v) { result.add(v); });
@@ -6625,7 +6675,11 @@
     }
 
     // DB탭 필터 — 활성 프로세스, 유형, 거래유형 수집
-    function getDbCfProcs() { return Array.from(document.querySelectorAll('.db-cf-proc-btn.active')).map(function(b) { return b.dataset.proc; }); }
+    function getDbCfProcs() {
+      var allBtn = document.getElementById('db-cf-btn-all-proc');
+      if (allBtn && allBtn.classList.contains('active')) return [];
+      return Array.from(document.querySelectorAll('.db-cf-proc-btn.active')).map(function(b) { return b.dataset.proc; });
+    }
     function getDbCfTypes() {
       var allBtn = document.getElementById('db-cf-type-all');
       if (allBtn && allBtn.classList.contains('active')) return [];
@@ -7516,13 +7570,13 @@
         <div style="margin-bottom:10px;">
           <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">프로세스</div>
           <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
-            <button id="db-cf-btn-all-proc" onclick="dbCfProcAll()" class="sel-btn" style="padding:4px 10px;border-radius:5px;">전체</button>
-            <button class="sel-btn db-cf-proc-btn active" data-proc="예비고객" onclick="dbCfProcToggle(this)">예비고객</button>
-            <button class="sel-btn db-cf-proc-btn active" data-proc="초기상담" onclick="dbCfProcToggle(this)">초기상담</button>
-            <button class="sel-btn db-cf-proc-btn active" data-proc="매물제안" onclick="dbCfProcToggle(this)">매물제안</button>
-            <button class="sel-btn db-cf-proc-btn active" data-proc="임장" onclick="dbCfProcToggle(this)">임장</button>
-            <button class="sel-btn db-cf-proc-btn active" data-proc="계약" onclick="dbCfProcToggle(this)">계약</button>
-            <button class="sel-btn db-cf-proc-btn active" data-proc="종료" onclick="dbCfProcToggle(this)">종료</button>
+            <button id="db-cf-btn-all-proc" onclick="dbCfProcAll()" class="sel-btn active">전체</button>
+            <button class="sel-btn db-cf-proc-btn" data-proc="예비고객" onclick="dbCfProcToggle(this)">예비고객</button>
+            <button class="sel-btn db-cf-proc-btn" data-proc="초기상담" onclick="dbCfProcToggle(this)">초기상담</button>
+            <button class="sel-btn db-cf-proc-btn" data-proc="매물제안" onclick="dbCfProcToggle(this)">매물제안</button>
+            <button class="sel-btn db-cf-proc-btn" data-proc="임장" onclick="dbCfProcToggle(this)">임장</button>
+            <button class="sel-btn db-cf-proc-btn" data-proc="계약" onclick="dbCfProcToggle(this)">계약</button>
+            <button class="sel-btn db-cf-proc-btn" data-proc="종료" onclick="dbCfProcToggle(this)">종료</button>
           </div>
         </div>
         <!-- 1. 부동산 유형 -->
@@ -7683,50 +7737,57 @@
         <div style="margin-bottom:10px;">
           <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">프로세스</div>
           <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
-            <button id="cf-btn-all-proc" onclick="cfProcAll()" style="padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:11px;cursor:pointer;">전체</button>
-            <button class="cf-proc-btn active" data-proc="예비고객" onclick="cfProcToggle(this)">예비고객</button>
-            <button class="cf-proc-btn active" data-proc="초기상담" onclick="cfProcToggle(this)">초기상담</button>
-            <button class="cf-proc-btn active" data-proc="매물제안" onclick="cfProcToggle(this)">매물제안</button>
-            <button class="cf-proc-btn active" data-proc="임장" onclick="cfProcToggle(this)">임장</button>
-            <button class="cf-proc-btn active" data-proc="계약" onclick="cfProcToggle(this)">계약</button>
+            <button id="cf-btn-all-proc" onclick="cfProcAll()" class="cf-proc-btn active">전체</button>
+            <button class="cf-proc-btn" data-proc="예비고객" onclick="cfProcToggle(this)">예비고객</button>
+            <button class="cf-proc-btn" data-proc="초기상담" onclick="cfProcToggle(this)">초기상담</button>
+            <button class="cf-proc-btn" data-proc="매물제안" onclick="cfProcToggle(this)">매물제안</button>
+            <button class="cf-proc-btn" data-proc="임장" onclick="cfProcToggle(this)">임장</button>
+            <button class="cf-proc-btn" data-proc="계약" onclick="cfProcToggle(this)">계약</button>
             <button class="cf-proc-btn" data-proc="종료" onclick="cfProcToggle(this)">종료</button>
           </div>
         </div>
         <!-- 1. 부동산 유형 -->
         <div style="margin-bottom:10px;">
           <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">부동산 유형</div>
-          <div style="display:flex;gap:4px;">
-            <button class="cf-type-btn active" data-type="아파트" onclick="cfTypeToggle(this)">아파트</button>
-            <button class="cf-type-btn active" data-type="상가" onclick="cfTypeToggle(this)">상가</button>
-            <button class="cf-type-btn active" data-type="토지" onclick="cfTypeToggle(this)">토지</button>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;">
+            <button id="cf-type-all" class="cf-type-btn active" onclick="cfTypeAll()">전체</button>
+            <button class="cf-type-btn" data-type="아파트" onclick="cfTypeToggle(this)">아파트</button>
+            <button class="cf-type-btn" data-type="상가" onclick="cfTypeToggle(this)">상가</button>
+            <button class="cf-type-btn" data-type="토지" onclick="cfTypeToggle(this)">토지</button>
           </div>
         </div>
         <!-- 2. 거래유형 -->
         <div style="margin-bottom:10px;">
           <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">거래유형</div>
           <div style="display:flex;flex-wrap:wrap;gap:4px;">
-            <button class="cf-deal-btn active" data-deal="매매s" onclick="cfDealToggle(this,'매매s')">매매s</button>
-            <button class="cf-deal-btn active" data-deal="전세s" onclick="cfDealToggle(this,'전세s')">전세s</button>
-            <button class="cf-deal-btn active" data-deal="월세s" onclick="cfDealToggle(this,'월세s')">월세s</button>
+            <button id="cf-deal-all" class="cf-deal-btn active" onclick="cfDealSelectAll()">전체</button>
+            <button class="cf-deal-btn" data-deal="매매s" onclick="cfDealToggle(this,'매매s')">매매s</button>
+            <button class="cf-deal-btn" data-deal="전세s" onclick="cfDealToggle(this,'전세s')">전세s</button>
+            <button class="cf-deal-btn" data-deal="월세s" onclick="cfDealToggle(this,'월세s')">월세s</button>
             <button id="cf-deal-expand-btn" onclick="cfDealAll()" style="padding:4px 10px;border-radius:5px;border:1px solid #5a7a8a;background:rgba(90,122,138,0.1);color:#5a7a8a;font-size:11px;cursor:pointer;">+ 전체보기</button>
           </div>
           <div id="cf-deal-expand" style="display:none;flex-wrap:wrap;gap:4px;margin-top:5px;">
-            <button class="cf-dealex-btn active" data-dex="매매" onclick="cfDealExToggle(this)">매매</button>
-            <button class="cf-dealex-btn active" data-dex="전세" onclick="cfDealExToggle(this)">전세</button>
-            <button class="cf-dealex-btn active" data-dex="월세" onclick="cfDealExToggle(this)">월세</button>
-            <button class="cf-dealex-btn active" data-dex="매전세" onclick="cfDealExToggle(this)">매전세</button>
-            <button class="cf-dealex-btn active" data-dex="매월세" onclick="cfDealExToggle(this)">매월세</button>
-            <button class="cf-dealex-btn active" data-dex="전월세" onclick="cfDealExToggle(this)">전월세</button>
-            <button class="cf-dealex-btn active" data-dex="매전월" onclick="cfDealExToggle(this)">매전월</button>
+            <button class="cf-dealex-btn" data-dex="매매" onclick="cfDealExToggle(this)">매매</button>
+            <button class="cf-dealex-btn" data-dex="전세" onclick="cfDealExToggle(this)">전세</button>
+            <button class="cf-dealex-btn" data-dex="월세" onclick="cfDealExToggle(this)">월세</button>
+            <button class="cf-dealex-btn" data-dex="매전세" onclick="cfDealExToggle(this)">매전세</button>
+            <button class="cf-dealex-btn" data-dex="매월세" onclick="cfDealExToggle(this)">매월세</button>
+            <button class="cf-dealex-btn" data-dex="전월세" onclick="cfDealExToggle(this)">전월세</button>
+            <button class="cf-dealex-btn" data-dex="매전월" onclick="cfDealExToggle(this)">매전월</button>
           </div>
         </div>
         <!-- 3. 예산 범위 -->
         <div style="margin-bottom:10px;">
-          <div style="font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;">예산 범위 (만원)</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
-            <div><div style="color:var(--text3);margin-bottom:3px;">매매가 초과~이하</div><div style="display:flex;gap:3px;align-items:center;flex-wrap:wrap;"><input id="cf-price-min" class="ef-input" type="number" placeholder="초과" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-price-min-hint')"><span id="cf-price-min-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span><span>~</span><input id="cf-price-max" class="ef-input" type="number" placeholder="이하" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-price-max-hint')"><span id="cf-price-max-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span></div></div>
-            <div><div style="color:var(--text3);margin-bottom:3px;">보증금 초과~이하</div><div style="display:flex;gap:3px;align-items:center;flex-wrap:wrap;"><input id="cf-dep-min" class="ef-input" type="number" placeholder="초과" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-dep-min-hint')"><span id="cf-dep-min-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span><span>~</span><input id="cf-dep-max" class="ef-input" type="number" placeholder="이하" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-dep-max-hint')"><span id="cf-dep-max-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span></div></div>
-            <div><div style="color:var(--text3);margin-bottom:3px;">월세 초과~이하</div><div style="display:flex;gap:3px;align-items:center;flex-wrap:wrap;"><input id="cf-rent-min" class="ef-input" type="number" placeholder="초과" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-rent-min-hint')"><span id="cf-rent-min-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span><span>~</span><input id="cf-rent-max" class="ef-input" type="number" placeholder="이하" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-rent-max-hint')"><span id="cf-rent-max-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span></div></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+            <div style="font-size:10px;color:var(--text2);font-weight:600;">예산 범위 (만원)</div>
+            <button id="cf-budget-toggle-btn" onclick="cfToggleBudget()" style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);cursor:pointer;">펼치기</button>
+          </div>
+          <div id="cf-budget-body" style="display:none;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
+              <div><div style="color:var(--text3);margin-bottom:3px;">매매가 초과~이하</div><div style="display:flex;gap:3px;align-items:center;flex-wrap:wrap;"><input id="cf-price-min" class="ef-input" type="number" placeholder="초과" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-price-min-hint')"><span id="cf-price-min-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span><span>~</span><input id="cf-price-max" class="ef-input" type="number" placeholder="이하" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-price-max-hint')"><span id="cf-price-max-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span></div></div>
+              <div><div style="color:var(--text3);margin-bottom:3px;">보증금 초과~이하</div><div style="display:flex;gap:3px;align-items:center;flex-wrap:wrap;"><input id="cf-dep-min" class="ef-input" type="number" placeholder="초과" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-dep-min-hint')"><span id="cf-dep-min-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span><span>~</span><input id="cf-dep-max" class="ef-input" type="number" placeholder="이하" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-dep-max-hint')"><span id="cf-dep-max-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span></div></div>
+              <div><div style="color:var(--text3);margin-bottom:3px;">월세 초과~이하</div><div style="display:flex;gap:3px;align-items:center;flex-wrap:wrap;"><input id="cf-rent-min" class="ef-input" type="number" placeholder="초과" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-rent-min-hint')"><span id="cf-rent-min-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span><span>~</span><input id="cf-rent-max" class="ef-input" type="number" placeholder="이하" style="padding:4px 6px;font-size:11px;flex:1;min-width:60px;" oninput="renderBuyerClassify();showAmountHint(this,'cf-rent-max-hint')"><span id="cf-rent-max-hint" style="font-size:11px;font-weight:700;color:var(--text);white-space:nowrap;"></span></div></div>
+            </div>
           </div>
         </div>
         <!-- 4. 입주일 -->
